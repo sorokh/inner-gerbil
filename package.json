@@ -1,0 +1,24 @@
+{
+  "name": "inner-gerbil",
+  "version": "0.1.0",
+  "description": "The core API for a next generation mutual credit system",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "~4.9.x"
+  },
+  "engines": {
+    "node": "0.12.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dimitrydhondt/inner-gerbil.git"
+  },
+  "keywords": [
+    "node",
+    "heroku"
+  ],
+  "license": "MIT"
+}
