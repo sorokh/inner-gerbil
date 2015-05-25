@@ -114,7 +114,7 @@ var mapping = {
                 imageurl: { onread: $m.removeifnull },
                 login: { onread: $m.removeifnull },
                 password: { onread: $m.remove },
-                unitspersecond: { onread: $m.removeifnull },
+                secondsperunit: { onread: $m.removeifnull },
                 currencyname: { onread: $m.removeifnull },
                 status: {}
             },

@@ -38,7 +38,7 @@ CREATE TABLE "parties" (
     "imageurl" character varying(2048),
     "login" character varying(64),
     "password" character varying(64),
-    "unitspersecond" integer,
+    "secondsperunit" integer,
     "currencyname" character varying(64),
     "status" character varying(32) /* active, inactive, ... */
 );
