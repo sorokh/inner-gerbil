@@ -81,7 +81,7 @@ var mapping = {
                     imageurl: $s.string(1,2048,"URL to a profile image for people, a logo for groups, etc..."),
                     login: $s.string(3,64,"Login for accessing the API. Only people have a login."),
                     password: $s.string(3,64,"Password for accessing the API. Only people have a password. A group is managed by a person that has a relation of type 'administrator' with that group."),
-                    unitspersecond: $s.numeric("If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with the members exist about using time as currency), then this value expresses the number units per second."),
+                    secondsperunit: $s.numeric("If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with the members exist about using time as currency), then this value expresses the number units per second."),
                     currencyname: $s.string(1,64,"The name of the currency, as used by a group"),
                     status: {
                         type: "string",
