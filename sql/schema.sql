@@ -44,11 +44,12 @@ CREATE TABLE "parties" (
 );
 
 CREATE TABLE "relations" (
-  "guid" character varying(36) unique,
-  "from" character varying(36) references "parties"(guid),
-  "to" character varying(36) references "parties"(guid),
-  "balance" bigint,
-  "role" character varying(64)
+    "guid" character varying(36) unique,
+    "from" character varying(36) references "parties"(guid),
+    "to" character varying(36) references "parties"(guid),
+    "type" character varying(64),
+    "balance" bigint,
+    "status" character varying(32) /* active/inactive */
 );
 
 CREATE TABLE "transactions" (
