@@ -119,7 +119,7 @@ var mapping = {
                     type: {
                         type: "string",
                         description: "The type of party this resource describes.",
-                        enum: ["person","organisation","group","connector"]
+                        enum: ["person","organisation","subgroup","group","connector"]
                     },
                     name: $s.string(1,256,"The name of the party. If it is a person with a christian name you should store [firstname initials/middlename lastname]. As there is no real universal format for naming people, we do not impose one here. (Like making 2 fields, firstname and lastname would do)"),
                     alias: $s.string(1,64,"Handle the party wants to be known by."),
@@ -331,8 +331,19 @@ var mapping = {
 sri4node.configure(app, pg, mapping);
 app.set('port', (process.env.PORT || 5000));
 
+var welcome = "<p>Welcome to the <a href='https://github.com/dimitrydhondt/inner-gerbil'>Inner Gerbil API.</a></p>" +
+    "<p>You can access the following resources :</p>" +
+    "<ul>" +
+    "<li>Parties : <a href='/parties'>/parties<a></li>" +
+    "<li>Relations : <a href='/relations'>/relations<a></li>" +
+    "<li>Contact details for parties : <a href='/contactdetails'>/contactdetails<a></li>" +
+    "<li>Transactions : <a href='/transactions'>/transactions<a></li>" +
+    "<li>Trace of transactions : <a href='/transactionrelations'>/transactionrelations<a></li>" +
+    "</ul>";
+
+    
 app.get('/', function(request, response) {
-  response.send('Welcome to the Inner Gerbil API.');
+  response.send(welcome);
 });
 
 app.listen(app.get('port'), function() {
