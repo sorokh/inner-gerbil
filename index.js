@@ -274,7 +274,7 @@ var mapping = {
                 title: "A transaction between two parties in a mutual credit system.",
                 type: "object",
                 properties : {
-                    from: $s.permalink('/parties','The party that sends proivdes mutual credit.'),
+                    from: $s.permalink('/parties','The party that provides mutual credit.'),
                     to: $s.permalink('/parties','The party that receives mutual credit.'),
                     amount: $s.numeric("The amount of credit. If this is a time-bank it is expressed in seconds."),
                     description: $s.string(1,256,"A short messages accompanying the transaction.")
