@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var pg = require('pg');
+var Q = require('q');
 var sri4node = require('sri4node');
 var $u = sri4node.utils;
 var $m = sri4node.mapUtils;
@@ -19,6 +20,51 @@ function debug(x) {
         console.log(x);
     }
 }
+
+function allParentsOf(value, sql, database) {
+    var deferred = Q.defer();
+    var key = value.split("/")[2];
+    
+    debug(key);
+    
+    deferred.resolve();
+    return deferred.promise;
+}
+
+// filterReferencedType("/parties", "from");
+function filterReferencedType(resourcetype, columnname) {
+    return function(value, query, parameter) {
+        var syntax = function() {
+            debug("ignoring parameter [" + parameter + "] - syntax error. [" + value + "]");
+        };
+
+        if(value) {
+            var permalinks = value.split(",");
+            var guids = [];
+            for(var i=0; i<permalinks.length; i++) {
+                if(permalinks[i].indexOf(resourcetype + "/") == 0) {
+                    var guid = permalinks[i].substr(resourcetype.length + 1);
+                    if(guid.length == 36) {
+                        guids.push(guid);
+                    } else {
+                        debug('guid length : ' + guid.length);
+                        syntax();
+                        return;
+                    }
+                } else {
+                    syntax();
+                    return;
+                }
+            }
+            if(guid.length == 36) {
+                query.sql(' and "' + columnname + '" in (').array(guids).sql(') ');
+            } else {
+                syntax();
+                return;
+            }
+        }
+    }
+};
 
 var databaseUrl = process.env.DATABASE_URL;
 debug(databaseUrl);
@@ -99,9 +145,7 @@ var mapping = {
             // Supported URL parameters are configured
             // this allows filtering on the list resource.
             query: {
-                //authors: contains('authors'),
-                //themes: contains('themes'),
-                //html: contains('html')
+                allParentsOf: allParentsOf
             },
             // All columns in the table that appear in the
             // resource should be declared.
@@ -159,6 +203,123 @@ var mapping = {
                 type: {},
                 balance: {},
                 status: {}
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/contactdetails",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "A contact detail of one of the parties involves in a mutual credit system. It can be an adres, e-mail, website, facebook, etc.. etc..",
+                type: "object",
+                properties : {
+                    party: $s.permalink('/parties','The party this contactdetail applies to.'),
+                    type: {
+                        type: "string",
+                        description: "The type of contactdetail.",
+                        enum: ["address","email","facebook","website"]
+                    },
+                    label: $s.string(1,128,"A display label for this contact detail."),
+                    
+                    /* Generic value of the contact detail */
+                    value: $s.string(1,2048, "Value for this contact detail. Addresses use different fields."),
+                    /* Address fields */
+                    street: $s.string(1,256,"Streetname of the address of residence."),
+                    streetnumber: $s.string(1,16,"Street number of the address of residence."),
+                    streetbus: $s.string(1,16,"Postal box of the address of residence."),
+                    zipcode: $s.zipcode("4 digit postal code of the city for the address of residence."),
+                    city: $s.string(1,64,"City for the address of residence."),
+                    latitude: $s.numeric("Latitude of the address."),
+                    longitude: $s.numeric("Longitude of the address."),
+                    
+                    public: $s.boolean("Is this contact detail visible to other members of your group (and all it's subgroups ?")
+                },
+                required: ["type","public"]
+            },
+            map: {
+                party: { references: '/parties' },
+                type: {},
+                label: { onread: $m.removeifnull },
+                
+                value: { onread: $m.removeifnull },
+                
+                street: { onread: $m.removeifnull },
+                streetnumber: { onread: $m.removeifnull },
+                streetbus: { onread: $m.removeifnull },
+                zipcode: { onread: $m.removeifnull },
+                city: { onread: $m.removeifnull },
+                latitude: { onread: $m.removeifnull },
+                longitude: { onread: $m.removeifnull },
+                
+                public: {}
+            },
+            validate: [],
+            query: {
+                parties : filterReferencedType('parties','party')
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/transactions",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "A transaction between two parties in a mutual credit system.",
+                type: "object",
+                properties : {
+                    from: $s.permalink('/parties','The party that sends proivdes mutual credit.'),
+                    to: $s.permalink('/parties','The party that receives mutual credit.'),
+                    amount: $s.numeric("The amount of credit. If this is a time-bank it is expressed in seconds."),
+                    description: $s.string(1,256,"A short messages accompanying the transaction.")
+                },
+                required: ["from","to","amount"]
+            },
+            map: {
+                from: { references: '/parties' },
+                to: { references: '/parties' },
+                amount: {},
+                description: { onread: $m.removeifnull }
+            },
+            validate: [],
+            query: {
+                from : filterReferencedType('/parties','from'),
+                to : filterReferencedType('/parties','to')
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/transactionrelations",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "A relation that was affected by a transaction. It's balance was altered by the mentioned transaction. For every transaction in the system these resources provide a record of the details on how the transaction was routed over (possibly multiple) subgroups, groups, connector groups, etc..",
+                type: "object",
+                properties : {
+                    transaction: $s.permalink('/transactions','The transaction this part belongs to.'),
+                    relation: $s.permalink('/relations','The relation that was affected by the transaction.'),
+                    amount: $s.numeric("The amount of credit. If this is a time-bank it is expressed in seconds.")
+                },
+                required: ["transaction","relation","amount"]
+            },
+            map: {
+                transaction: { references: '/transactions' },
+                relation: { references: '/relations' },
+                amount: {}
+            },
+            validate: [],
+            query: {
+                transaction : filterReferencedType('/transactions','transaction'),
+                relation : filterReferencedType('/relations','relation')
             },
             afterupdate: [],
             afterinsert: [],
