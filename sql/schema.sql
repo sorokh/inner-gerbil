@@ -1,5 +1,4 @@
--- Needed for uuid_generate_v4() function.
-CREATE EXTENSION "uuid-ossp";
+SET search_path TO innergerbil;
 
 DROP TABLE IF EXISTS "transactionmessages" CASCADE;
 DROP TABLE IF EXISTS "messagegroups" CASCADE;

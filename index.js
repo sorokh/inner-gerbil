@@ -68,14 +68,15 @@ function filterReferencedType(resourcetype, columnname) {
 
 var databaseUrl = process.env.DATABASE_URL;
 debug(databaseUrl);
+var debug = true;
 
 var mapping = {
     // Log and time HTTP requests ?
     logrequests : true,
     // Log SQL ?
-    logsql: false,
+    logsql: debug,
     // Log debugging information ?
-    logdebug: false,
+    logdebug: debug,
     // The URL of the postgres database
     defaultdatabaseurl : databaseUrl,
     // A function to determine the security function.

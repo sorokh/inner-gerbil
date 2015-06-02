@@ -1,17 +1,23 @@
+SET search_path TO innergerbil;
+
 -- Parties
 -- LETS Groups
 
 INSERT INTO "parties" VALUES ('8bf649b4-c50a-4ee9-9b02-877aa0a71849','group','LETS Regio Dendermonde',null,null,null,null,null,180,'duim','active');
+INSERT INTO "parties" VALUES ('aca5e15d-9f4c-4c79-b906-f7e868b3abc5','subgroup','LETS Lebbeke',null,null,null,null,null,180,'duim','active');
 
 -- People
 INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','test',null,null,'active');
 INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','Steven Buytink',null,'1979-04-01 00:00:00',null,'stevenb','test',null,null,'active');
 
 -- Relations
--- Anna in LETS Dendermonde
-INSERT INTO "relations" VALUES('419e6446-9b3e-4e7d-9381-0c38af0b316a', '5df52f9f-e51f-4942-a810-1496c51e64db','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',-20,'active');
--- Steven in LETS Dendermonde
-INSERT INTO "relations" VALUES('db41c12a-a521-443a-97f1-f0e14658fb78', 'fa17e7f5-ade9-49d4-abf3-dc3722711504','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',20,'active');
+-- LETS Lebbeke is a member of LETS Dendermonde
+INSERT INTO "relations" VALUEs('cddffa35-6a2f-46c4-aa39-5b9040b4f429','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,'active');
+
+-- Anna in LETS Lebbeke
+INSERT INTO "relations" VALUES('419e6446-9b3e-4e7d-9381-0c38af0b316a', '5df52f9f-e51f-4942-a810-1496c51e64db','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',-20,'active');
+-- Steven in LETS Lebbeke
+INSERT INTO "relations" VALUES('db41c12a-a521-443a-97f1-f0e14658fb78', 'fa17e7f5-ade9-49d4-abf3-dc3722711504','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',20,'active');
 
 -- Contactdetails
 -- Anna De Vlaming
