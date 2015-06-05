@@ -1,15 +1,20 @@
 SET search_path TO innergerbil;
 
-DROP TABLE IF EXISTS "transactionmessages" CASCADE;
-DROP TABLE IF EXISTS "messagegroups" CASCADE;
-DROP TABLE IF EXISTS "messagetags" CASCADE;
-DROP TABLE IF EXISTS "messages" CASCADE;
-DROP TABLE IF EXISTS "transactionrelations" CASCADE;
-DROP TABLE IF EXISTS "transactions" CASCADE;
 DROP TABLE IF EXISTS "parties" CASCADE;
 DROP TABLE IF EXISTS "relations" CASCADE;
 DROP TABLE IF EXISTS "contactdetails" CASCADE;
 
+DROP TABLE IF EXISTS "transactions" CASCADE;
+DROP TABLE IF EXISTS "transactionrelations" CASCADE;
+
+DROP TABLE IF EXISTS "messages" CASCADE;
+DROP TABLE IF EXISTS "messagecontactdetails" CASCADE;
+DROP TABLE IF EXISTS "messagetags" CASCADE;
+DROP TABLE IF EXISTS "messageparties" CASCADE;
+DROP TABLE IF EXISTS "messagephotos" CASCADE;
+DROP TABLE IF EXISTS "messagetransactions" CASCADE;
+
+-- Parties and relations
 CREATE TABLE "parties" (
     "guid" character varying(36) unique not null,
     "type" character varying(64) not null,
@@ -53,6 +58,8 @@ CREATE TABLE "contactdetails" (
     "public" boolean not null
 );
 
+-- Transactions
+
 CREATE TABLE "transactions" (
     "guid" character varying(36) unique not null,
     "from" character varying(36) references "parties"(guid) not null,
@@ -68,16 +75,24 @@ CREATE TABLE "transactionrelations" (
     "amount" bigint not null
 );
 
--- MESSAGES
-
+-- Messages
 CREATE TABLE "messages" (
     "guid" character varying(36) unique not null,
     "poster" character varying(36) references "parties"(guid) not null,
-    "posted" timestamp with time zone not null default (now() at time zone 'utc'),
-    "title" character varying(256) not null,
-    "description" character varying(1024),
+    "title" character varying(256) not null,    
+    "description" character varying(2048),
+    "eventdate" timestamp with time zone,
     "amount" integer,
-    "unit" character varying(32)
+    "unit" character varying(32),
+    "created" timestamp with time zone not null default (now() at time zone 'utc'),
+    "modified" timestamp with time zone not null default (now() at time zone 'utc'),
+    "expires" timestamp with time zone not null
+);
+
+CREATE TABLE "messagecontactdetails" (
+    "guid" character varying(36) unique not null,
+    "message" character varying(36) references "messages"(guid) not null,
+    "contactdetail" character varying(36) references "contactdetails"(guid) not null
 );
 
 CREATE TABLE "messagetags" (
@@ -86,14 +101,21 @@ CREATE TABLE "messagetags" (
     "tag" character varying(36)
 );
 
-CREATE TABLE "messagegroups" (
+CREATE TABLE "messageparties" (
     "guid" character varying(36) unique not null,
     "message" character varying(36) references "messages"(guid) not null,
-    "group" character varying(36) references "parties"(guid) not null
+    "party" character varying(36) references "parties"(guid) not null
 );
 
-CREATE TABLE "transactionmessages" (
+CREATE TABLE "messagephotos" (
     "guid" character varying(36) unique not null,
-    "transaction" character varying(36) references "transactions"(guid) not null,
-    "message" character varying(36) references "messages"(guid)
+    "message" character varying(36) references "messages"(guid) not null,
+    "url" character varying(8192) not null,
+    "description" character varying(1024)
+);
+
+CREATE TABLE "messagetransactions" (
+    "guid" character varying(36) unique not null,
+    "message" character varying(36) references "messages"(guid),
+    "transaction" character varying(36) references "transactions"(guid) not null
 );
