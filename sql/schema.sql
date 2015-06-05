@@ -1,8 +1,11 @@
 SET search_path TO innergerbil;
 
-DROP TABLE IF EXISTS "parties" CASCADE;
-DROP TABLE IF EXISTS "relations" CASCADE;
 DROP TABLE IF EXISTS "contactdetails" CASCADE;
+
+DROP TABLE IF EXISTS "parties" CASCADE;
+DROP TABLE IF EXISTS "partycontactdetails" CASCADE;
+
+DROP TABLE IF EXISTS "relations" CASCADE;
 
 DROP TABLE IF EXISTS "transactions" CASCADE;
 DROP TABLE IF EXISTS "transactionrelations" CASCADE;
@@ -13,6 +16,26 @@ DROP TABLE IF EXISTS "messagetags" CASCADE;
 DROP TABLE IF EXISTS "messageparties" CASCADE;
 DROP TABLE IF EXISTS "messagephotos" CASCADE;
 DROP TABLE IF EXISTS "messagetransactions" CASCADE;
+
+-- Contactdetails
+CREATE TABLE "contactdetails" (
+    "guid" text unique not null,
+    
+    "type" text not null,   
+    "label" text,
+
+    "street" text,
+    "streetnumber" text,
+    "streetbus" text,
+    "zipcode" text,
+    "city" text,
+    "latitude" double precision,
+    "longitude" double precision,
+
+    "value" text,
+    
+    "public" boolean not null
+);
 
 -- Parties and relations
 CREATE TABLE "parties" (
@@ -29,6 +52,13 @@ CREATE TABLE "parties" (
     "status" text not null /* active, inactive, ... */
 );
 
+CREATE TABLE "partycontactdetails" (
+    "guid" text unique not null,
+    "party" text references "parties"(guid) not null,
+    "contactdetail" text references "parties"(guid) not null
+);
+
+-- Relationships between parties.
 CREATE TABLE "relations" (
     "guid" text unique not null,
     "from" text references "parties"(guid) not null,
@@ -38,28 +68,7 @@ CREATE TABLE "relations" (
     "status" text not null /* active/inactive */
 );
 
-CREATE TABLE "contactdetails" (
-    "guid" text unique not null,
-    "party" text references "parties"(guid),
-    
-    "type" text not null,
-    "label" text,
-
-    "street" text,
-    "streetnumber" text,
-    "streetbus" text,
-    "zipcode" text,
-    "city" text,
-    "latitude" double precision,
-    "longitude" double precision,
-
-    "value" text,
-    
-    "public" boolean not null
-);
-
 -- Transactions
-
 CREATE TABLE "transactions" (
     "guid" text unique not null,
     "from" text references "parties"(guid) not null,

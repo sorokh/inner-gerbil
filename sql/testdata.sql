@@ -21,10 +21,13 @@ INSERT INTO "relations" VALUES('db41c12a-a521-443a-97f1-f0e14658fb78', 'fa17e7f5
 
 -- Contactdetails
 -- Anna De Vlaming
-INSERT INTO "contactdetails" VALUES('843437b3-29dd-4704-afa8-6b06824b2e92','5df52f9f-e51f-4942-a810-1496c51e64db','address','thuis','Ijzerenweg','14',null,'9280','Lebbeke',50.9961341,4.1464628,null,true);
-INSERT INTO "contactdetails" VALUES('b059ef61-340c-45d8-be4f-02436bcc03d9','5df52f9f-e51f-4942-a810-1496c51e64db','email',null,null,null,null,null,null,null,null,'anna@email.be',true);
+INSERT INTO "contactdetails" VALUES('843437b3-29dd-4704-afa8-6b06824b2e92','address','thuis','Ijzerenweg','14',null,'9280','Lebbeke',50.9961341,4.1464628,null,true);
+INSERT INTO "partycontactdetails" VALUES('986b91dd-1bcc-4703-ae8d-6799442a7518','5df52f9f-e51f-4942-a810-1496c51e64db','843437b3-29dd-4704-afa8-6b06824b2e92');
+INSERT INTO "contactdetails" VALUES('b059ef61-340c-45d8-be4f-02436bcc03d9','email',null,null,null,null,null,null,null,null,'anna@email.be',true);
+INSERT INTO "partycontactdetails" VALUES('469062e5-0c7c-4c0b-9db9-6e1e1676da9c','5df52f9f-e51f-4942-a810-1496c51e64db','b059ef61-340c-45d8-be4f-02436bcc03d9');
 -- LETS Dendermonde
-INSERT INTO "contactdetails" VALUES('96de9531-d777-4dca-9997-7a774d2d7595','8bf649b4-c50a-4ee9-9b02-877aa0a71849','address',null,'Beekveldstraat','1a','2','9280','Lebbeke',50.9948538,4.1473891,null,true);
+INSERT INTO "contactdetails" VALUES('96de9531-d777-4dca-9997-7a774d2d7595','address',null,'Beekveldstraat','1a','2','9280','Lebbeke',50.9948538,4.1473891,null,true);
+INSERT INTO "partycontactdetails" VALUES('5e47192d-1957-4959-89bb-3418ab296080','8bf649b4-c50a-4ee9-9b02-877aa0a71849','96de9531-d777-4dca-9997-7a774d2d7595');
 
 -- Transactions
 INSERT INTO "transactions" VALUES('e068c284-26f1-4d11-acf3-8942610b26e7','5df52f9f-e51f-4942-a810-1496c51e64db','fa17e7f5-ade9-49d4-abf3-dc3722711504',20,null);
@@ -42,3 +45,7 @@ INSERT INTO "messages" VALUES('0cc3d15f-47ef-450a-a0ac-518202d7a67b','5df52f9f-e
 -- For Steven
 INSERT INTO "messages" VALUES('642f3d85-a21e-44d0-b6b3-969746feee9b','fa17e7f5-ade9-49d4-abf3-dc3722711504','Indisch Veggie Etentje','Wie heeft er zin om mee aan te schuiven aan ons veggie Indisch buffet ? Er is plaats voor maximum 16 personen.','2015-04-04',15,'persoon',ARRAY['dienst','aanbod','evenement','eten'],null,'2015-02-03','2015-02-03','2015-04-04');
 INSERT INTO "messages" VALUES('d1c23a0c-4420-4bd3-9fa0-d542b0155a15','fa17e7f5-ade9-49d4-abf3-dc3722711504','Defecte schakelaar','Eén van de schakelaars in mijn living is defect... Wie zou dat voor mij kunnen herstellen ?', null, 20, 'uur',ARRAY['dienst','vraag','herstellen'],null,'2015-02-03','2015-02-03','2015-04-01');
+
+-- Contact details for event
+INSERT INTO "contactdetails" VALUES('3362d325-cf19-4730-8490-583da50e114e','address',null,'Stationstraat','15',null,'9280','Lebbeke',51.0018547,4.1304841,null,true);
+INSERT INTO "messagecontactdetails" VALUES('aac80841-3e05-4139-b8de-8bb5159f893c','d1c23a0c-4420-4bd3-9fa0-d542b0155a15','3362d325-cf19-4730-8490-583da50e114e');
