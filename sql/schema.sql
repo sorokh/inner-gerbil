@@ -55,7 +55,7 @@ CREATE TABLE "parties" (
 CREATE TABLE "partycontactdetails" (
     "guid" text unique not null,
     "party" text references "parties"(guid) not null,
-    "contactdetail" text references "parties"(guid) not null
+    "contactdetail" text references "contactdetails"(guid) not null
 );
 
 -- Relationships between parties.

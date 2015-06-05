@@ -385,16 +385,17 @@ var mapping = {
                 required: ["author","description","tags","created","modified"]
             },
             map: {
-                title: {},
+                author: { references: '/parties' },
+                title: { onread: $m.removeifnull },
                 description: {},
-                eventdate: {},
-                amount: {},
-                unit: {},
+                eventdate: { onread: $m.removeifnull },
+                amount: { onread: $m.removeifnull },
+                unit: { onread: $m.removeifnull },
                 tags: {},
-                photos: {},
+                photos: { onread: $m.removeifnull },
                 created: {},
                 modified: {},
-                expires: {}
+                expires: { onread: $m.removeifnull }
             },
             validate: [],
             query: {
@@ -420,6 +421,56 @@ var mapping = {
             map: {
                 message: { references: '/messages' },
                 contactdetail: { references: '/contactdetails' },
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/messageparties",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "Messages can be posted in more than one group/subgroup. This resource expresses the relationship between a messages and the party where the message is posted.",
+                type: "object",
+                properties : {
+                    message: $s.permalink('/messages','The message that was posted.'),
+                    party: $s.permalink('/parties','The party where a message was posted.'),
+                },
+                required: ['message','party']
+            },
+            map: {
+                message: { references: '/messages' },
+                party: { references: '/parties' },
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/messagetransactions",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "When a transaction is created, and we know it relates to a certain message, we create one or more /messagetransactions resource.",
+                type: "object",
+                properties : {
+                    message: $s.permalink('/messages','The message.'),
+                    transaction: $s.permalink('/transactions','The related transaction.'),
+                },
+                required: ['message','transaction']
+            },
+            map: {
+                message: { references: '/messages' },
+                transaction: { references: '/transactions' },
             },
             validate: [],
             query: {
