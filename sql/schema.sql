@@ -1,100 +1,125 @@
--- Needed for uuid_generate_v4() function.
-CREATE EXTENSION "uuid-ossp";
+SET search_path TO innergerbil;
 
-DROP TABLE IF EXISTS "transactionmessages" CASCADE;
-DROP TABLE IF EXISTS "messagegroups" CASCADE;
-DROP TABLE IF EXISTS "messagetags" CASCADE;
-DROP TABLE IF EXISTS "messages" CASCADE;
-DROP TABLE IF EXISTS "transactionrelations" CASCADE;
-DROP TABLE IF EXISTS "transactions" CASCADE;
-DROP TABLE IF EXISTS "parties" CASCADE;
-DROP TABLE IF EXISTS "relations" CASCADE;
 DROP TABLE IF EXISTS "contactdetails" CASCADE;
 
-CREATE TABLE "parties" (
-    "guid" character varying(36) unique not null,
-    "type" character varying(64) not null,
-    "name" character varying(256) not null,
-    "alias" character varying(64),
-    "dateofbirth" timestamp with time zone,
-    "imageurl" character varying(2048),
-    "login" character varying(64),
-    "password" character varying(64),
-    "secondsperunit" integer,
-    "currencyname" character varying(64),
-    "status" character varying(32) not null /* active, inactive, ... */
-);
+DROP TABLE IF EXISTS "parties" CASCADE;
+DROP TABLE IF EXISTS "partycontactdetails" CASCADE;
 
-CREATE TABLE "relations" (
-    "guid" character varying(36) unique not null,
-    "from" character varying(36) references "parties"(guid) not null,
-    "to" character varying(36) references "parties"(guid) not null,
-    "type" character varying(64) not null,
-    "balance" bigint,
-    "status" character varying(32) not null /* active/inactive */
-);
+DROP TABLE IF EXISTS "relations" CASCADE;
 
+DROP TABLE IF EXISTS "transactions" CASCADE;
+DROP TABLE IF EXISTS "transactionrelations" CASCADE;
+
+DROP TABLE IF EXISTS "messages" CASCADE;
+DROP TABLE IF EXISTS "messagecontactdetails" CASCADE;
+DROP TABLE IF EXISTS "messagetags" CASCADE;
+DROP TABLE IF EXISTS "messageparties" CASCADE;
+DROP TABLE IF EXISTS "messagephotos" CASCADE;
+DROP TABLE IF EXISTS "messagetransactions" CASCADE;
+
+-- Contactdetails
 CREATE TABLE "contactdetails" (
-    "guid" character varying(36) unique not null,
-    "party" character varying(36) references "parties"(guid),
+    "guid" text unique not null,
     
-    "type" character varying(32) not null,
-    "label" character varying(128),
+    "type" text not null,   
+    "label" text,
 
-    "street" character varying(256),
-    "streetnumber" character varying(16),
-    "streetbus" character varying(16),
-    "zipcode" character varying(10),
-    "city" character varying(64),
+    "street" text,
+    "streetnumber" text,
+    "streetbus" text,
+    "zipcode" text,
+    "city" text,
     "latitude" double precision,
     "longitude" double precision,
 
-    "value" character varying(2048),
+    "value" text,
     
     "public" boolean not null
 );
 
+-- Parties and relations
+CREATE TABLE "parties" (
+    "guid" text unique not null,
+    "type" text not null,
+    "name" text not null,
+    "alias" text,
+    "dateofbirth" timestamp with time zone,
+    "imageurl" text,
+    "login" text,
+    "password" text,
+    "secondsperunit" integer,
+    "currencyname" text,
+    "status" text not null /* active, inactive, ... */
+);
+
+CREATE TABLE "partycontactdetails" (
+    "guid" text unique not null,
+    "party" text references "parties"(guid) not null,
+    "contactdetail" text references "contactdetails"(guid) not null
+);
+
+-- Relationships between parties.
+CREATE TABLE "relations" (
+    "guid" text unique not null,
+    "from" text references "parties"(guid) not null,
+    "to" text references "parties"(guid) not null,
+    "type" text not null,
+    "balance" bigint,
+    "status" text not null /* active/inactive */
+);
+
+-- Transactions
 CREATE TABLE "transactions" (
-    "guid" character varying(36) unique not null,
-    "from" character varying(36) references "parties"(guid) not null,
-    "to" character varying(36) references "parties"(guid) not null,
+    "guid" text unique not null,
+    "from" text references "parties"(guid) not null,
+    "to" text references "parties"(guid) not null,
     "amount" bigint not null,
-    "description" character varying(256)
+    "description" text
 );
 
 CREATE TABLE "transactionrelations" (
-    "guid" character varying(36) unique not null,
-    "transaction" character varying(36) references "transactions"(guid) not null,
-    "relation" character varying(36) references "relations"(guid) not null,
+    "guid" text unique not null,
+    "transaction" text references "transactions"(guid) not null,
+    "relation" text references "relations"(guid) not null,
     "amount" bigint not null
 );
 
--- MESSAGES
-
+-- Messages
 CREATE TABLE "messages" (
-    "guid" character varying(36) unique not null,
-    "poster" character varying(36) references "parties"(guid) not null,
-    "posted" timestamp with time zone not null default (now() at time zone 'utc'),
-    "title" character varying(256) not null,
-    "description" character varying(1024),
+    "guid" text unique not null,
+    "author" text references "parties"(guid) not null,
+    "title" text not null,    
+    "description" text,
+    "eventdate" timestamp with time zone,
     "amount" integer,
-    "unit" character varying(32)
+    "unit" text,
+    "tags" text array,
+    "photos" text array,
+    "created" timestamp with time zone not null default (now() at time zone 'utc'),
+    "modified" timestamp with time zone not null default (now() at time zone 'utc'),
+    "expires" timestamp with time zone not null
 );
 
-CREATE TABLE "messagetags" (
-    "guid" character varying(36) unique not null,
-    "message" character varying(36) references "messages"(guid) not null,
-    "tag" character varying(36)
+-- To support postgreSQL full text search :
+-- ALTER TABLE messages ADD COLUMN search tsvector;
+-- CREATE TRIGGER searchupdate BEFORE INSERT OR UPDATE ON messages FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger(search, 'pg_catalog.dutch', title, description);
+-- CREATE INDEX searchindex ON messages USING gin(search);
+-- Example search : SELECT * FROM MESSAGES WHERE search @@ to_tsquery('dutch','schakel:*');
+
+CREATE TABLE "messagecontactdetails" (
+    "guid" text unique not null,
+    "message" text references "messages"(guid) not null,
+    "contactdetail" text references "contactdetails"(guid) not null
 );
 
-CREATE TABLE "messagegroups" (
-    "guid" character varying(36) unique not null,
-    "message" character varying(36) references "messages"(guid) not null,
-    "group" character varying(36) references "parties"(guid) not null
+CREATE TABLE "messageparties" (
+    "guid" text unique not null,
+    "message" text references "messages"(guid) not null,
+    "party" text references "parties"(guid) not null
 );
 
-CREATE TABLE "transactionmessages" (
+CREATE TABLE "messagetransactions" (
     "guid" character varying(36) unique not null,
-    "transaction" character varying(36) references "transactions"(guid) not null,
-    "message" character varying(36) references "messages"(guid)
+    "message" character varying(36) references "messages"(guid),
+    "transaction" character varying(36) references "transactions"(guid) not null
 );

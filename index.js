@@ -68,14 +68,15 @@ function filterReferencedType(resourcetype, columnname) {
 
 var databaseUrl = process.env.DATABASE_URL;
 debug(databaseUrl);
+var verbose = false;
 
 var mapping = {
     // Log and time HTTP requests ?
-    logrequests : true,
+    logrequests : verbose,
     // Log SQL ?
-    logsql: false,
+    logsql: verbose,
     // Log debugging information ?
-    logdebug: false,
+    logdebug: verbose,
     // The URL of the postgres database
     defaultdatabaseurl : databaseUrl,
     // A function to determine the security function.
@@ -95,6 +96,59 @@ var mapping = {
         });
     },
     resources : [
+        {
+            type: "/contactdetails",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "A contact detail of one of the parties involves in a mutual credit system. It can be an adres, e-mail, website, facebook, etc.. etc..",
+                type: "object",
+                properties : {
+                    type: {
+                        type: "string",
+                        description: "The type of contactdetail.",
+                        enum: ["address","email","facebook","website"]
+                    },
+                    label: $s.string("A display label for this contact detail."),
+                    
+                    /* Generic value of the contact detail */
+                    value: $s.string("Value for this contact detail. Addresses use different fields."),
+                    /* Address fields */
+                    street: $s.string("Streetname of the address of residence."),
+                    streetnumber: $s.string("Street number of the address of residence."),
+                    streetbus: $s.string("Postal box of the address of residence."),
+                    zipcode: $s.zipcode("4 digit postal code of the city for the address of residence."),
+                    city: $s.string("City for the address of residence."),
+                    latitude: $s.numeric("Latitude of the address."),
+                    longitude: $s.numeric("Longitude of the address."),
+                    
+                    public: $s.boolean("Is this contact detail visible to other members of your group (and all it's subgroups ?")
+                },
+                required: ["type","public"]
+            },
+            map: {
+                type: {},
+                label: { onread: $m.removeifnull },
+                value: { onread: $m.removeifnull },
+                
+                street: { onread: $m.removeifnull },
+                streetnumber: { onread: $m.removeifnull },
+                streetbus: { onread: $m.removeifnull },
+                zipcode: { onread: $m.removeifnull },
+                city: { onread: $m.removeifnull },
+                latitude: { onread: $m.removeifnull },
+                longitude: { onread: $m.removeifnull },
+                
+                public: {}
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
         {
             // Base url, maps 1:1 with a table in postgres 
             // Same name, except the '/' is removed
@@ -121,14 +175,14 @@ var mapping = {
                         description: "The type of party this resource describes.",
                         enum: ["person","organisation","subgroup","group","connector"]
                     },
-                    name: $s.string(1,256,"The name of the party. If it is a person with a christian name you should store [firstname initials/middlename lastname]. As there is no real universal format for naming people, we do not impose one here. (Like making 2 fields, firstname and lastname would do)"),
-                    alias: $s.string(1,64,"Handle the party wants to be known by."),
+                    name: $s.string("The name of the party. If it is a person with a christian name you should store [firstname initials/middlename lastname]. As there is no real universal format for naming people, we do not impose one here. (Like making 2 fields, firstname and lastname would do)"),
+                    alias: $s.string("Handle the party wants to be known by."),
                     dateofbirth: $s.timestamp("Date of birth for people. Other types of parties don't have a date of birth."),
-                    imageurl: $s.string(1,2048,"URL to a profile image for people, a logo for groups, etc..."),
-                    login: $s.string(3,64,"Login for accessing the API. Only people have a login."),
-                    password: $s.string(3,64,"Password for accessing the API. Only people have a password. A group is managed by a person that has a relation of type 'administrator' with that group."),
+                    imageurl: $s.string("URL to a profile image for people, a logo for groups, etc..."),
+                    login: $s.string("Login for accessing the API. Only people have a login.",3),
+                    password: $s.string("Password for accessing the API. Only people have a password. A group is managed by a person that has a relation of type 'administrator' with that group.",3),
                     secondsperunit: $s.numeric("If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with the members exist about using time as currency), then this value expresses the number units per second."),
-                    currencyname: $s.string(1,64,"The name of the currency, as used by a group"),
+                    currencyname: $s.string("The name of the currency, as used by a group"),
                     status: {
                         type: "string",
                         description: "The status of this party. Is it active / inactive",
@@ -171,6 +225,31 @@ var mapping = {
             ]
         },
         {
+            type: "/partycontactdetails",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "Parties can have contact details associated. These are scoped in the lifetime of the party.",
+                type: "object",
+                properties : {
+                    party: $s.permalink('/parties','The party the contactdetail belongs to.'),
+                    contactdetail: $s.permalink('/contactdetails','The contactdetail that is associated with the party.'),
+                },
+                required: ['party','contactdetail']
+            },
+            map: {
+                party: { references: '/parties' },
+                contactdetail: { references: '/contactdetails' },
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
             type: "/relations",
             public: true,
             secure : [],
@@ -209,63 +288,6 @@ var mapping = {
             afterdelete: []
         },
         {
-            type: "/contactdetails",
-            public: true,
-            secure : [],
-            schema: {
-                $schema: "http://json-schema.org/schema#",
-                title: "A contact detail of one of the parties involves in a mutual credit system. It can be an adres, e-mail, website, facebook, etc.. etc..",
-                type: "object",
-                properties : {
-                    party: $s.permalink('/parties','The party this contactdetail applies to.'),
-                    type: {
-                        type: "string",
-                        description: "The type of contactdetail.",
-                        enum: ["address","email","facebook","website"]
-                    },
-                    label: $s.string(1,128,"A display label for this contact detail."),
-                    
-                    /* Generic value of the contact detail */
-                    value: $s.string(1,2048, "Value for this contact detail. Addresses use different fields."),
-                    /* Address fields */
-                    street: $s.string(1,256,"Streetname of the address of residence."),
-                    streetnumber: $s.string(1,16,"Street number of the address of residence."),
-                    streetbus: $s.string(1,16,"Postal box of the address of residence."),
-                    zipcode: $s.zipcode("4 digit postal code of the city for the address of residence."),
-                    city: $s.string(1,64,"City for the address of residence."),
-                    latitude: $s.numeric("Latitude of the address."),
-                    longitude: $s.numeric("Longitude of the address."),
-                    
-                    public: $s.boolean("Is this contact detail visible to other members of your group (and all it's subgroups ?")
-                },
-                required: ["type","public"]
-            },
-            map: {
-                party: { references: '/parties' },
-                type: {},
-                label: { onread: $m.removeifnull },
-                
-                value: { onread: $m.removeifnull },
-                
-                street: { onread: $m.removeifnull },
-                streetnumber: { onread: $m.removeifnull },
-                streetbus: { onread: $m.removeifnull },
-                zipcode: { onread: $m.removeifnull },
-                city: { onread: $m.removeifnull },
-                latitude: { onread: $m.removeifnull },
-                longitude: { onread: $m.removeifnull },
-                
-                public: {}
-            },
-            validate: [],
-            query: {
-                parties : filterReferencedType('parties','party')
-            },
-            afterupdate: [],
-            afterinsert: [],
-            afterdelete: []
-        },
-        {
             type: "/transactions",
             public: true,
             secure : [],
@@ -277,7 +299,7 @@ var mapping = {
                     from: $s.permalink('/parties','The party that provides mutual credit.'),
                     to: $s.permalink('/parties','The party that receives mutual credit.'),
                     amount: $s.numeric("The amount of credit. If this is a time-bank it is expressed in seconds."),
-                    description: $s.string(1,256,"A short messages accompanying the transaction.")
+                    description: $s.string("A short messages accompanying the transaction.")
                 },
                 required: ["from","to","amount"]
             },
@@ -320,6 +342,138 @@ var mapping = {
             query: {
                 transaction : filterReferencedType('/transactions','transaction'),
                 relation : filterReferencedType('/relations','relation')
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/messages",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "A message posted by a person/organisation.",
+                type: "object",
+                properties : {
+                    author: $s.permalink('/parties','The person/organisation that posted this message.'),
+                    title: $s.string('Title of the message'),
+                    description: $s.string('Message body, in HTML.'),
+                    eventdate: $s.timestamp('If the message has tag "evenement", it must supply an event date/time here.'),
+                    amount: $s.numeric('The amount of currency requested/offered for a certain activity.'),
+                    unit: $s.string('The unit the currency amount applies to. Like : per hour, per item, per person, etc..'),
+                    tags: {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 2,
+                        "uniqueItems": true
+                    },
+                    photos: {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 0,
+                        "uniqueItems": false
+                    },
+                    created: $s.timestamp('When was the message created ?'),
+                    modified: $s.timestamp('When was the message last modified ?'),
+                    expires: $s.timestamp('When should the message be removed ?')
+                },
+                required: ["author","description","tags","created","modified"]
+            },
+            map: {
+                author: { references: '/parties' },
+                title: { onread: $m.removeifnull },
+                description: {},
+                eventdate: { onread: $m.removeifnull },
+                amount: { onread: $m.removeifnull },
+                unit: { onread: $m.removeifnull },
+                tags: {},
+                photos: { onread: $m.removeifnull },
+                created: {},
+                modified: {},
+                expires: { onread: $m.removeifnull }
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/messagecontactdetails",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "Messages can have contact details associated. These are scoped in the lifetime of the message.",
+                type: "object",
+                properties : {
+                    message: $s.permalink('/messages','The message the contactdetail belongs to.'),
+                    contactdetail: $s.permalink('/contactdetails','The contactdetail that is associated with the message.'),
+                },
+                required: ['message','contactdetail']
+            },
+            map: {
+                message: { references: '/messages' },
+                contactdetail: { references: '/contactdetails' },
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/messageparties",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "Messages can be posted in more than one group/subgroup. This resource expresses the relationship between a messages and the party where the message is posted.",
+                type: "object",
+                properties : {
+                    message: $s.permalink('/messages','The message that was posted.'),
+                    party: $s.permalink('/parties','The party where a message was posted.'),
+                },
+                required: ['message','party']
+            },
+            map: {
+                message: { references: '/messages' },
+                party: { references: '/parties' },
+            },
+            validate: [],
+            query: {
+            },
+            afterupdate: [],
+            afterinsert: [],
+            afterdelete: []
+        },
+        {
+            type: "/messagetransactions",
+            public: true,
+            secure : [],
+            schema: {
+                $schema: "http://json-schema.org/schema#",
+                title: "When a transaction is created, and we know it relates to a certain message, we create one or more /messagetransactions resource.",
+                type: "object",
+                properties : {
+                    message: $s.permalink('/messages','The message.'),
+                    transaction: $s.permalink('/transactions','The related transaction.'),
+                },
+                required: ['message','transaction']
+            },
+            map: {
+                message: { references: '/messages' },
+                transaction: { references: '/transactions' },
+            },
+            validate: [],
+            query: {
             },
             afterupdate: [],
             afterinsert: [],
