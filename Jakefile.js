@@ -1,5 +1,6 @@
 ﻿var os = require('os');
 
+// TODO: add clean-database task
 desc('Recreates database.');
 task('create-database', { async: true }, function () {
     var cmds = [
