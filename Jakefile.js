@@ -15,8 +15,8 @@ desc('Recreates database.');
 task('create-database', ['clean-database'], { async: true }, function () {
     var cmds = [
         'psql -U postgres --echo-all < ./sql/schema.sql',
-        'psql -U postgres --echo-all < ./sql/testdata.sql',
-        'psql -U postgres --echo-all < ./sql/privileges.sql'
+        'psql -U postgres --echo-all < ./sql/privileges.sql',
+        'psql -U postgres --echo-all < ./sql/testdata.sql'
     ];
     jake.exec(cmds, { printStdout: true }, function () {
         console.log('Database created.');
