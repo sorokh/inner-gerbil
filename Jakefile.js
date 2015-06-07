@@ -1,18 +1,22 @@
 ﻿var os = require('os');
 
-// TODO: add clean-database task
-desc('Recreates database.');
-task('create-database', { async: true }, function () {
+desc('Cleans database.');
+task('clean-database', { async: true }, function () {
     var cmds = [
-        'psql -U postgres "CREATE SCHEMA innergerbil"',
-        'psql -U postgres "REVOKE ALL PRIVILEGES ON SCHEMA innergerbil FROM gerbil"',
-        'psql -U postgres "REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA innergerbil FROM gerbil"',
-        'psql -U postgres "REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA innergerbil FROM gerbil"',
-        'psql -U postgres "DROP USER gerbil"',
-        'psql -U postgres "CREATE USER gerbil WITH PASSWORD \'inner\'"',
-        'psql -U postgres --file ./sql/schema.sql',
-        'psql -U postgres --file ./sql/testdata.sql',
-        'psql -U postgres --file ./sql/privileges.sql'
+        'psql -U postgres --echo-all < ./sql/clean-database.sql'
+    ];
+    jake.exec(cmds, { printStdout: true }, function () {
+        console.log('Database cleaned.');
+        complete();
+    });
+})
+
+desc('Recreates database.');
+task('create-database', ['clean-database'], { async: true }, function () {
+    var cmds = [
+        'psql -U postgres --echo-all < ./sql/schema.sql',
+        'psql -U postgres --echo-all < ./sql/testdata.sql',
+        'psql -U postgres --echo-all < ./sql/privileges.sql'
     ];
     jake.exec(cmds, { printStdout: true }, function () {
         console.log('Database created.');

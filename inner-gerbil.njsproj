@@ -23,6 +23,7 @@
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Compile Include="index.js" />
+    <Content Include="sql\clean-database.sql" />
     <Content Include="sql\privileges.sql" />
     <Content Include="sql\schema.sql" />
     <Content Include="sql\testdata.sql" />

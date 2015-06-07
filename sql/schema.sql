@@ -1,21 +1,6 @@
+CREATE SCHEMA IF NOT EXISTS innergerbil;
+
 SET search_path TO innergerbil;
-
-DROP TABLE IF EXISTS "contactdetails" CASCADE;
-
-DROP TABLE IF EXISTS "parties" CASCADE;
-DROP TABLE IF EXISTS "partycontactdetails" CASCADE;
-
-DROP TABLE IF EXISTS "relations" CASCADE;
-
-DROP TABLE IF EXISTS "transactions" CASCADE;
-DROP TABLE IF EXISTS "transactionrelations" CASCADE;
-
-DROP TABLE IF EXISTS "messages" CASCADE;
-DROP TABLE IF EXISTS "messagecontactdetails" CASCADE;
-DROP TABLE IF EXISTS "messagetags" CASCADE;
-DROP TABLE IF EXISTS "messageparties" CASCADE;
-DROP TABLE IF EXISTS "messagephotos" CASCADE;
-DROP TABLE IF EXISTS "messagetransactions" CASCADE;
 
 -- Contactdetails
 CREATE TABLE "contactdetails" (
