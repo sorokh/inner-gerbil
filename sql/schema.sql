@@ -57,6 +57,8 @@ CREATE TABLE "partycontactdetails" (
     "party" text references "parties"(guid) not null,
     "contactdetail" text references "contactdetails"(guid) not null
 );
+CREATE INDEX "partycontactdetails-party" ON "partycontactdetails"("party");
+CREATE INDEX "partycontactdetails-contactdetail" ON "partycontactdetails"("contactdetail");
 
 -- Relationships between parties.
 CREATE TABLE "relations" (
@@ -67,6 +69,8 @@ CREATE TABLE "relations" (
     "balance" bigint,
     "status" text not null /* active/inactive */
 );
+CREATE INDEX "relations-from" ON "relations"("from");
+CREATE INDEX "relations-to" ON "relations"("to");
 
 -- Transactions
 CREATE TABLE "transactions" (
@@ -76,6 +80,8 @@ CREATE TABLE "transactions" (
     "amount" bigint not null,
     "description" text
 );
+CREATE INDEX "transactions-from" ON "transactions"("from");
+CREATE INDEX "transactions-to" ON "transactions"("to");
 
 CREATE TABLE "transactionrelations" (
     "guid" text unique not null,
@@ -83,6 +89,8 @@ CREATE TABLE "transactionrelations" (
     "relation" text references "relations"(guid) not null,
     "amount" bigint not null
 );
+CREATE INDEX "transactionrelations-transaction" ON "transactionrelations"("transaction");
+CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("relation");
 
 -- Messages
 CREATE TABLE "messages" (
@@ -99,6 +107,7 @@ CREATE TABLE "messages" (
     "modified" timestamp with time zone not null default (now() at time zone 'utc'),
     "expires" timestamp with time zone not null
 );
+CREATE INDEX "messages-author" ON "messages"("author");
 
 -- To support postgreSQL full text search :
 -- ALTER TABLE messages ADD COLUMN search tsvector;
@@ -111,15 +120,21 @@ CREATE TABLE "messagecontactdetails" (
     "message" text references "messages"(guid) not null,
     "contactdetail" text references "contactdetails"(guid) not null
 );
+CREATE INDEX "messagecontactdetails-message" ON "messagecontactdetails"("message");
+CREATE INDEX "messagecontactdetails-contactdetail" ON "messagecontactdetails"("contactdetail");
 
 CREATE TABLE "messageparties" (
     "guid" text unique not null,
     "message" text references "messages"(guid) not null,
     "party" text references "parties"(guid) not null
 );
+CREATE INDEX "messageparties-message" ON "messageparties"("message");
+CREATE INDEX "messageparties-party" ON "messageparties"("party");
 
 CREATE TABLE "messagetransactions" (
     "guid" character varying(36) unique not null,
     "message" character varying(36) references "messages"(guid),
     "transaction" character varying(36) references "transactions"(guid) not null
 );
+CREATE INDEX "messagetransactions-party" ON "messagetransactions"("message");
+CREATE INDEX "messagetransactions-transaction" ON "messagetransactions"("transaction");
