@@ -1,4 +1,5 @@
 var express = require('express');
+var compress = require('compression');
 var app = express();
 var pg = require('pg');
 var Q = require('q');
@@ -6,6 +7,7 @@ var sri4node = require('sri4node');
 var $u = sri4node.utils;
 var $m = sri4node.mapUtils;
 var $s = sri4node.schemaUtils;
+var $q = sri4node.queryUtils;
 
 var logentries = require('node-logentries');
 var log = logentries.logger({
@@ -31,44 +33,12 @@ function allParentsOf(value, sql, database) {
     return deferred.promise;
 }
 
-// filterReferencedType("/parties", "from");
-function filterReferencedType(resourcetype, columnname) {
-    return function(value, query, parameter) {
-        var syntax = function() {
-            debug("ignoring parameter [" + parameter + "] - syntax error. [" + value + "]");
-        };
-
-        if(value) {
-            var permalinks = value.split(",");
-            var guids = [];
-            for(var i=0; i<permalinks.length; i++) {
-                if(permalinks[i].indexOf(resourcetype + "/") == 0) {
-                    var guid = permalinks[i].substr(resourcetype.length + 1);
-                    if(guid.length == 36) {
-                        guids.push(guid);
-                    } else {
-                        debug('guid length : ' + guid.length);
-                        syntax();
-                        return;
-                    }
-                } else {
-                    syntax();
-                    return;
-                }
-            }
-            if(guid.length == 36) {
-                query.sql(' and "' + columnname + '" in (').array(guids).sql(') ');
-            } else {
-                syntax();
-                return;
-            }
-        }
-    }
-};
-
 var databaseUrl = process.env.DATABASE_URL;
 debug(databaseUrl);
 var verbose = false;
+
+// Make sure all requests are sent with compression if the client supports it.
+app.use(compress()); 
 
 var mapping = {
     // Log and time HTTP requests ?
@@ -118,7 +88,7 @@ var mapping = {
                     street: $s.string("Streetname of the address of residence."),
                     streetnumber: $s.string("Street number of the address of residence."),
                     streetbus: $s.string("Postal box of the address of residence."),
-                    zipcode: $s.zipcode("4 digit postal code of the city for the address of residence."),
+                    zipcode: $s.belgianzipcode("4 digit postal code of the city for the address of residence."),
                     city: $s.string("City for the address of residence."),
                     latitude: $s.numeric("Latitude of the address."),
                     longitude: $s.numeric("Longitude of the address."),
@@ -275,7 +245,11 @@ var mapping = {
                 required: ["from","to","type","balance","status"]
             },
             validate: [],
-            query: {},
+            query: {
+                from: $q.filterReferencedType('/parties','from'),
+                to: $q.filterReferencedType('/parties','to'),
+                type: $q.filterIn('type')
+            },
             map: {
                 from: {references: '/parties'},
                 to: {references: '/parties'},
@@ -311,8 +285,8 @@ var mapping = {
             },
             validate: [],
             query: {
-                from : filterReferencedType('/parties','from'),
-                to : filterReferencedType('/parties','to')
+                from : $q.filterReferencedType('/parties','from'),
+                to : $q.filterReferencedType('/parties','to')
             },
             afterupdate: [],
             afterinsert: [],
@@ -340,8 +314,8 @@ var mapping = {
             },
             validate: [],
             query: {
-                transaction : filterReferencedType('/transactions','transaction'),
-                relation : filterReferencedType('/relations','relation')
+                transaction : $q.filterReferencedType('/transactions','transaction'),
+                relation : $q.filterReferencedType('/relations','relation')
             },
             afterupdate: [],
             afterinsert: [],

@@ -7,11 +7,12 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "compression": "^1.5.0",
     "express": "^4.9.8",
     "node-logentries": "^0.1.4",
     "pg": "^4.3.0",
     "q": "^1.4.1",
-    "sri4node": "1.0.12"
+    "sri4node": "1.0.15"
   },
   "engines": {
     "node": "0.12.2"
