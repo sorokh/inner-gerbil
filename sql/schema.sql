@@ -1,4 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS innergerbil;
+CREATE SCHEMA innergerbil;
 
 SET search_path TO innergerbil;
 
