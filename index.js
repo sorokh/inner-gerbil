@@ -23,19 +23,41 @@ function debug(x) {
     }
 }
 
-function allParentsOf(value, sql, database) {
+function allParentsOf(value, select, parameter, database, count) {
     var deferred = Q.defer();
     var key = value.split("/")[2];
     
-    debug(key);
     
-    deferred.resolve();
+    if(count) {
+        var q = $u.prepareSQL();
+        q.sql(
+            "CREATE TEMP TABLE parents ON COMMIT DROP AS ( "+
+            "  WITH RECURSIVE search_relations(guid) AS ( " +
+            "    VALUES(").param(key).sql(") " +
+            "  UNION " +
+            "    SELECT r.to FROM relations r, search_relations s where r.\"from\" = s.guid " +  
+            "  )"+
+            "  SELECT * FROM search_relations" +
+            ") ");
+        $u.executeSQL(database, q).then(function() {
+            select.sql(" AND guid IN (select guid FROM parents) ");
+            deferred.resolve();
+        }).catch(function(e) {
+            debug(e);
+            deferred.reject(e);
+        });
+    } else {
+        select.sql(" AND guid IN (select guid FROM parents) ");
+        deferred.resolve();
+    }
+
     return deferred.promise;
 }
 
 var databaseUrl = process.env.DATABASE_URL;
+databaseUrl = 'postgres://gerbil:inner@localhost/postgres';
 debug(databaseUrl);
-var verbose = false;
+var verbose = true;
 
 // Make sure all requests are sent with compression if the client supports it.
 app.use(compress()); 
