@@ -4,7 +4,7 @@ SET search_path TO innergerbil;
 
 -- Contactdetails
 CREATE TABLE "contactdetails" (
-    "guid" text unique not null,
+    "key" text unique not null,
     
     "type" text not null,   
     "label" text,
@@ -24,7 +24,7 @@ CREATE TABLE "contactdetails" (
 
 -- Parties and relations
 CREATE TABLE "parties" (
-    "guid" text unique not null,
+    "key" text unique not null,
     "type" text not null,
     "name" text not null,
     "alias" text,
@@ -38,18 +38,18 @@ CREATE TABLE "parties" (
 );
 
 CREATE TABLE "partycontactdetails" (
-    "guid" text unique not null,
-    "party" text references "parties"(guid) not null,
-    "contactdetail" text references "contactdetails"(guid) not null
+    "key" text unique not null,
+    "party" text references "parties"(key) not null,
+    "contactdetail" text references "contactdetails"(key) not null
 );
 CREATE INDEX "partycontactdetails-party" ON "partycontactdetails"("party");
 CREATE INDEX "partycontactdetails-contactdetail" ON "partycontactdetails"("contactdetail");
 
 -- Relationships between parties.
 CREATE TABLE "relations" (
-    "guid" text unique not null,
-    "from" text references "parties"(guid) not null,
-    "to" text references "parties"(guid) not null,
+    "key" text unique not null,
+    "from" text references "parties"(key) not null,
+    "to" text references "parties"(key) not null,
     "type" text not null,
     "balance" bigint,
     "status" text not null /* active/inactive */
@@ -59,9 +59,9 @@ CREATE INDEX "relations-to" ON "relations"("to");
 
 -- Transactions
 CREATE TABLE "transactions" (
-    "guid" text unique not null,
-    "from" text references "parties"(guid) not null,
-    "to" text references "parties"(guid) not null,
+    "key" text unique not null,
+    "from" text references "parties"(key) not null,
+    "to" text references "parties"(key) not null,
     "amount" bigint not null,
     "description" text
 );
@@ -69,9 +69,9 @@ CREATE INDEX "transactions-from" ON "transactions"("from");
 CREATE INDEX "transactions-to" ON "transactions"("to");
 
 CREATE TABLE "transactionrelations" (
-    "guid" text unique not null,
-    "transaction" text references "transactions"(guid) not null,
-    "relation" text references "relations"(guid) not null,
+    "key" text unique not null,
+    "transaction" text references "transactions"(key) not null,
+    "relation" text references "relations"(key) not null,
     "amount" bigint not null
 );
 CREATE INDEX "transactionrelations-transaction" ON "transactionrelations"("transaction");
@@ -79,8 +79,8 @@ CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("relation
 
 -- Messages
 CREATE TABLE "messages" (
-    "guid" text unique not null,
-    "author" text references "parties"(guid) not null,
+    "key" text unique not null,
+    "author" text references "parties"(key) not null,
     "title" text not null,    
     "description" text,
     "eventdate" timestamp with time zone,
@@ -101,25 +101,25 @@ CREATE INDEX "messages-author" ON "messages"("author");
 -- Example search : SELECT * FROM MESSAGES WHERE search @@ to_tsquery('dutch','schakel:*');
 
 CREATE TABLE "messagecontactdetails" (
-    "guid" text unique not null,
-    "message" text references "messages"(guid) not null,
-    "contactdetail" text references "contactdetails"(guid) not null
+    "key" text unique not null,
+    "message" text references "messages"(key) not null,
+    "contactdetail" text references "contactdetails"(key) not null
 );
 CREATE INDEX "messagecontactdetails-message" ON "messagecontactdetails"("message");
 CREATE INDEX "messagecontactdetails-contactdetail" ON "messagecontactdetails"("contactdetail");
 
 CREATE TABLE "messageparties" (
-    "guid" text unique not null,
-    "message" text references "messages"(guid) not null,
-    "party" text references "parties"(guid) not null
+    "key" text unique not null,
+    "message" text references "messages"(key) not null,
+    "party" text references "parties"(key) not null
 );
 CREATE INDEX "messageparties-message" ON "messageparties"("message");
 CREATE INDEX "messageparties-party" ON "messageparties"("party");
 
 CREATE TABLE "messagetransactions" (
-    "guid" character varying(36) unique not null,
-    "message" character varying(36) references "messages"(guid),
-    "transaction" character varying(36) references "transactions"(guid) not null
+    "key" character varying(36) unique not null,
+    "message" character varying(36) references "messages"(key),
+    "transaction" character varying(36) references "transactions"(key) not null
 );
 CREATE INDEX "messagetransactions-party" ON "messagetransactions"("message");
 CREATE INDEX "messagetransactions-transaction" ON "messagetransactions"("transaction");

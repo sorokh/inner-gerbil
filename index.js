@@ -42,7 +42,7 @@ app.use(compress());
 
 var mapping = {
     // Log and time HTTP requests ?
-    logrequests : verbose,
+    logrequests : true,
     // Log SQL ?
     logsql: verbose,
     // Log debugging information ?
