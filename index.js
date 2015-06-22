@@ -57,7 +57,7 @@ function allParentsOf(value, select, parameter, database, count) {
 var databaseUrl = process.env.DATABASE_URL;
 databaseUrl = 'postgres://gerbil:inner@localhost/postgres';
 debug(databaseUrl);
-var verbose = true;
+var verbose = false;
 
 // Make sure all requests are sent with compression if the client supports it.
 app.use(compress()); 
