@@ -1,4 +1,4 @@
-﻿var os = require('os');
+var os = require('os');
 
 desc('Cleans database.');
 task('clean-database', { async: true }, function () {
