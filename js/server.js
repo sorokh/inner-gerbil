@@ -13,7 +13,7 @@ function debug(x) {
     console.log(x);
 }
 
-var verbose = false;
+var verbose = true;
 mapping = {
         logrequests : true,
         logsql: verbose,
@@ -36,7 +36,7 @@ mapping = {
             require('./partycontactdetails')(sri4node),
             require('./transactions')(sri4node),
             require('./transactionrelations')(sri4node),
-            require('./messages(sri4node)'),
+            require('./messages')(sri4node),
             require('./messagecontactdetails')(sri4node),
             require('./messageparties')(sri4node),
             require('./messagetransactions')(sri4node)
@@ -56,7 +56,8 @@ var welcome = "<p>Welcome to the <a href='https://github.com/dimitrydhondt/inner
     "<li>Contact details for parties : <a href='/contactdetails'>/contactdetails<a></li>" +
     "<li>Transactions : <a href='/transactions'>/transactions<a></li>" +
     "<li>Trace of transactions : <a href='/transactionrelations'>/transactionrelations<a></li>" +
-    "</ul>";    
+    "<li>Messages : <a href='/messages'>/messages</a></li>" +
+    "</ul>";
 app.get('/', function(request, response) {
   response.send(welcome);
 })
