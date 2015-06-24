@@ -13,7 +13,7 @@ function debug(x) {
     console.log(x);
 }
 
-var verbose = true;
+var verbose = false;
 mapping = {
         logrequests : true,
         logsql: verbose,
