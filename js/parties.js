@@ -71,7 +71,8 @@ exports = module.exports = function(sri4node) {
         // Supported URL parameters are configured
         // this allows filtering on the list resource.
         query: {
-            allParentsOf: allParentsOf
+            allParentsOf: allParentsOf,
+            type: $q.filterILike('type')
         },
         // All columns in the table that appear in the
         // resource should be declared.
