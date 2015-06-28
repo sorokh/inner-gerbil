@@ -12,7 +12,8 @@
     "node-logentries": "^0.1.4",
     "pg": "^4.3.0",
     "q": "^1.4.1",
-    "sri4node": "1.0.17"
+    "sri4node": "1.0.17",
+    "sri4node-client": "^1.0.1"
   },
   "engines": {
     "node": "0.12.2"

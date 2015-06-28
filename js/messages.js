@@ -60,9 +60,9 @@ exports = module.exports = function(sri4node) {
         query: {
         },
         afterread: [
-            $u.addReferencingResources('/messagecontactdetails','message','$$contactdetails'),
-            $u.addReferencingResources('/messageparties','message','$$parties'),
-            $u.addReferencingResources('/messagetransactions','message','$$transaction')
+            $u.addReferencingResources('/messagecontactdetails','message','$$messagecontactdetails'),
+            $u.addReferencingResources('/messageparties','message','$$messageparties'),
+            $u.addReferencingResources('/messagetransactions','message','$$messagetransaction')
         ],
         afterupdate: [],
         afterinsert: [],

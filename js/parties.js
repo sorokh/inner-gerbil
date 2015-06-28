@@ -1,39 +1,25 @@
-function allParentsOf(value, select, parameter, database, count) {
-    var deferred = Q.defer();
-    var key = value.split("/")[2];
-    
-    
-    if(count) {
-        var q = $u.prepareSQL();
-        q.sql(
-            "CREATE TEMP TABLE parents ON COMMIT DROP AS ( "+
-            "  WITH RECURSIVE search_relations(guid) AS ( " +
-            "    VALUES(").param(key).sql(") " +
-            "  UNION " +
-            "    SELECT r.to FROM relations r, search_relations s where r.\"from\" = s.guid " +  
-            "  )"+
-            "  SELECT * FROM search_relations" +
-            ") ");
-        $u.executeSQL(database, q).then(function() {
-            select.sql(" AND guid IN (select guid FROM parents) ");
-            deferred.resolve();
-        }).catch(function(e) {
-            debug(e);
-            deferred.reject(e);
-        });
-    } else {
-        select.sql(" AND guid IN (select guid FROM parents) ");
-        deferred.resolve();
-    }
-
-    return deferred.promise;
-}
+var Q = require('q');
 
 exports = module.exports = function(sri4node) {
     var $u = sri4node.utils;
     var $m = sri4node.mapUtils;
     var $s = sri4node.schemaUtils;
     var $q = sri4node.queryUtils;
+    function allParentsOf(value, select, parameter, database, count) {
+        var deferred = Q.defer();
+        var key = value.split("/")[2];
+
+        var nonrecursive = $u.prepareSQL()
+        nonrecursive.sql('VALUES (').param(key).sql(') ')
+        var recursive = $u.prepareSQL()
+        recursive.sql('SELECT r.to FROM relations r, search_relations s where r."from" = s.key')
+        select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)')
+        select.sql(' AND key IN (SELECT key FROM search_relations) ')
+        select.sql(' AND key != ').param(key).sql(' ')
+        deferred.resolve();
+
+        return deferred.promise;
+    }
     
     return {
         // Base url, maps 1:1 with a table in postgres 
