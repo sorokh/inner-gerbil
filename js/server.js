@@ -13,7 +13,7 @@ function debug(x) {
     console.log(x);
 }
 
-var verbose = true;
+var verbose = false;
 var mapping = require('./config.js')(sri4node, verbose);
 var app = express()
 app.use(compress())

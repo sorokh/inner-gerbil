@@ -72,7 +72,7 @@ exports = module.exports = function(sri4node) {
         // this allows filtering on the list resource.
         query: {
             allParentsOf: allParentsOf,
-            type: $q.filterILike('type')
+            type: $q.filterIn('type')
         },
         // All columns in the table that appear in the
         // resource should be declared.
