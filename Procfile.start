@@ -1,1 +1,1 @@
-web: supervisor --debug -w .,/home/codehawk/prj/sri4node,/home/codehawk/prj/sri4node/js js/server.js
+web: supervisor js/server.js

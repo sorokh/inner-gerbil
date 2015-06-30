@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "foreman start -f Procfile.run",
+    "start": "foreman start -f Procfile.start",
     "test": "mocha"
   },
   "dependencies": {
