@@ -1,5 +1,4 @@
 node_modules
 .env
-run.sh
 debug.sh
 npm-debug.log
