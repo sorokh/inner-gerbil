@@ -56,5 +56,5 @@ exports = module.exports = function(sri4node) {
         afterupdate: [],
         afterinsert: [],
         afterdelete: []
-    };
+    }
 }

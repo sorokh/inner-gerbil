@@ -5,10 +5,9 @@ exports = module.exports = function(sri4node) {
     var $m = sri4node.mapUtils;
     var $s = sri4node.schemaUtils;
     var $q = sri4node.queryUtils;
-    function allParentsOf(value, select, parameter, database, count) {
-        var deferred = Q.defer();
+    
+    function allParentsOf(value, select) {
         var key = value.split("/")[2];
-
         var nonrecursive = $u.prepareSQL()
         nonrecursive.sql('VALUES (').param(key).sql(') ')
         var recursive = $u.prepareSQL()
@@ -16,9 +15,21 @@ exports = module.exports = function(sri4node) {
         select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)')
         select.sql(' AND key IN (SELECT key FROM search_relations) ')
         select.sql(' AND key != ').param(key).sql(' ')
-        deferred.resolve();
-
-        return deferred.promise;
+    }
+    
+    function reachableFrom(value, select) {
+        var key = value.split("/")[2];
+        var nonrecursive = $u.prepareSQL()
+        nonrecursive.sql('VALUES (').param(key).sql(') ')
+        var recursive = $u.prepareSQL()
+        recursive.sql('select r.to FROM relations r, parentsof s where r."from" = s.key')
+        select.with(nonrecursive, 'UNION', recursive, 'parentsof(key)')
+        var nr2 = $u.prepareSQL();
+        nr2.sql('SELECT key FROM parentsof');
+        var r2 = $u.prepareSQL();
+        r2.sql('SELECT r."from" FROM relations r, childrenof c where r."to" = c.key');
+        select.with(nr2, 'UNION', r2, 'childrenof(key)')
+        select.sql(' AND key IN (SELECT key FROM childrenof) ')
     }
     
     return {
@@ -72,6 +83,7 @@ exports = module.exports = function(sri4node) {
         // this allows filtering on the list resource.
         query: {
             allParentsOf: allParentsOf,
+            reachableFrom: reachableFrom,
             type: $q.filterIn('type')
         },
         // All columns in the table that appear in the
@@ -91,6 +103,9 @@ exports = module.exports = function(sri4node) {
         },
         // After update, insert or delete
         // you can perform extra actions.
+        afterread: [
+            $u.addReferencingResources('/partycontactdetails','party','$$partycontactdetails')
+        ],
         afterupdate: [],
         afterinsert: [],
         afterdelete: [ 
