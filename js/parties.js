@@ -9,10 +9,11 @@ exports = module.exports = function (sri4node) {
         $q = sri4node.queryUtils;
 
     function allParentsOf(value, select) {
-        var key = value.split("/")[2];
-        var nonrecursive = $u.prepareSQL();
+        var key = value.split("/")[2],
+            nonrecursive = $u.prepareSQL(),
+            recursive = $u.prepareSQL();
+        
         nonrecursive.sql('VALUES (').param(key).sql(') ');
-        var recursive = $u.prepareSQL();
         recursive.sql('SELECT r.to FROM relations r, search_relations s where r."from" = s.key');
         select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
         select.sql(' AND key IN (SELECT key FROM search_relations) ');
@@ -20,15 +21,16 @@ exports = module.exports = function (sri4node) {
     }
 
     function reachableFrom(value, select) {
-        var key = value.split("/")[2];
-        var nonrecursive = $u.prepareSQL();
+        var key = value.split("/")[2],
+            nonrecursive = $u.prepareSQL(),
+            recursive = $u.prepareSQL(),
+            nr2 = $u.prepareSQL(),
+            r2 = $u.prepareSQL();
+            
         nonrecursive.sql('VALUES (').param(key).sql(') ');
-        var recursive = $u.prepareSQL();
         recursive.sql('select r.to FROM relations r, parentsof s where r."from" = s.key');
         select.with(nonrecursive, 'UNION', recursive, 'parentsof(key)');
-        var nr2 = $u.prepareSQL();
         nr2.sql('SELECT key FROM parentsof');
-        var r2 = $u.prepareSQL();
         r2.sql('SELECT r."from" FROM relations r, childrenof c where r."to" = c.key');
         select.with(nr2, 'UNION', r2, 'childrenof(key)');
         select.sql(' AND key IN (SELECT key FROM childrenof) ');

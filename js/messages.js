@@ -1,21 +1,24 @@
+/*jslint node: true */
+"use strict";
+
 var Q = require('q');
 
-exports = module.exports = function(sri4node) {
-    var $u = sri4node.utils;
-    var $m = sri4node.mapUtils;
-    var $s = sri4node.schemaUtils;
-    var $q = sri4node.queryUtils;
+exports = module.exports = function (sri4node) {
+    var $u = sri4node.utils,
+        $m = sri4node.mapUtils,
+        $s = sri4node.schemaUtils,
+        $q = sri4node.queryUtils;
 
     return {
         type: "/messages",
-        public: true,
+        "public": true,
         secure : [],
         schema: {
             $schema: "http://json-schema.org/schema#",
             title: "A message posted by a person/organisation.",
             type: "object",
             properties : {
-                author: $s.permalink('/parties','The person/organisation that posted this message.'),
+                author: $s.permalink('/parties', 'The person/organisation that posted this message.'),
                 title: $s.string('Title of the message'),
                 description: $s.string('Message body, in HTML.'),
                 eventdate: $s.timestamp('If the message has tag "evenement", it must supply an event date/time here.'),
@@ -41,7 +44,7 @@ exports = module.exports = function(sri4node) {
                 modified: $s.timestamp('When was the message last modified ?'),
                 expires: $s.timestamp('When should the message be removed ?')
             },
-            required: ["author","description","tags","created","modified"]
+            required: ["author", "description", "tags", "created", "modified"]
         },
         map: {
             author: { references: '/parties' },
@@ -60,12 +63,12 @@ exports = module.exports = function(sri4node) {
         query: {
         },
         afterread: [
-            $u.addReferencingResources('/messagecontactdetails','message','$$messagecontactdetails'),
-            $u.addReferencingResources('/messageparties','message','$$messageparties'),
-            $u.addReferencingResources('/messagetransactions','message','$$messagetransaction')
+            $u.addReferencingResources('/messagecontactdetails', 'message', '$$messagecontactdetails'),
+            $u.addReferencingResources('/messageparties', 'message', '$$messageparties'),
+            $u.addReferencingResources('/messagetransactions', 'message', '$$messagetransaction')
         ],
         afterupdate: [],
         afterinsert: [],
         afterdelete: []
     };
-}
+};

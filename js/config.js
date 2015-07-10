@@ -1,12 +1,14 @@
+/*jslint node: true */
+"use strict";
 /* Configuration for sri4node, used for our server.js, but also for mocha tests */
 
-exports = module.exports = function(sri4node, verbose) {
+exports = module.exports = function (sri4node, verbose) {
     return {
         logrequests : true,
         logsql: verbose,
         logdebug: verbose,
         defaultdatabaseurl : "postgres://gerbil:inner@localhost:5432/postgres",
-        identity : function(username, database) {
+        identity : function (username, database) {
             // To Do : implement security context.
             /*
                 var query = $u.prepareSQL("me")
@@ -29,5 +31,5 @@ exports = module.exports = function(sri4node, verbose) {
             require('./messageparties')(sri4node),
             require('./messagetransactions')(sri4node)
         ]
-    }
-}
+    };
+};
