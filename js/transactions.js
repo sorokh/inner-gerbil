@@ -1,24 +1,27 @@
-exports = module.exports = function(sri4node) {
-    var $u = sri4node.utils;
-    var $m = sri4node.mapUtils;
-    var $s = sri4node.schemaUtils;
-    var $q = sri4node.queryUtils;
+/*jslint node: true */
+"use strict";
+
+exports = module.exports = function (sri4node) {
+    var $u = sri4node.utils,
+        $m = sri4node.mapUtils,
+        $s = sri4node.schemaUtils,
+        $q = sri4node.queryUtils;
 
     return {
         type: "/transactions",
-        public: true,
+        "public": true,
         secure : [],
         schema: {
             $schema: "http://json-schema.org/schema#",
             title: "A transaction between two parties in a mutual credit system.",
             type: "object",
             properties : {
-                from: $s.permalink('/parties','The party that provides mutual credit.'),
-                to: $s.permalink('/parties','The party that receives mutual credit.'),
+                from: $s.permalink('/parties', 'The party that provides mutual credit.'),
+                to: $s.permalink('/parties', 'The party that receives mutual credit.'),
                 amount: $s.numeric("The amount of credit. If this is a time-bank it is expressed in seconds."),
                 description: $s.string("A short messages accompanying the transaction.")
             },
-            required: ["from","to","amount"]
+            required: ["from", "to", "amount"]
         },
         map: {
             from: { references: '/parties' },
@@ -28,11 +31,11 @@ exports = module.exports = function(sri4node) {
         },
         validate: [],
         query: {
-            from : $q.filterReferencedType('/parties','from'),
-            to : $q.filterReferencedType('/parties','to')
+            from : $q.filterReferencedType('/parties', 'from'),
+            to : $q.filterReferencedType('/parties', 'to')
         },
         afterupdate: [],
         afterinsert: [],
         afterdelete: []
     };
-}
+};

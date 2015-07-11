@@ -1,12 +1,15 @@
-exports = module.exports = function(sri4node) {
-    var $u = sri4node.utils
-    var $m = sri4node.mapUtils
-    var $s = sri4node.schemaUtils
-    var $q = sri4node.queryUtils
+/*jslint node: true */
+"use strict";
+
+exports = module.exports = function (sri4node) {
+    var $u = sri4node.utils,
+        $m = sri4node.mapUtils,
+        $s = sri4node.schemaUtils,
+        $q = sri4node.queryUtils;
     
     return {
         type: "/contactdetails",
-        public: true,
+        "public": true,
         secure : [],
         schema: {
             $schema: "http://json-schema.org/schema#",
@@ -16,7 +19,7 @@ exports = module.exports = function(sri4node) {
                 type: {
                     type: "string",
                     description: "The type of contactdetail.",
-                    enum: ["address","email","facebook","website"]
+                    "enum": ["address", "email", "facebook", "website"]
                 },
                 label: $s.string("A display label for this contact detail."),
 
@@ -31,9 +34,9 @@ exports = module.exports = function(sri4node) {
                 latitude: $s.numeric("Latitude of the address."),
                 longitude: $s.numeric("Longitude of the address."),
 
-                public: $s.boolean("Is this contact detail visible to other members of your group (and all it's subgroups ?")
+                "public": $s.boolean("Is this contact detail visible to other members of your group (and all it's subgroups ?")
             },
-            required: ["type","public"]
+            required: ["type", "public"]
         },
         map: {
             type: {},
@@ -48,7 +51,7 @@ exports = module.exports = function(sri4node) {
             latitude: { onread: $m.removeifnull },
             longitude: { onread: $m.removeifnull },
 
-            public: {}
+            "public": {}
         },
         validate: [],
         query: {
@@ -56,5 +59,5 @@ exports = module.exports = function(sri4node) {
         afterupdate: [],
         afterinsert: [],
         afterdelete: []
-    }
-}
+    };
+};
