@@ -5,7 +5,7 @@ exports = module.exports = function(sri4node, verbose) {
         logrequests : true,
         logsql: verbose,
         logdebug: verbose,
-        defaultdatabaseurl : "postgres://gerbil:inner@localhost:5432/postgres",
+        defaultdatabaseurl : "postgres://gerbil:inner@localhost:5433/postgres",
         identity : function(username, database) {
             // To Do : implement security context.
             /*

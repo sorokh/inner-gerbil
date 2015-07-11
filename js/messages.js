@@ -1,5 +1,44 @@
 var Q = require('q');
 
+function addRelatedResources(type, column, targetkey) {
+    return function(database, elements) {
+        var deferred = Q.defer()
+
+        if(elements && elements.length && elements.length > 0) {
+            var tablename = type.split('/')[1]
+            var query = prepare()
+            var elementKeys = []
+            var elementKeysToElement = {}
+            elements.forEach(function(element) { 
+                var permalink = element.$$meta.permalink
+                var elementKey = permalink.split('/')[2]
+                elementKeys.push(elementKey)
+                elementKeysToElement[elementKey] = element
+            });
+            console.log(elements)
+            console.log(elementKeys)
+            query.sql('select key,' + column + ' as fkey from ' + tablename + ' where ' + column + ' in (').array(elementKeys).sql(')')
+            pgExec(database, query).then(function(result) {
+                result.rows.forEach(function(row) {
+                    var element = elementKeysToElement[row.fkey]
+                    if(!element[targetkey]) {
+                        element[targetkey] = []
+                    }
+                    element[targetkey].push(type + '/' + row.key)
+                });
+                deferred.resolve()
+            }).fail(function(e) {
+                console.log(e.stack)
+                deferred.reject()
+            })
+        } else {
+            deferred.resolve()
+        }
+
+        return deferred.promise
+    }
+}
+
 exports = module.exports = function(sri4node) {
     var $u = sri4node.utils;
     var $m = sri4node.mapUtils;
@@ -63,6 +102,7 @@ exports = module.exports = function(sri4node) {
             $u.addReferencingResources('/messagecontactdetails','message','$$messagecontactdetails'),
             $u.addReferencingResources('/messageparties','message','$$messageparties'),
             $u.addReferencingResources('/messagetransactions','message','$$messagetransaction')
+//            $u.addReferencingResources('/messagecontactdetails','contactdetail','$$contactdetail')
         ],
         afterupdate: [],
         afterinsert: [],

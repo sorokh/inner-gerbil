@@ -4,7 +4,6 @@
   "description": "The core API for a next generation mutual credit system",
   "main": "index.js",
   "scripts": {
-    "prestart": "npm install",
     "start": "foreman start -f Procfile.start",
     "test": "mocha"
   },
@@ -14,7 +13,7 @@
     "node-logentries": "^0.1.4",
     "pg": "^4.3.0",
     "q": "^1.4.1",
-    "sri4node": "1.0.20",
+    "sri4node": "1.0.21",
     "sri4node-client": "^1.0.1"
   },
   "engines": {

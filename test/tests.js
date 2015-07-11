@@ -67,5 +67,6 @@ describe('/parties', function() {
                 assert.equal(response.body.results[1].$$expanded.type, 'person');
             })
         })
+        })
     })
 })
