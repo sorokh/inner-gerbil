@@ -27,7 +27,7 @@ var welcome = "<p>Welcome to the <a href='https://github.com/dimitrydhondt/inner
     "<p>You can access the following resources :</p>" +
     "<ul>" +
     "<li>Parties : <a href='/parties'>/parties<a></li>" +
-    "<li>Relations : <a href='/relations'>/relations<a></li>" +
+    "<li>Relations : <a href='/partyrelations'>/partyrelations<a></li>" +
     "<li>Contact details for parties : <a href='/contactdetails'>/contactdetails<a></li>" +
     "<li>Transactions : <a href='/transactions'>/transactions<a></li>" +
     "<li>Trace of transactions : <a href='/transactionrelations'>/transactionrelations<a></li>" +

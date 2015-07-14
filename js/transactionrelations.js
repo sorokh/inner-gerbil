@@ -17,20 +17,20 @@ exports = module.exports = function (sri4node) {
             type: "object",
             properties : {
                 transaction: $s.permalink('/transactions', 'The transaction this part belongs to.'),
-                relation: $s.permalink('/relations', 'The relation that was affected by the transaction.'),
+                partyrelation: $s.permalink('/partyrelations', 'The relation that was affected by the transaction.'),
                 amount: $s.numeric("The amount of credit. If this is a time-bank it is expressed in seconds.")
             },
-            required: ["transaction", "relation", "amount"]
+            required: ["transaction", "partyrelation", "amount"]
         },
         map: {
             transaction: { references: '/transactions' },
-            relation: { references: '/relations' },
+            relation: { references: '/partyrelations' },
             amount: {}
         },
         validate: [],
         query: {
             transaction : $q.filterReferencedType('/transactions', 'transaction'),
-            relation : $q.filterReferencedType('/relations', 'relation')
+            relation : $q.filterReferencedType('/partyrelations', 'relation')
         },
         afterupdate: [],
         afterinsert: [],

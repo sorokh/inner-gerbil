@@ -8,7 +8,7 @@ exports = module.exports = function (sri4node) {
         $q = sri4node.queryUtils;
 
     return {
-        type: "/relations",
+        type: "/partyrelations",
         "public": true,
         secure : [],
         schema: {

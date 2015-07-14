@@ -46,7 +46,7 @@ CREATE INDEX "partycontactdetails-party" ON "partycontactdetails"("party");
 CREATE INDEX "partycontactdetails-contactdetail" ON "partycontactdetails"("contactdetail");
 
 -- Relationships between parties.
-CREATE TABLE "relations" (
+CREATE TABLE "partyrelations" (
     "key" text unique not null,
     "from" text references "parties"(key) not null,
     "to" text references "parties"(key) not null,
@@ -54,8 +54,8 @@ CREATE TABLE "relations" (
     "balance" bigint,
     "status" text not null /* active/inactive */
 );
-CREATE INDEX "relations-from" ON "relations"("from");
-CREATE INDEX "relations-to" ON "relations"("to");
+CREATE INDEX "partyrelations-from" ON "partyrelations"("from");
+CREATE INDEX "partyrelations-to" ON "partyrelations"("to");
 
 -- Transactions
 CREATE TABLE "transactions" (
@@ -71,11 +71,11 @@ CREATE INDEX "transactions-to" ON "transactions"("to");
 CREATE TABLE "transactionrelations" (
     "key" text unique not null,
     "transaction" text references "transactions"(key) not null,
-    "relation" text references "relations"(key) not null,
+    "partyrelation" text references "partyrelations"(key) not null,
     "amount" bigint not null
 );
 CREATE INDEX "transactionrelations-transaction" ON "transactionrelations"("transaction");
-CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("relation");
+CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("partyrelation");
 
 -- Messages
 CREATE TABLE "messages" (
