@@ -6,33 +6,31 @@ It can be a private, or a public response, etc...
 
 exports = module.exports = function (sri4node) {
   'use strict';
-  var $u = sri4node.utils,
-    $m = sri4node.mapUtils,
-    $s = sri4node.schemaUtils,
-    $q = sri4node.queryUtils;
+  var $q = sri4node.queryUtils;
 
   return {
-    type: "/messagerelations",
-    "public": true,
+    type: '/messagerelations',
+    'public': true,
     secure: [],
     schema: {
-      $schema: "http://json-schema.org/schema#",
-      title: "A relationship between two messages. A message can be a response to another message, this response can be public (visible in the group), or private, etc...",
-      type: "object",
+      $schema: 'http://json-schema.org/schema#',
+      title: 'A relationship between two messages. A message can be a response to another message,' +
+        ' this response can be public (visible in the group), or private, etc...',
+      type: 'object',
       properties: {
         from: {
-          references: "/messages"
+          references: '/messages'
         },
         to: {
-          references: "/messages"
+          references: '/messages'
         },
         type: {
-          type: "string",
-          description: "The type of relationship. Currently 'response_private' and 'response_public' are in use.",
-          "enum": ["response_private", "response_public"]
+          type: 'string',
+          description: 'The type of relationship. Currently "response_private" and "response_public" are in use.',
+          'enum': ['response_private', 'response_public']
         }
       },
-      required: ["from", "to", "type"]
+      required: ['from', 'to', 'type']
     },
     validate: [],
     query: {
