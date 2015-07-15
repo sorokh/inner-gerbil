@@ -11,7 +11,7 @@ exports = module.exports = function (sri4node) {
       recursive = $u.prepareSQL();
 
     nonrecursive.sql('VALUES (').param(key).sql(') ');
-    recursive.sql('SELECT r.to FROM relations r, search_relations s where r."from" = s.key');
+    recursive.sql('SELECT r.to FROM partyrelations r, search_relations s where r."from" = s.key');
     select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
     select.sql(' AND key IN (SELECT key FROM search_relations) ');
     select.sql(' AND key != ').param(key).sql(' ');
@@ -25,10 +25,10 @@ exports = module.exports = function (sri4node) {
       r2 = $u.prepareSQL();
 
     nonrecursive.sql('VALUES (').param(key).sql(') ');
-    recursive.sql('select r.to FROM relations r, parentsof s where r."from" = s.key');
+    recursive.sql('select r.to FROM partyrelations r, parentsof s where r."from" = s.key');
     select.with(nonrecursive, 'UNION', recursive, 'parentsof(key)');
     nr2.sql('SELECT key FROM parentsof');
-    r2.sql('SELECT r."from" FROM relations r, childrenof c where r."to" = c.key');
+    r2.sql('SELECT r."from" FROM partyrelations r, childrenof c where r."to" = c.key');
     select.with(nr2, 'UNION', r2, 'childrenof(key)');
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
@@ -59,13 +59,19 @@ exports = module.exports = function (sri4node) {
           description: 'The type of party this resource describes.',
           'enum': ['person', 'organisation', 'subgroup', 'group', 'connector']
         },
-        name: $s.string('The name of the party. If it is a person with a christian name you should store [firstname initials/middlename lastname]. As there is no real universal format for naming people, we do not impose one here. (Like making 2 fields, firstname and lastname would do)'),
+        name: $s.string(
+          'The name of the party. If it is a person with a christian name you should store [firstname initials/middlename lastname]. As there is no real universal format for naming people, we do not impose one here. (Like making 2 fields, firstname and lastname would do)'
+        ),
         alias: $s.string('Handle the party wants to be known by.'),
         dateofbirth: $s.timestamp("Date of birth for people. Other types of parties don't have a date of birth."),
         imageurl: $s.string('URL to a profile image for people, a logo for groups, etc...'),
         login: $s.string('Login for accessing the API. Only people have a login.', 3),
-        password: $s.string("Password for accessing the API. Only people have a password. A group is managed by a person that has a relation of type 'administrator' with that group.", 3),
-        secondsperunit: $s.numeric('If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with the members exist about using time as currency), then this value expresses the number units per second.'),
+        password: $s.string(
+          "Password for accessing the API. Only people have a password. A group is managed by a person that has a relation of type 'administrator' with that group.",
+          3),
+        secondsperunit: $s.numeric(
+          'If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with the members exist about using time as currency), then this value expresses the number units per second.'
+        ),
         currencyname: $s.string('The name of the currency, as used by a group'),
         status: {
           type: 'string',
