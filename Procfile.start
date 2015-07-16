@@ -1,1 +1,1 @@
-web: supervisor js/server.js
+web: nodemon --debug --watch . --watch /home/codehawk/prj/sri4node --watch /home/codehawk/prj/sri4node/js js/server.js
