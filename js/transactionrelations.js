@@ -9,7 +9,7 @@ exports = module.exports = function (sri4node) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: "A relation that was affected by a transaction. It's balance was altered by the mentioned transaction. " +
+      title: 'A relation that was affected by a transaction. Its balance was altered by the mentioned transaction. ' +
         'For every transaction in the system these resources provide a record of the details on how the transaction ' +
         'was routed over (possibly multiple) subgroups, groups, connector groups, etc..',
       type: 'object',

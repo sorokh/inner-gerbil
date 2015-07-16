@@ -66,7 +66,7 @@ exports = module.exports = function (sri4node) {
           'we do not impose one here. (Like making 2 fields, firstname and lastname would do)'
         ),
         alias: $s.string('Handle the party wants to be known by.'),
-        dateofbirth: $s.timestamp("Date of birth for people. Other types of parties don't have a date of birth."),
+        dateofbirth: $s.timestamp('Date of birth for people. Other types of parties don\'t have a date of birth.'),
         imageurl: $s.string('URL to a profile image for people, a logo for groups, etc...'),
         login: $s.string('Login for accessing the API. Only people have a login.', 3),
         password: $s.string(
