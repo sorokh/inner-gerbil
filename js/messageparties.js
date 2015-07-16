@@ -4,7 +4,7 @@ exports = module.exports = function (sri4node) {
 
   return {
     type: '/messageparties',
-    'public': true,
+    'public': true, // eslint-disable-line
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',

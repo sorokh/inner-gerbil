@@ -39,7 +39,7 @@ exports = module.exports = function (sri4node) {
     type: '/parties',
     // Is this resource public ?
     // Can it be read / updated / inserted publicly ?
-    'public': true,
+    'public': true, // eslint-disable-line
     // Multiple function that check access control
     // They receive a database object and
     // the security context of the current user.
@@ -51,7 +51,8 @@ exports = module.exports = function (sri4node) {
     // It uses utility functions, for compactness.
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'A person, organisations, subgroup, group, connectorgroup, etc... participating in a mutual credit system.',
+      title: 'A person, organisations, subgroup, group, connectorgroup, etc... ' +
+        'participating in a mutual credit system.',
       type: 'object',
       properties: {
         type: {
@@ -60,17 +61,21 @@ exports = module.exports = function (sri4node) {
           'enum': ['person', 'organisation', 'subgroup', 'group', 'connector']
         },
         name: $s.string(
-          'The name of the party. If it is a person with a christian name you should store [firstname initials/middlename lastname]. As there is no real universal format for naming people, we do not impose one here. (Like making 2 fields, firstname and lastname would do)'
+          'The name of the party. If it is a person with a christian name you should store ' +
+          '[firstname initials/middlename lastname]. As there is no real universal format for naming people, ' +
+          'we do not impose one here. (Like making 2 fields, firstname and lastname would do)'
         ),
         alias: $s.string('Handle the party wants to be known by.'),
         dateofbirth: $s.timestamp("Date of birth for people. Other types of parties don't have a date of birth."),
         imageurl: $s.string('URL to a profile image for people, a logo for groups, etc...'),
         login: $s.string('Login for accessing the API. Only people have a login.', 3),
         password: $s.string(
-          "Password for accessing the API. Only people have a password. A group is managed by a person that has a relation of type 'administrator' with that group.",
+          'Password for accessing the API. Only people have a password. A group is managed by a person that has ' +
+          'a relation of type "administrator" with that group.',
           3),
         secondsperunit: $s.numeric(
-          'If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with the members exist about using time as currency), then this value expresses the number units per second.'
+          'If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with ' +
+          'the members exist about using time as currency), then this value expresses the number units per second.'
         ),
         currencyname: $s.string('The name of the currency, as used by a group'),
         status: {

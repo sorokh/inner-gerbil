@@ -1,15 +1,9 @@
 /*eslint-env node */
 var express = require('express'),
   compress = require('compression'),
-  pg = require('pg'),
-  Q = require('q');
+  pg = require('pg');
 
 var sri4node = require('sri4node');
-
-function debug(x) {
-  'use strict';
-  console.log(x);
-}
 
 var verbose = true;
 var mapping = require('./config.js')(sri4node, verbose);
