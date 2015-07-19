@@ -24,11 +24,12 @@
     <Compile Include="js\contactdetails.js" />
     <Compile Include="js\messagecontactdetails.js" />
     <Compile Include="js\messageparties.js" />
+    <Compile Include="js\messagerelations.js" />
     <Compile Include="js\messages.js" />
     <Compile Include="js\messagetransactions.js" />
     <Compile Include="js\parties.js" />
     <Compile Include="js\partycontactdetails.js" />
-    <Compile Include="js\relations.js" />
+    <Compile Include="js\partyrelations.js" />
     <Compile Include="js\server.js" />
     <Compile Include="js\transactionrelations.js" />
     <Compile Include="js\transactions.js" />
