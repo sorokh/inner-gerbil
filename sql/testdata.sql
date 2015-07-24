@@ -1,4 +1,4 @@
-SET search_path TO innergerbil;
+--SET search_path TO innergerbil;
 
 -- Parties
 -- LETS Groups

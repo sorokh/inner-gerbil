@@ -1,6 +1,6 @@
-CREATE SCHEMA innergerbil;
+--CREATE SCHEMA innergerbil;
 
-SET search_path TO innergerbil;
+--SET search_path TO innergerbil;
 
 -- Contactdetails
 CREATE TABLE "contactdetails" (
