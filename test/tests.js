@@ -17,7 +17,7 @@ var doGet = sriclient.get;
 //var doPut = sriclient.put;
 //var doDelete = sriclient.delete;
 
-var verbose = false;
+var verbose = true;
 
 function debug(x) {
   'use strict';

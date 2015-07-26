@@ -10,7 +10,7 @@ exports = module.exports = function (sri4node) {
       nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL();
 
-    nonrecursive.sql('VALUES (').param(key).sql(') ');
+    nonrecursive.sql('VALUES (').param(key).sql('::uuid) ');
     recursive.sql('SELECT r.to FROM partyrelations r, search_relations s where r."from" = s.key');
     select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
     select.sql(' AND key IN (SELECT key FROM search_relations) ');
@@ -24,7 +24,7 @@ exports = module.exports = function (sri4node) {
       nr2 = $u.prepareSQL(),
       r2 = $u.prepareSQL();
 
-    nonrecursive.sql('VALUES (').param(key).sql(') ');
+    nonrecursive.sql('VALUES (').param(key).sql('::uuid) ');
     recursive.sql('select r.to FROM partyrelations r, parentsof s where r."from" = s.key');
     select.with(nonrecursive, 'UNION', recursive, 'parentsof(key)');
     nr2.sql('SELECT key FROM parentsof');
