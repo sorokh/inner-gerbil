@@ -149,5 +149,53 @@ describe('/parties', function () {
         assert.equal(response.body.results[1].$$expanded.type, 'person');
       });
     });
+
+    it('should support retrieve all children below 1 node', function () {
+      return doGet(base + '/parties?childrenOf=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849')
+        .then(function (response) {
+        var hrefs = [];
+        assert.equal(response.statusCode, 200);
+        response.body.results.forEach(function (item) {
+          hrefs.push(item.href);
+        });
+
+        // LETS Lebbeke
+        if (hrefs.indexOf('/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5') === -1) {
+          assert.fail();
+        }
+        // Steven Buytinck
+        if (hrefs.indexOf('/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504') === -1) {
+          assert.fail();
+        }
+        // Anna
+        if (hrefs.indexOf('/parties/5df52f9f-e51f-4942-a810-1496c51e64db') === -1) {
+          assert.fail();
+        }
+      });
+    });
+
+    it('should support retrieve all children below 1 node & of a certain type', function () {
+      return doGet(base + '/parties?childrenOf=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person')
+        .then(function (response) {
+        var hrefs = [];
+        assert.equal(response.statusCode, 200);
+        response.body.results.forEach(function (item) {
+          hrefs.push(item.href);
+        });
+
+        // LETS Lebbeke should be ABSENT
+        if (hrefs.indexOf('/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5') !== -1) {
+          assert.fail();
+        }
+        // Steven Buytinck
+        if (hrefs.indexOf('/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504') === -1) {
+          assert.fail();
+        }
+        // Anna
+        if (hrefs.indexOf('/parties/5df52f9f-e51f-4942-a810-1496c51e64db') === -1) {
+          assert.fail();
+        }
+      });
+    });
   });
 });
