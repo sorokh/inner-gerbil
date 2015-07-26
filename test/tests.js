@@ -51,13 +51,34 @@ describe('/parties', function () {
       });
     });
 
-    it('should support allParentsOf as URL parameter', function () {
+    it('should support parentsOf as URL parameter', function () {
       // Find parents of LETS Lebbeke, should return LETS Regio Dendermonde
-      return doGet(base + '/parties?allParentsOf=/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5')
+      return doGet(base + '/parties?parentsOf=/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5')
         .then(function (response) {
         assert.equal(response.statusCode, 200);
         assert.equal(response.body.$$meta.count, 1);
         assert.equal(response.body.results[0].href, '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849');
+      });
+    });
+
+    it('should support parentsOf with multiple parameters', function () {
+      return doGet(base + '/parties?parentsOf=' +
+                   '/parties/5df52f9f-e51f-4942-a810-1496c51e64db,/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504')
+        .then(function (response) {
+        var hrefs = [];
+        assert.equal(response.statusCode, 200);
+        assert.equal(response.body.$$meta.count, 2);
+        response.body.results.forEach(function (item) {
+          hrefs.push(item.href);
+        });
+        // LETS Dendermonde
+        if (hrefs.indexOf('/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849') === -1) {
+          assert.fail();
+        }
+        // LETS Lebbeke
+        if (hrefs.indexOf('/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5') === -1) {
+          assert.fail();
+        }
       });
     });
 
@@ -69,16 +90,51 @@ describe('/parties', function () {
         if (response.body.count < 4) {
           assert.fail('Expected all parties');
         }
-        response.body.results.forEach(function(item) {
+        response.body.results.forEach(function (item) {
           hrefs.push(item.href);
         });
-        
+
         // LETS Dendermonde
-        if(hrefs.indexOf('/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849') == -1) assert.fail();
+        if (hrefs.indexOf('/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849') === -1) {
+          assert.fail();
+        }
         // LETS Lebbeke
-        if(hrefs.indexOf('/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5') == -1) assert.fail();
+        if (hrefs.indexOf('/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5') === -1) {
+          assert.fail();
+        }
         // Steven Buytinck
-        if(hrefs.indexOf('/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504') == -1) assert.fail();
+        if (hrefs.indexOf('/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504') === -1) {
+          assert.fail();
+        }
+      });
+    });
+
+    it('should support retrieving reachable parties for multiple start nodes', function () {
+      return doGet(base + '/parties?reachableFrom=/parties/5df52f9f-e51f-4942-a810-1496c51e64db,' +
+                   '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504')
+        .then(function (response) {
+        var hrefs = [];
+        assert.equal(response.statusCode, 200);
+        response.body.results.forEach(function (item) {
+          hrefs.push(item.href);
+        });
+
+        // LETS Dendermonde
+        if (hrefs.indexOf('/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849') === -1) {
+          assert.fail();
+        }
+        // LETS Lebbeke
+        if (hrefs.indexOf('/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5') === -1) {
+          assert.fail();
+        }
+        // Steven Buytinck
+        if (hrefs.indexOf('/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504') === -1) {
+          assert.fail();
+        }
+        // Anna
+        if (hrefs.indexOf('/parties/5df52f9f-e51f-4942-a810-1496c51e64db') === -1) {
+          assert.fail();
+        }
       });
     });
 

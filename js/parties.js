@@ -5,31 +5,85 @@ exports = module.exports = function (sri4node) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function allParentsOf(value, select) {
-    var key = value.split('/')[2],
-      nonrecursive = $u.prepareSQL(),
-      recursive = $u.prepareSQL();
+  function parentsOf(value, select) {
+    var permalinks = value.split(',');
 
-    nonrecursive.sql('VALUES (').param(key).sql('::uuid) ');
-    recursive.sql('SELECT r.to FROM partyrelations r, search_relations s where r."from" = s.key');
+    var keys = [], nonrecursive, recursive;
+
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
+
+    nonrecursive = $u.prepareSQL();
+    recursive = $u.prepareSQL();
+
+    nonrecursive.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        nonrecursive.sql(',');
+      }
+      nonrecursive.sql('(').param(key).sql('::uuid)');
+    });
+
+    recursive.sql('SELECT r.to FROM partyrelations r, search_relations s where r."from" = s.key and r.type=\'member\'');
     select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
     select.sql(' AND key IN (SELECT key FROM search_relations) ');
-    select.sql(' AND key != ').param(key).sql(' ');
+    select.sql(' AND key NOT IN (').array(keys).sql(') ');
   }
 
   function reachableFrom(value, select) {
-    var key = value.split('/')[2],
+    var permalinks = [],
+      keys = [],
       nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL(),
       nr2 = $u.prepareSQL(),
       r2 = $u.prepareSQL();
 
-    nonrecursive.sql('VALUES (').param(key).sql('::uuid) ');
-    recursive.sql('select r.to FROM partyrelations r, parentsof s where r."from" = s.key');
+    permalinks = value.split(',');
+
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
+
+    nonrecursive.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        nonrecursive.sql(',');
+      }
+      nonrecursive.sql('(').param(key).sql('::uuid)');
+    });
+
+    recursive.sql('select r.to FROM partyrelations r, parentsof s where r."from" = s.key and r.type = \'member\'');
     select.with(nonrecursive, 'UNION', recursive, 'parentsof(key)');
     nr2.sql('SELECT key FROM parentsof');
-    r2.sql('SELECT r."from" FROM partyrelations r, childrenof c where r."to" = c.key');
+    r2.sql('SELECT r."from" FROM partyrelations r, childrenof c where r."to" = c.key and r.type = \'member\'');
     select.with(nr2, 'UNION', r2, 'childrenof(key)');
+    select.sql(' AND key IN (SELECT key FROM childrenof) ');
+  }
+
+  function childrenOf(value, select) {
+    var permalinks, keys = [],
+      nonrecursive = $u.prepareSQL(),
+      recursive = $u.prepareSQL();
+
+    permalinks = value.split(',');
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
+
+    nonrecursive.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        nonrecursive.sql(',');
+      }
+      nonrecursive.sql('(').param(key).sql('::uuid)');
+    });
+
+    recursive.sql('SELECT r."from" FROM partyrelations r, childrenof c where r."to" = c.key and r.type = \'member\'');
+    select.with(nonrecursive, 'UNION', recursive, 'childrenof(key)');
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
@@ -94,8 +148,9 @@ exports = module.exports = function (sri4node) {
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
     query: {
-      allParentsOf: allParentsOf,
+      parentsOf: parentsOf,
       reachableFrom: reachableFrom,
+      childrenOf: childrenOf,
       type: $q.filterIn('type')
     },
     // All columns in the table that appear in the
