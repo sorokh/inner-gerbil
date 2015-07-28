@@ -192,6 +192,11 @@ describe('/partyrelations', function () {
   'use strict';
   describe('GET', function () {
     it('should allow full list retrieval.', function () {
+      var PARTY_HREF_DENDERMONDE = '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849';
+      var PARTY_HREF_LEBBEKE = '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5';
+      var PARTY_HREF_ANNA = '/parties/5df52f9f-e51f-4942-a810-1496c51e64db';
+      var PARTY_HREF_STEVEN = '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504';
+
       return doGet(base + '/partyrelations').then(function (response) {
         assert.equal(response.statusCode, 200);
         if (response.body.$$meta.count < 3) {
@@ -205,9 +210,9 @@ describe('/partyrelations', function () {
           '/partyrelations/cddffa35-6a2f-46c4-aa39-5b9040b4f429');
         expect(resultLebbekeDendermondeRelation).to.exist;
         assert.equal(resultLebbekeDendermondeRelation.$$expanded.from.href,
-          '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+          PARTY_HREF_LEBBEKE);
         assert.equal(resultLebbekeDendermondeRelation.$$expanded.to.href,
-          '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849');
+          PARTY_HREF_DENDERMONDE);
 
         // Anna in LETS Lebbeke
         expect(hrefs).to.contain('/partyrelations/419e6446-9b3e-4e7d-9381-0c38af0b316a');
@@ -215,9 +220,9 @@ describe('/partyrelations', function () {
           '/partyrelations/419e6446-9b3e-4e7d-9381-0c38af0b316a');
         expect(resultAnnaLebbekeRelation).to.exist;
         assert.equal(resultAnnaLebbekeRelation.$$expanded.from.href,
-          '/parties/5df52f9f-e51f-4942-a810-1496c51e64db');
+          PARTY_HREF_ANNA);
         assert.equal(resultAnnaLebbekeRelation.$$expanded.to.href,
-          '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+          PARTY_HREF_LEBBEKE);
 
         // Steven in LETS Lebbeke
         expect(hrefs).to.contain('/partyrelations/db41c12a-a521-443a-97f1-f0e14658fb78');
@@ -225,9 +230,9 @@ describe('/partyrelations', function () {
           '/partyrelations/db41c12a-a521-443a-97f1-f0e14658fb78');
         expect(resultStevenLebbekeRelation).to.exist;
         assert.equal(resultStevenLebbekeRelation.$$expanded.from.href,
-          '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504');
+          PARTY_HREF_STEVEN);
         assert.equal(resultStevenLebbekeRelation.$$expanded.to.href,
-          '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+          PARTY_HREF_LEBBEKE);
       });
     });
   });
