@@ -9,7 +9,7 @@ var verbose = true;
 var mapping = require('./config.js')(sri4node, verbose);
 var app = express();
 app.use(compress());
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 5000); // eslint-disable-line
 sri4node.configure(app, pg, mapping);
 
 var welcome =
