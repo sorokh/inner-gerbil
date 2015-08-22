@@ -87,6 +87,23 @@ exports = module.exports = function (sri4node) {
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
+  function relatedToMessages(value, select) {
+    var q = $u.prepareSQL();
+
+    var links, keys, key;
+    keys = [];
+    links = value.split(',');
+    links.forEach(function (link) {
+      key = link.split('/')[2];
+      keys.push(key);
+    });
+
+    q.sql('select party from messageparties where message in (')
+      .array(keys).sql(')');
+    select.with(q, 'relatedmessages');
+    select.sql(' and key in (select party from relatedmessages) ');
+  }
+
   return {
     // Base url, maps 1:1 with a table in postgres
     // Same name, except the '/' is removed
@@ -151,7 +168,15 @@ exports = module.exports = function (sri4node) {
       parentsOf: parentsOf,
       reachableFrom: reachableFrom,
       childrenOf: childrenOf,
+      relatedToMessages: relatedToMessages,
       defaultFilter: $q.defaultFilter
+    },
+    queryDocs: {
+      parentsOf: 'Only retrieve parties that are direct, or indirect parent of given parties',
+      reachableFrom: 'Only retrieve parties that are reachable ' +
+        '(by find all children of the given parties their parents)',
+      childrenOf: 'Only retrieve direct and indirect members of the given parties',
+      relatedToMessages: 'Only retrieve parties where the given messages were posted'
     },
     // All columns in the table that appear in the
     // resource should be declared.

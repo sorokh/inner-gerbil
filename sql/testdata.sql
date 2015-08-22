@@ -5,12 +5,15 @@ SET search_path TO innergerbil;
 
 INSERT INTO "parties" VALUES ('8bf649b4-c50a-4ee9-9b02-877aa0a71849','group','LETS Regio Dendermonde',null,null,null,null,null,180,'duim','active');
 INSERT INTO "parties" VALUES ('aca5e15d-9f4c-4c79-b906-f7e868b3abc5','subgroup','LETS Lebbeke',null,null,null,null,null,180,'duim','active');
+INSERT INTO "parties" VALUES ('0a98e68d-1fb9-4a31-a4e2-9289ee2dd301','group','LETS Hamme',null,null,null,null,null,180,'zaadje','active');
 
 -- People
 INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','test',null,null,'active');
 INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','Steven Buytink',null,'1979-04-01 00:00:00',null,'stevenb','test',null,null,'active');
 -- Eddy is not a member of any group/subgroup/...
-INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1063-01-03',null,'eddym','test',null,null,'active');
+INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,'eddym','test',null,null,'active');
+-- Leen De Baere of LETS Hamme
+INSERT INTO "parties" VALUES ('abcb3c6e-721e-4f7c-ae4a-935e1980f15e','person','Leen De Baere',null,'1980-04-01',null,'leendb','test',null,null,'active');
 
 -- Relations
 -- LETS Lebbeke is a member of LETS Dendermonde
@@ -22,6 +25,8 @@ INSERT INTO "partyrelations" VALUES('419e6446-9b3e-4e7d-9381-0c38af0b316a', '5df
 INSERT INTO "partyrelations" VALUES('db41c12a-a521-443a-97f1-f0e14658fb78', 'fa17e7f5-ade9-49d4-abf3-dc3722711504','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',20,'active');
 -- Eddy USED to be member of LETS Lebbeke, but is not any longer.
 INSERT INTO "partyrelations" VALUES('cf6267a8-f24e-48fe-a6b8-2356a1ab8e6b', '437d9b64-a3b4-467c-9abe-e9410332c1e5','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',0,'inactive');
+-- Leen DB is a member of LETS Hamme
+INSERT INTO "partyrelations" VALUES('912ae080-29fa-4387-b031-c594167601e0', 'abcb3c6e-721e-4f7c-ae4a-935e1980f15e','0a98e68d-1fb9-4a31-a4e2-9289ee2dd301','member',0,'active');
 
 
 -- Contactdetails
@@ -56,6 +61,17 @@ INSERT INTO "messagerelations" VALUES('cc03a9d4-1aef-4c8f-9b05-7b39be514a67','e8
 INSERT INTO "messages" VALUES('642f3d85-a21e-44d0-b6b3-969746feee9b','fa17e7f5-ade9-49d4-abf3-dc3722711504','Indisch Veggie Etentje','Wie heeft er zin om mee aan te schuiven aan ons veggie Indisch buffet ? Er is plaats voor maximum 16 personen.','2015-04-04',15,'persoon',ARRAY['dienst','aanbod','evenement','eten'],null,'2015-02-03','2015-02-03','2015-04-04');
 INSERT INTO "messages" VALUES('d1c23a0c-4420-4bd3-9fa0-d542b0155a15','fa17e7f5-ade9-49d4-abf3-dc3722711504','Defecte schakelaar','Eén van de schakelaars in mijn living is defect... Wie zou dat voor mij kunnen herstellen ?', null, 20, 'uur',ARRAY['dienst','vraag','herstellen'],null,'2015-02-03','2015-02-03','2015-04-01');
 
+-- For Leen
+INSERT INTO "messages" VALUES('e24528a5-b12f-417a-a489-913d5879b895','abcb3c6e-721e-4f7c-ae4a-935e1980f15e','Mooie planten in de aanbieding',null,null,5,'plant',ARRAY['goed','aanbod'],null,'2015-01-11','2015-01-11','2016-01-11');
+
 -- Contact details for event
 INSERT INTO "contactdetails" VALUES('3362d325-cf19-4730-8490-583da50e114e','address',null,'Stationstraat','15',null,'9280','Lebbeke',51.0018547,4.1304841,null,true);
 INSERT INTO "messagecontactdetails" VALUES('aac80841-3e05-4139-b8de-8bb5159f893c','d1c23a0c-4420-4bd3-9fa0-d542b0155a15','3362d325-cf19-4730-8490-583da50e114e');
+
+-- Messages posted to LETS Lebbeke
+INSERT INTO "messageparties" VALUES('1f4cf370-683d-4c87-8523-2e2061706dbc','a998ff05-1291-4399-8604-16001015e147','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+INSERT INTO "messageparties" VALUES('4f386747-865e-4052-b62d-18154c239b77','b7c41d85-687d-4f9e-a4ef-0c67515cbb63','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+INSERT INTO "messageparties" VALUES('8dd608e1-17c1-449a-a161-a4a19c471e4f','1f2e1d34-c3b7-42e8-9478-45cdc0839427','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+INSERT INTO "messageparties" VALUES('df0dfbce-6bb8-4eff-b3aa-0e24a825ccec','0cc3d15f-47ef-450a-a0ac-518202d7a67b','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+-- To LETS Hamme
+INSERT INTO "messageparties" VALUES('568a36bf-a1bb-4fdf-8abc-eb7913c88461','e24528a5-b12f-417a-a489-913d5879b895','0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
