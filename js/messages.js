@@ -4,8 +4,8 @@ exports = module.exports = function (sri4node) {
   'use strict';
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
-    $s = sri4node.schemaUtils;
-    //$q = sri4node.queryUtils;
+    $s = sri4node.schemaUtils,
+    $q = sri4node.queryUtils;
 /*
   function addRelatedResources(database, elements) {
     var deferred = Q.defer();
@@ -67,7 +67,7 @@ exports = module.exports = function (sri4node) {
           items: {
             type: 'string'
           },
-          minItems: 2,
+          minItems: 0,
           uniqueItems: true
         },
         photos: {
@@ -82,9 +82,10 @@ exports = module.exports = function (sri4node) {
         modified: $s.timestamp('When was the message last modified ?'),
         expires: $s.timestamp('When should the message be removed ?')
       },
-      required: ['author', 'description', 'tags', 'created', 'modified']
+      required: ['author', 'description', 'tags', 'photos', 'created', 'modified']
     },
     map: {
+      key: {},
       author: {
         references: '/parties'
       },
@@ -112,7 +113,9 @@ exports = module.exports = function (sri4node) {
       }
     },
     validate: [],
-    query: {},
+    query: {
+      defaultFilter: $q.defaultFilter
+    },
     afterread: [
             $u.addReferencingResources('/messagecontactdetails', 'message', '$$messagecontactdetails'),
             $u.addReferencingResources('/messageparties', 'message', '$$messageparties'),

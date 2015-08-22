@@ -1,6 +1,7 @@
 exports = module.exports = function (sri4node) {
   'use strict';
-  var $s = sri4node.schemaUtils;
+  var $s = sri4node.schemaUtils,
+    $q = sri4node.queryUtils;
 
   return {
     type: '/partycontactdetails',
@@ -17,6 +18,7 @@ exports = module.exports = function (sri4node) {
       required: ['party', 'contactdetail']
     },
     map: {
+      key: {},
       party: {
         references: '/parties'
       },
@@ -25,7 +27,9 @@ exports = module.exports = function (sri4node) {
       }
     },
     validate: [],
-    query: {},
+    query: {
+      defaultFilter: $q.defaultFilter
+    },
     afterupdate: [],
     afterinsert: [],
     afterdelete: []

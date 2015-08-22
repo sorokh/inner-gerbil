@@ -1,6 +1,7 @@
 exports = module.exports = function (sri4node) {
   'use strict';
-  var $s = sri4node.schemaUtils;
+  var $s = sri4node.schemaUtils,
+    $q = sri4node.queryUtils;
 
   return {
     type: '/messagetransactions',
@@ -18,6 +19,7 @@ exports = module.exports = function (sri4node) {
       required: ['message', 'transaction']
     },
     map: {
+      key: {},
       message: {
         references: '/messages'
       },
@@ -26,7 +28,9 @@ exports = module.exports = function (sri4node) {
       }
     },
     validate: [],
-    query: {},
+    query: {
+      defaultFilter: $q.defaultFilter
+    },
     afterupdate: [],
     afterinsert: [],
     afterdelete: []

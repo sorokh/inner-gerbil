@@ -18,6 +18,7 @@ exports = module.exports = function (sri4node) {
         ' this response can be public (visible in the group), or private, etc...',
       type: 'object',
       properties: {
+        key: {},
         from: {
           references: '/messages'
         },
@@ -36,7 +37,7 @@ exports = module.exports = function (sri4node) {
     query: {
       from: $q.filterReferencedType('/messages', 'from'),
       to: $q.filterReferencedType('/messages', 'to'),
-      type: $q.filterIn('type')
+      defaultFilter: $q.defaultFilter
     },
     map: {
       from: {

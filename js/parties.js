@@ -106,7 +106,7 @@ exports = module.exports = function (sri4node) {
     schema: {
       $schema: 'http://json-schema.org/schema#',
       title: 'A person, organisations, subgroup, group, connectorgroup, etc... ' +
-        'participating in a mutual credit system.',
+        'participating in a mutual credit / knowledge exchange system.',
       type: 'object',
       properties: {
         type: {
@@ -151,12 +151,13 @@ exports = module.exports = function (sri4node) {
       parentsOf: parentsOf,
       reachableFrom: reachableFrom,
       childrenOf: childrenOf,
-      type: $q.filterIn('type')
+      defaultFilter: $q.defaultFilter
     },
     // All columns in the table that appear in the
     // resource should be declared.
     // Optionally mapping functions can be given.
     map: {
+      key: {},
       type: {},
       name: {},
       alias: {

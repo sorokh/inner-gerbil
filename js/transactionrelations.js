@@ -21,6 +21,7 @@ exports = module.exports = function (sri4node) {
       required: ['transaction', 'partyrelation', 'amount']
     },
     map: {
+      key: {},
       transaction: {
         references: '/transactions'
       },
@@ -32,7 +33,8 @@ exports = module.exports = function (sri4node) {
     validate: [],
     query: {
       transaction: $q.filterReferencedType('/transactions', 'transaction'),
-      relation: $q.filterReferencedType('/partyrelations', 'relation')
+      relation: $q.filterReferencedType('/partyrelations', 'relation'),
+      defaultFilter: $q.defaultFilter
     },
     afterupdate: [],
     afterinsert: [],

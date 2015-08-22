@@ -9,6 +9,8 @@ INSERT INTO "parties" VALUES ('aca5e15d-9f4c-4c79-b906-f7e868b3abc5','subgroup',
 -- People
 INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','test',null,null,'active');
 INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','Steven Buytink',null,'1979-04-01 00:00:00',null,'stevenb','test',null,null,'active');
+-- Eddy is not a member of any group/subgroup/...
+INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1063-01-03',null,'eddym','test',null,null,'active');
 
 -- Relations
 -- LETS Lebbeke is a member of LETS Dendermonde
@@ -18,6 +20,9 @@ INSERT INTO "partyrelations" VALUEs('cddffa35-6a2f-46c4-aa39-5b9040b4f429','aca5
 INSERT INTO "partyrelations" VALUES('419e6446-9b3e-4e7d-9381-0c38af0b316a', '5df52f9f-e51f-4942-a810-1496c51e64db','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',-20,'active');
 -- Steven in LETS Lebbeke
 INSERT INTO "partyrelations" VALUES('db41c12a-a521-443a-97f1-f0e14658fb78', 'fa17e7f5-ade9-49d4-abf3-dc3722711504','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',20,'active');
+-- Eddy USED to be member of LETS Lebbeke, but is not any longer.
+INSERT INTO "partyrelations" VALUES('cf6267a8-f24e-48fe-a6b8-2356a1ab8e6b', '437d9b64-a3b4-467c-9abe-e9410332c1e5','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',0,'inactive');
+
 
 -- Contactdetails
 -- Anna De Vlaming
@@ -42,6 +47,11 @@ INSERT INTO "messages" VALUES('a998ff05-1291-4399-8604-16001015e147','5df52f9f-e
 INSERT INTO "messages" VALUES('b7c41d85-687d-4f9e-a4ef-0c67515cbb63','5df52f9f-e51f-4942-a810-1496c51e64db','Rabarberchutnet','Zelfgemaakte chutney van rabarber met abrikoos, limoen, gember, pepertjes en nog andere kruiden.',null,5,'potje (150gr)',ARRAY['goed','aanbod','artisanaal'],null,'2015-01-13','2015-01-14','2016-01-13');
 INSERT INTO "messages" VALUES('1f2e1d34-c3b7-42e8-9478-45cdc0839427','5df52f9f-e51f-4942-a810-1496c51e64db','Vegetarisch kookles','Ben je pas veggie, of wil je dat graag worden ? Ik geef je graag wat meer uitleg, onder het bereiden van een lekker gerecht. Leer zélf lekker eten klaar te maken !',null,20,'uur',ARRAY['dienst','aanbod','huishoudelijk','koken'],null,'2015-01-13','2015-01-14','2016-01-13');
 INSERT INTO "messages" VALUES('0cc3d15f-47ef-450a-a0ac-518202d7a67b','5df52f9f-e51f-4942-a810-1496c51e64db','Bio Asperges','Ik heb, zoals elk voorjaar, een overproductie aan zelfgekweekte bio-asperges. Wie wil er een bussel ? Ik kan ze komen brengen (per fiets).',null,15,'bussel',ARRAY['goed','aanbod','artisanaal','tuin'],null,'2015-01-23','2015-01-25','2015-05-01');
+-- reply by Steven to previous message from Anna.
+-- no tags, no pictures, no expiry, no amount.
+INSERT INTO "messages" VALUES('e8a73a40-bfcd-4f5a-9f8a-9355cc956af0','fa17e7f5-ade9-49d4-abf3-dc3722711504',null,'Ik wil wel een aantal asperges letsen.',null,null,null,ARRAY[]::text[],ARRAY[]::text[],'2015-01-27','2015-01-27',null);
+INSERT INTO "messagerelations" VALUES('cc03a9d4-1aef-4c8f-9b05-7b39be514a67','e8a73a40-bfcd-4f5a-9f8a-9355cc956af0','0cc3d15f-47ef-450a-a0ac-518202d7a67b','response_private');
+                              
 -- For Steven
 INSERT INTO "messages" VALUES('642f3d85-a21e-44d0-b6b3-969746feee9b','fa17e7f5-ade9-49d4-abf3-dc3722711504','Indisch Veggie Etentje','Wie heeft er zin om mee aan te schuiven aan ons veggie Indisch buffet ? Er is plaats voor maximum 16 personen.','2015-04-04',15,'persoon',ARRAY['dienst','aanbod','evenement','eten'],null,'2015-02-03','2015-02-03','2015-04-04');
 INSERT INTO "messages" VALUES('d1c23a0c-4420-4bd3-9fa0-d542b0155a15','fa17e7f5-ade9-49d4-abf3-dc3722711504','Defecte schakelaar','Eén van de schakelaars in mijn living is defect... Wie zou dat voor mij kunnen herstellen ?', null, 20, 'uur',ARRAY['dienst','vraag','herstellen'],null,'2015-02-03','2015-02-03','2015-04-01');

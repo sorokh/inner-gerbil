@@ -51,7 +51,7 @@ CREATE TABLE "partyrelations" (
     "from" uuid references "parties"(key) not null,
     "to" uuid references "parties"(key) not null,
     "type" text not null,
-    "balance" bigint,
+    "balance" integer,
     "status" text not null /* active/inactive */
 );
 CREATE INDEX "partyrelations-from" ON "partyrelations"("from");
@@ -62,7 +62,7 @@ CREATE TABLE "transactions" (
     "key" uuid unique not null,
     "from" uuid references "parties"(key) not null,
     "to" uuid references "parties"(key) not null,
-    "amount" bigint not null,
+    "amount" integer not null,
     "description" text
 );
 CREATE INDEX "transactions-from" ON "transactions"("from");
@@ -72,7 +72,7 @@ CREATE TABLE "transactionrelations" (
     "key" uuid unique not null,
     "transaction" uuid references "transactions"(key) not null,
     "partyrelation" uuid references "partyrelations"(key) not null,
-    "amount" bigint not null
+    "amount" integer not null
 );
 CREATE INDEX "transactionrelations-transaction" ON "transactionrelations"("transaction");
 CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("partyrelation");
@@ -81,7 +81,7 @@ CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("partyrel
 CREATE TABLE "messages" (
     "key" uuid unique not null,
     "author" uuid references "parties"(key) not null,
-    "title" text not null,    
+    "title" text,    -- not required for responses.
     "description" text,
     "eventdate" timestamp with time zone,
     "amount" integer,
@@ -90,7 +90,7 @@ CREATE TABLE "messages" (
     "photos" text array,
     "created" timestamp with time zone not null default (now() at time zone 'utc'),
     "modified" timestamp with time zone not null default (now() at time zone 'utc'),
-    "expires" timestamp with time zone not null
+    "expires" timestamp with time zone -- not required for responses.
 );
 CREATE INDEX "messages-author" ON "messages"("author");
 
@@ -123,3 +123,12 @@ CREATE TABLE "messagetransactions" (
 );
 CREATE INDEX "messagetransactions-party" ON "messagetransactions"("message");
 CREATE INDEX "messagetransactions-transaction" ON "messagetransactions"("transaction");
+
+CREATE TABLE "messagerelations" (
+    "key" uuid unique not null,
+    "from" uuid references "messages"(key) not null,
+    "to" uuid references "messages"(key) not null,
+    "type" text not null
+);
+CREATE INDEX "messagerelations-from" ON "messagerelations"("from");
+CREATE INDEX "messagerelations-to" ON "messagerelations"("to");

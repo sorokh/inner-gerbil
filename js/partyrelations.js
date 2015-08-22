@@ -29,7 +29,7 @@ exports = module.exports = function (sri4node) {
         },
         balance: $s.numeric(
           'The balance (currency) of party A in his relationship with party B. Positive means party "from" has ' +
-          'credit, negative means party "from" has depth.'
+          'credit, negative means party "from" has debt.'
         ),
         status: {
           type: 'string',
@@ -43,9 +43,10 @@ exports = module.exports = function (sri4node) {
     query: {
       from: $q.filterReferencedType('/parties', 'from'),
       to: $q.filterReferencedType('/parties', 'to'),
-      type: $q.filterIn('type')
+      defaultFilter: $q.defaultFilter
     },
     map: {
+      key: {},
       from: {
         references: '/parties'
       },

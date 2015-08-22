@@ -2,7 +2,8 @@ exports = module.exports = function (sri4node) {
   'use strict';
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
-    $s = sri4node.schemaUtils;
+    $s = sri4node.schemaUtils,
+    $q = sri4node.queryUtils;
 
   function relatedToMessages(value, select) {
     var q = $u.prepareSQL();
@@ -55,6 +56,7 @@ exports = module.exports = function (sri4node) {
       required: ['type', 'public']
     },
     map: {
+      key: {},
       type: {},
       label: {
         onread: $m.removeifnull
@@ -89,7 +91,8 @@ exports = module.exports = function (sri4node) {
     },
     validate: [],
     query: {
-      relatedToMessages: relatedToMessages
+      relatedToMessages: relatedToMessages,
+      defaultFilter: $q.defaultFilter
     },
     afterupdate: [],
     afterinsert: [],
