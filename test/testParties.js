@@ -146,6 +146,15 @@ exports = module.exports = function (base, logverbose) {
             expect(hrefs).to.contain('/parties/5df52f9f-e51f-4942-a810-1496c51e64db');
           });
       });
+
+      it('should support ?relatedToMessages=...', function () {
+        return doGet(base + '/parties?relatedToMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
+          .then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          assert.equal(response.body.results[0].href, '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
+        });
+      });
     });
   });
 
