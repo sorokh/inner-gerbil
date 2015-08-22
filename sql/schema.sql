@@ -132,3 +132,41 @@ CREATE TABLE "messagerelations" (
 );
 CREATE INDEX "messagerelations-from" ON "messagerelations"("from");
 CREATE INDEX "messagerelations-to" ON "messagerelations"("to");
+
+-- Plugin tables
+CREATE TABLE "plugins" (
+    "key" uuid unique not null,
+    "name" text not null,
+    "description" text not null,
+    "apikey" uuid unique not null,
+    "permissions" text[] not null,
+    "configurationschema" text
+);
+
+CREATE TABLE "pluginauthorisations" (
+    "key" uuid unique not null,
+    "plugin" uuid references "plugins"(key) not null,
+    "party" uuid references "parties"(key) not null
+);
+CREATE INDEX "pluginauthorisations-plugin" ON "pluginauthorisations"("plugin");
+CREATE INDEX "pluginauthorisations-party" ON "pluginauthorisations"("party");
+
+CREATE TABLE "plugindata" (
+    "key" uuid unique not null,
+    "plugin" uuid references "plugins"(key) not null,
+    "resource" text not null,
+    "data" jsonb not null
+);
+CREATE INDEX "plugindata-plugin" ON "plugindata"("plugin");
+CREATE INDEX "plugindata-resource" ON "plugindata"("resource");
+CREATE INDEX "plugindata-plugin-resource" ON "plugindata"("plugin","resource");
+
+CREATE TABLE "pluginconfigurations" (
+    "key" uuid unique not null,
+    "plugin" uuid references "plugins"(key) not null,
+    "party" uuid references "parties"(key) not null,
+    "data" jsonb not null
+);
+CREATE INDEX "pluginconfigurations-plugin" ON "pluginconfigurations"("plugin");
+CREATE INDEX "pluginconfigurations-party" ON "pluginconfigurations"("party");
+CREATE INDEX "pluginconfigurations-plugin-party" ON "pluginconfigurations"("plugin","party");

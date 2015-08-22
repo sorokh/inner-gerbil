@@ -171,12 +171,12 @@ exports = module.exports = function (sri4node) {
       relatedToMessages: relatedToMessages,
       defaultFilter: $q.defaultFilter
     },
-    queryDocs: {
-      parentsOf: 'Only retrieve parties that are direct, or indirect parent of given parties',
-      reachableFrom: 'Only retrieve parties that are reachable ' +
+    querydocs: {
+      parentsOf: 'Only retrieve parties that are direct, or indirect parent of given parties.',
+      reachableFrom: 'Only retrieve parties that are reachable. ' +
         '(by find all children of the given parties their parents)',
-      childrenOf: 'Only retrieve direct and indirect members of the given parties',
-      relatedToMessages: 'Only retrieve parties where the given messages were posted'
+      childrenOf: 'Only retrieve direct and indirect members of the given parties.',
+      relatedToMessages: 'Only retrieve parties where the given messages were posted.'
     },
     // All columns in the table that appear in the
     // resource should be declared.

@@ -29,7 +29,12 @@ exports = module.exports = function (sri4node, verbose) {
       require('./messagecontactdetails')(sri4node),
       require('./messageparties')(sri4node),
       require('./messagetransactions')(sri4node),
-      require('./messagerelations')(sri4node)
+      require('./messagerelations')(sri4node),
+
+      require('./plugins.js')(sri4node),
+      require('./pluginauthorisations.js')(sri4node),
+      require('./plugindata.js')(sri4node),
+      require('./pluginconfigurations.js')(sri4node)
     ]
   };
 };
