@@ -1,4 +1,4 @@
-exports = module.exports = function (sri4node) {
+exports = module.exports = function (sri4node, cacheconfig) {
   'use strict';
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
@@ -215,8 +215,7 @@ exports = module.exports = function (sri4node) {
         ],
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [
-            //cleanupFunction
-        ]
+    afterdelete: [],
+    cache: cacheconfig
   };
 };

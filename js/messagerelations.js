@@ -4,7 +4,7 @@ A message can be a response to another message.
 It can be a private, or a public response, etc...
 */
 
-exports = module.exports = function (sri4node) {
+exports = module.exports = function (sri4node, cacheconfig) {
   'use strict';
   var $q = sri4node.queryUtils;
 
@@ -50,6 +50,7 @@ exports = module.exports = function (sri4node) {
     },
     afterupdate: [],
     afterinsert: [],
-    afterdelete: []
+    afterdelete: [],
+    cache: cacheconfig
   };
 };

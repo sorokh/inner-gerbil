@@ -2,6 +2,12 @@
 
 exports = module.exports = function (sri4node, verbose) {
   'use strict';
+
+  var cacheconfig = {
+    ttl: 60,
+    type: 'local'
+  };
+
   return {
     logrequests: true,
     logsql: verbose,
@@ -19,22 +25,22 @@ exports = module.exports = function (sri4node, verbose) {
       return {};
     },
     resources: [
-      require('./contactdetails')(sri4node),
-      require('./parties')(sri4node),
-      require('./partyrelations')(sri4node),
-      require('./partycontactdetails')(sri4node),
-      require('./transactions')(sri4node),
-      require('./transactionrelations')(sri4node),
-      require('./messages')(sri4node),
-      require('./messagecontactdetails')(sri4node),
-      require('./messageparties')(sri4node),
-      require('./messagetransactions')(sri4node),
-      require('./messagerelations')(sri4node),
+      require('./contactdetails')(sri4node, cacheconfig),
+      require('./parties')(sri4node, cacheconfig),
+      require('./partyrelations')(sri4node, cacheconfig),
+      require('./partycontactdetails')(sri4node, cacheconfig),
+      require('./transactions')(sri4node, cacheconfig),
+      require('./transactionrelations')(sri4node, cacheconfig),
+      require('./messages')(sri4node, cacheconfig),
+      require('./messagecontactdetails')(sri4node, cacheconfig),
+      require('./messageparties')(sri4node, cacheconfig),
+      require('./messagetransactions')(sri4node, cacheconfig),
+      require('./messagerelations')(sri4node, cacheconfig),
 
-      require('./plugins.js')(sri4node),
-      require('./pluginauthorisations.js')(sri4node),
-      require('./plugindata.js')(sri4node),
-      require('./pluginconfigurations.js')(sri4node)
+      require('./plugins.js')(sri4node, cacheconfig),
+      require('./pluginauthorisations.js')(sri4node, cacheconfig),
+      require('./plugindata.js')(sri4node, cacheconfig),
+      require('./pluginconfigurations.js')(sri4node, cacheconfig)
     ]
   };
 };

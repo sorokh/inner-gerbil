@@ -5,7 +5,7 @@ var express = require('express'),
 
 var sri4node = require('sri4node');
 
-var verbose = true;
+var verbose = false;
 var mapping = require('./config.js')(sri4node, verbose);
 var app = express();
 app.use(compress());

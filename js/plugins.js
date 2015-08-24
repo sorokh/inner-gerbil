@@ -1,6 +1,6 @@
 var Q = require('q');
 
-exports = module.exports = function (sri4node) {
+exports = module.exports = function (sri4node, cacheconfig) {
   'use strict';
   var $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
@@ -70,6 +70,7 @@ exports = module.exports = function (sri4node) {
     },
     afterupdate: [],
     afterinsert: [],
-    afterdelete: []
+    afterdelete: [],
+    cache: cacheconfig
   };
 };
