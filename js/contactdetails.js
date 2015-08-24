@@ -5,7 +5,7 @@ exports = module.exports = function (sri4node) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function relatedToMessages(value, select) {
+  function forMessages(value, select) {
     var q = $u.prepareSQL();
 
     var links, keys, key;
@@ -21,6 +21,23 @@ exports = module.exports = function (sri4node) {
     select.with(q, 'relatedcontactdetails');
     select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
   }
+    
+    function forParties(value, select) {
+        var q = $u.prepareSQL();
+        
+        var links, keys, key;
+        keys = [];
+        links = value.split(',');
+        links.forEach(function (link) {
+            key = link.split('/')[2];
+            keys.push(key);
+        });
+        
+        q.sql('select contactdetail from partycontactdetails where party in (')
+      .array(keys).sql(')');
+        select.with(q, 'relatedcontactdetails');
+        select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
+    }
 
   return {
     type: '/contactdetails',
@@ -91,7 +108,8 @@ exports = module.exports = function (sri4node) {
     },
     validate: [],
     query: {
-      relatedToMessages: relatedToMessages,
+      forParties: forParties,
+      forMessages: forMessages,
       defaultFilter: $q.defaultFilter
     },
     afterupdate: [],

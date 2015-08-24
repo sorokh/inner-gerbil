@@ -19,6 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="Gruntfile.js" />
     <Compile Include="Jakefile.js" />
     <Compile Include="js\config.js" />
     <Compile Include="js\contactdetails.js" />
@@ -30,10 +31,20 @@
     <Compile Include="js\parties.js" />
     <Compile Include="js\partycontactdetails.js" />
     <Compile Include="js\partyrelations.js" />
+    <Compile Include="js\pluginauthorisations.js" />
+    <Compile Include="js\pluginconfigurations.js" />
+    <Compile Include="js\plugindata.js" />
+    <Compile Include="js\plugins.js" />
     <Compile Include="js\server.js" />
     <Compile Include="js\transactionrelations.js" />
     <Compile Include="js\transactions.js" />
+    <Compile Include="test\common.js" />
+    <Compile Include="test\testContactdetails.js" />
+    <Compile Include="test\testMessages.js" />
+    <Compile Include="test\testParties.js" />
+    <Compile Include="test\testPartyrelations.js" />
     <Compile Include="test\tests.js" />
+    <Compile Include="test\testTransactions.js" />
     <Content Include="app.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />

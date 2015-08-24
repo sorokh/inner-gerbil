@@ -147,8 +147,8 @@ exports = module.exports = function (base, logverbose) {
           });
       });
 
-      it('should support ?relatedToMessages=...', function () {
-        return doGet(base + '/parties?relatedToMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
+      it('should support ?forMessages=...', function () {
+        return doGet(base + '/parties?forMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
           .then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);

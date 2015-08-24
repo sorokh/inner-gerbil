@@ -29,8 +29,8 @@ exports = module.exports = function (base, logverbose) {
         });
       });
 
-      it('should support ?relatedToMessages=', function () {
-        return doGet(base + '/contactdetails?relatedToMessages=/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15')
+      it('should support ?forMessages=', function () {
+        return doGet(base + '/contactdetails?forMessages=/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15')
           .then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
