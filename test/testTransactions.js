@@ -29,8 +29,8 @@ exports = module.exports = function (base, logverbose) {
         });
       });
 
-      it('should support ?relatedToMessages=', function () {
-        return doGet(base + '/transactions?relatedToMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
+      it('should support ?forMessages=', function () {
+        return doGet(base + '/transactions?forMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
           .then(function (response) {
           debug('xxx');
           debug(response.body);

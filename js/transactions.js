@@ -5,7 +5,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
     $q = sri4node.queryUtils,
     $u = sri4node.utils;
 
-  function relatedToMessages(value, select) {
+  function forMessages(value, select) {
     var q = $u.prepareSQL();
 
     var links, keys, key;
@@ -55,7 +55,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
     query: {
       from: $q.filterReferencedType('/parties', 'from'),
       to: $q.filterReferencedType('/parties', 'to'),
-      relatedToMessages: relatedToMessages,
+      forMessages: forMessages,
       defaultFilter: $q.defaultFilter
     },
     afterupdate: [],
