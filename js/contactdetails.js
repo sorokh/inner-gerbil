@@ -21,23 +21,23 @@ exports = module.exports = function (sri4node, cacheconfig) {
     select.with(q, 'relatedcontactdetails');
     select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
   }
-    
-    function forParties(value, select) {
-        var q = $u.prepareSQL();
-        
-        var links, keys, key;
-        keys = [];
-        links = value.split(',');
-        links.forEach(function (link) {
-            key = link.split('/')[2];
-            keys.push(key);
-        });
-        
-        q.sql('select contactdetail from partycontactdetails where party in (')
-      .array(keys).sql(')');
-        select.with(q, 'relatedcontactdetails');
-        select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
-    }
+
+  function forParties(value, select) {
+    var q = $u.prepareSQL();
+
+    var links, keys, key;
+    keys = [];
+    links = value.split(',');
+    links.forEach(function (link) {
+      key = link.split('/')[2];
+      keys.push(key);
+    });
+
+    q.sql('select contactdetail from partycontactdetails where party in (')
+  .array(keys).sql(')');
+    select.with(q, 'relatedcontactdetails');
+    select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
+  }
 
   return {
     type: '/contactdetails',

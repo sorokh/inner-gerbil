@@ -87,3 +87,18 @@ INSERT INTO "messageparties" VALUES('568a36bf-a1bb-4fdf-8abc-eb7913c88461','e245
 
 -- Transactions that are related to a specific message.
 INSERT INTO "messagetransactions" VALUES('fd179b3f-9beb-4597-b0cb-d3b03ca84026','e24528a5-b12f-417a-a489-913d5879b895','1ffc9267-b51f-4970-91a2-ae20f4487f78');
+
+------------------
+-- Plugin data
+------------------
+
+-- key, name, description, apikey, permissions, configurationschema
+INSERT INTO "plugins" VALUES('7bd68a4b-138e-4228-9826-a002468222de','mail','A plugin that sends e-mails on a regular basis, and in general turns your mailbox in to a fully functioning user interface.','c40176e1-5d18-4b2a-a7b9-58a0a5b5f1b7',ARRAY['messages-read','parties-read','transactions-read'],'{}');
+
+-- LETS Dendermonde authorizes plugin "mail"
+-- key, plugin, party
+INSERT INTO "pluginauthorisations" VALUES('567b55cc-987d-4c71-bbf1-7e53d5388f4d','7bd68a4b-138e-4228-9826-a002468222de','8bf649b4-c50a-4ee9-9b02-877aa0a71849');
+
+-- For LETS Dendermonde the "mail" plugin stores the last send date for it's mails
+-- key, plugin, resource (text:permalink), data
+INSERT INTO "plugindata" VALUES('ebdd1d34-d11c-4950-a93e-fe76aa72a535','7bd68a4b-138e-4228-9826-a002468222de','/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849','{ "lastexec" : "2015-01-01T13:00:00Z" }'::jsonb);

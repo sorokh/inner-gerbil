@@ -1,8 +1,7 @@
 exports = module.exports = function (sri4node, cacheconfig) {
   'use strict';
   var $s = sri4node.schemaUtils,
-    $q = sri4node.queryUtils,
-    $m = sri4node.mapUtils;
+    $q = sri4node.queryUtils;
 
   return {
     type: '/pluginconfigurations',
@@ -23,11 +22,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
       key: {},
       plugin: {references: '/plugins'},
       party: {references: '/parties'},
-      data: {
-        onread: $m.parse,
-        oninsert: $m.stringify,
-        onupdate: $m.stringify
-      }
+      data: {}
     },
     validate: [],
     query: {

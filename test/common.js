@@ -22,5 +22,11 @@ exports = module.exports = {
   cl: function (x) {
     'use strict';
     console.log(x); // eslint-disable-line
+  },
+
+  hrefs: {
+    PARTY_DENDERMONDE: '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849',
+    PARTY_LEBBEKE: '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5',
+    PLUGIN_MAIL: '/plugins/7bd68a4b-138e-4228-9826-a002468222de'
   }
 };

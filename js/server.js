@@ -22,6 +22,10 @@ var welcome =
   '<li>Transactions : <a href="/transactions">/transactions<a></li>' +
   '<li>Trace of transactions : <a href="/transactionrelations">/transactionrelations<a></li>' +
   '<li>Messages : <a href="/messages">/messages</a></li>' +
+  '</ul><ul>' +
+  '<li>Plugins : <a href="/plugins">/plugins</a></li>' +
+  '<li>Plugins authorisations : <a href="/pluginauthorisations">/pluginauthorisations</a></li>' +
+  '<li>Plugins data : <a href="/plugindata">/plugindata</a></li>' +
   '</ul>';
 app.get('/', function (request, response) {
   'use strict';
