@@ -65,7 +65,8 @@ exports = module.exports = {
         nonrecursive.sql('(').param(key).sql('::uuid)');
       });
 
-      recursive.sql('SELECT r.to FROM partyrelations r, search_relations s where r."from" = s.key and r.type=\'member\'');
+      recursive.sql('SELECT r.to FROM partyrelations r, search_relations s ' +
+          'where r."from" = s.key and r.type=\'member\'');
       select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
       select.sql(' AND key IN (SELECT key FROM search_relations) ');
       select.sql(' AND key NOT IN (').array(keys).sql(') ');

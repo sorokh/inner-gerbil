@@ -66,14 +66,15 @@ exports = module.exports = function (base, logverbose) {
   describe('/plugindata', function () {
     describe('GET', function () {
       it('should allow retrieval of data for mail plugin, on LETS Dendermonde', function () {
-        var url = base + '/plugindata?party=' + hrefs.PARTY_DENDERMONDE + '&plugin=' + hrefs.PLUGIN_MAIL;
+        var url = base + '/plugindata?resource=' + hrefs.PARTY_DENDERMONDE + '&plugin=' + hrefs.PLUGIN_MAIL;
         debug('GET' + url);
         return doGet(url).then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var links = createHrefArray(response);
-          assert.equal(links.length, 0);
-          assert.equal(links[0].$$expanded.key, 'ebdd1d34-d11c-4950-a93e-fe76aa72a535');
+          assert.equal(links.length, 1);
+          debug(links);
+          assert.equal(links[0], '/plugindata/ebdd1d34-d11c-4950-a93e-fe76aa72a535');
         });
       });
     });
