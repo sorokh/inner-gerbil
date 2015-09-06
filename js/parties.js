@@ -13,6 +13,7 @@ exports = module.exports = function (sri4node, extra) {
     elements.forEach(function (element) {
       element.$$messagesPostedHere = {href: '/messages?postedInParties=' + element.$$meta.permalink};
       element.$$messagesPostedBy = {href: '/messages?postedByParties=' + element.$$meta.permalink};
+      element.$$transactions = {href: '/transactions?involvingParties=' + element.$$meta.permalink};
       element.$$transactionsBy = {href: '/transactions?from=' + element.$$meta.permalink};
       element.$$transactionsTo = {href: '/transactions?to=' + element.$$meta.permalink};
       element.$$allParents = {href: '/parties?parentsOf=' + element.$$meta.permalink};
@@ -46,33 +47,6 @@ exports = module.exports = function (sri4node, extra) {
       deferred.resolve();
     });
     return deferred.promise;
-  }
-
-  function parentsOf(value, select) {
-    var permalinks = value.split(',');
-
-    var keys = [], nonrecursive, recursive;
-
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
-
-    nonrecursive = $u.prepareSQL();
-    recursive = $u.prepareSQL();
-
-    nonrecursive.sql('VALUES ');
-    keys.forEach(function (key, index) {
-      if (index !== 0) {
-        nonrecursive.sql(',');
-      }
-      nonrecursive.sql('(').param(key).sql('::uuid)');
-    });
-
-    recursive.sql('SELECT r.to FROM partyrelations r, search_relations s where r."from" = s.key and r.type=\'member\'');
-    select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
-    select.sql(' AND key IN (SELECT key FROM search_relations) ');
-    select.sql(' AND key NOT IN (').array(keys).sql(') ');
   }
 
   function reachableFrom(value, select) {
@@ -208,7 +182,7 @@ exports = module.exports = function (sri4node, extra) {
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
     query: {
-      parentsOf: parentsOf,
+      parentsOf: common.parentsOf($u),
       reachableFrom: reachableFrom,
       childrenOf: childrenOf,
       forMessages: forMessages,

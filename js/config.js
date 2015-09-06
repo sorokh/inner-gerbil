@@ -55,14 +55,44 @@ exports = module.exports = function (sri4node, verbose) {
     defaultdatabaseurl: 'postgres://gerbil:inner@localhost:5432/postgres',
     identity: function (username, database) {
       var deferred = Q.defer();
+      var row;
+      var ret;
+      var query;
+      var parentsquery;
 
-      var query = $u.prepareSQL('me');
+      query = $u.prepareSQL('me');
       query.sql('select * from parties where login = ').param(username);
       $u.executeSQL(database, query).then(function (result) {
         cl(result.rows);
-        deferred.resolve({
-          login: 'test'
+        row = result.rows[0];
+        ret = {
+          permalink: '/parties/' + row.key,
+          login: row.login,
+          name: row.name,
+          alias: row.alias,
+          dateofbirth: row.dateofbirth,
+          imageurl: row.imageurl,
+          messages: '/messages?postedByParties=/parties/' + row.key,
+          transaction: '/transactions?involvingParties=/parties/' + row.key,
+          contactdetails: '/contactdetails?forParties=/parties/' + row.key
+        };
+        if(ret.imageurl === null) {
+          delete ret.imageurl;
+        }
+        if(ret.alias === null) {
+          delete ret.alias;
+        }
+        parentsquery = $u.prepareSQL('my-parents');
+        parentsquery.sql('select key from parties where 1=1');
+        common.parentsOf($u)('/parties/'+row.key, parentsquery);
+        return $u.executeSQL(database, parentsquery);
+      }).then(function (result) {
+        ret.parents = [];
+        result.rows.forEach(function (parentrow) {
+          ret.parents.push('/parties/' + parentrow.key);
         });
+      }).then(function () {
+        deferred.resolve(ret);
       });
 
       return deferred.promise;

@@ -7,6 +7,18 @@ exports = module.exports = function (sri4node, extra) {
     $q = sri4node.queryUtils,
     $u = sri4node.utils;
 
+  var involvingParties = function (value, select) {
+    var permalinks = value.split(',');
+    var keys = [];
+
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
+
+    select.sql('AND ("from" IN (').array(keys).sql(') OR "to" IN (').array(keys).sql(')) ');
+  };
+
   var ret = {
     type: '/transactions',
     'public': true, // eslint-disable-line
@@ -41,6 +53,7 @@ exports = module.exports = function (sri4node, extra) {
       from: $q.filterReferencedType('/parties', 'from'),
       to: $q.filterReferencedType('/parties', 'to'),
       forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
+      involvingParties: involvingParties,
       defaultFilter: $q.defaultFilter
     },
     afterupdate: [],
