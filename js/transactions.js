@@ -1,28 +1,13 @@
-exports = module.exports = function (sri4node, cacheconfig) {
+var common = require('./common.js');
+
+exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils,
     $u = sri4node.utils;
 
-  function forMessages(value, select) {
-    var q = $u.prepareSQL();
-
-    var links, keys, key;
-    keys = [];
-    links = value.split(',');
-    links.forEach(function (link) {
-      key = link.split('/')[2];
-      keys.push(key);
-    });
-
-    q.sql('select transaction from messagetransactions where message in (')
-      .array(keys).sql(')');
-    select.with(q, 'relatedtransactions');
-    select.sql(' and key in (select transaction from relatedtransactions) ');
-  }
-
-  return {
+  var ret = {
     type: '/transactions',
     'public': true, // eslint-disable-line
     secure: [],
@@ -55,12 +40,14 @@ exports = module.exports = function (sri4node, cacheconfig) {
     query: {
       from: $q.filterReferencedType('/parties', 'from'),
       to: $q.filterReferencedType('/parties', 'to'),
-      forMessages: forMessages,
+      forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
       defaultFilter: $q.defaultFilter
     },
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [],
-    cache: cacheconfig
+    afterdelete: []
   };
+
+  common.objectMerge(ret, extra);
+  return ret;
 };

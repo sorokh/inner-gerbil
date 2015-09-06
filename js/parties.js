@@ -1,9 +1,52 @@
-exports = module.exports = function (sri4node, cacheconfig) {
+var Q = require('q');
+var common = require('./common.js');
+var cl = common.cl;
+
+exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
+
+  function addLinks(database, elements) { /* eslint-disable-line */
+    elements.forEach(function (element) {
+      element.$$messagesPostedHere = {href: '/messages?postedInParties=' + element.$$meta.permalink};
+      element.$$messagesPostedBy = {href: '/messages?postedByParties=' + element.$$meta.permalink};
+      element.$$transactionsBy = {href: '/transactions?from=' + element.$$meta.permalink};
+      element.$$transactionsTo = {href: '/transactions?to=' + element.$$meta.permalink};
+      element.$$allParents = {href: '/parties?parentsOf=' + element.$$meta.permalink};
+    });
+  }
+
+  function addDirectParent(database, elements) {
+    var deferred = Q.defer();
+
+    var keys = [];
+    var keyToElement = {};
+    elements.forEach(function (element) {
+      keys.push(element.key);
+      keyToElement[element.key] = element;
+    });
+
+    var q = $u.prepareSQL('direct-parent-of-parties');
+    q.sql('select "from","to" from "partyrelations" where "type" = \'member\' and "from" in (').array(keys).sql(')');
+    cl(q);
+    $u.executeSQL(database, q).then(function (result) {
+      cl(result.rows);
+      result.rows.forEach(function (row) {
+        var from = row.from;
+        var to = row.to;
+        var element = keyToElement[from];
+        if (!element.$$directParents) {
+          element.$$directParents = [];
+        }
+        element.$$directParents.push({href: '/parties/' + to});
+      });
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }
 
   function parentsOf(value, select) {
     var permalinks = value.split(',');
@@ -33,7 +76,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
   }
 
   function reachableFrom(value, select) {
-    var permalinks = [],
+    var permalinks,
       keys = [],
       nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL(),
@@ -104,7 +147,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
     select.sql(' and key in (select party from relatedmessages) ');
   }
 
-  return {
+  var ret = {
     // Base url, maps 1:1 with a table in postgres
     // Same name, except the '/' is removed
     type: '/parties',
@@ -211,11 +254,13 @@ exports = module.exports = function (sri4node, cacheconfig) {
     // After update, insert or delete
     // you can perform extra actions.
     afterread: [
-            $u.addReferencingResources('/partycontactdetails', 'party', '$$partycontactdetails')
+            addLinks, addDirectParent
         ],
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [],
-    cache: cacheconfig
+    afterdelete: []
   };
+
+  common.objectMerge(ret, extra);
+  return ret;
 };

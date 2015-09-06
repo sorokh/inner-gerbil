@@ -1,6 +1,7 @@
 var Q = require('q');
+var common = require('./common.js');
 
-exports = module.exports = function (sri4node, cacheconfig) {
+exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
@@ -17,7 +18,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
     return defer.promise;
   }
 
-  return {
+  var ret = {
     type: '/plugins',
     'public': true, // eslint-disable-line
     secure: [],
@@ -70,7 +71,9 @@ exports = module.exports = function (sri4node, cacheconfig) {
     },
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [],
-    cache: cacheconfig
+    afterdelete: []
   };
+
+  common.objectMerge(ret, extra);
+  return ret;
 };

@@ -1,14 +1,10 @@
-/*
-This resource expresses relations between messages.
-A message can be a response to another message.
-It can be a private, or a public response, etc...
-*/
+var common = require('./common.js');
 
-exports = module.exports = function (sri4node, cacheconfig) {
+exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $q = sri4node.queryUtils;
 
-  return {
+  var ret = {
     type: '/messagerelations',
     'public': true, // eslint-disable-line
     secure: [],
@@ -50,7 +46,9 @@ exports = module.exports = function (sri4node, cacheconfig) {
     },
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [],
-    cache: cacheconfig
+    afterdelete: []
   };
+
+  common.objectMerge(ret, extra);
+  return ret;
 };

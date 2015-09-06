@@ -1,6 +1,7 @@
 SET search_path TO innergerbil;
 
 -- Parties
+-- key, type, name, alias, dateofbirth, imageurl, login, password, secondsperunit, currencyname, status
 -- LETS Groups
 
 INSERT INTO "parties" VALUES ('8bf649b4-c50a-4ee9-9b02-877aa0a71849','group','LETS Regio Dendermonde',null,null,null,null,null,180,'duim','active');
@@ -86,6 +87,7 @@ INSERT INTO "messageparties" VALUES('df0dfbce-6bb8-4eff-b3aa-0e24a825ccec','0cc3
 INSERT INTO "messageparties" VALUES('568a36bf-a1bb-4fdf-8abc-eb7913c88461','e24528a5-b12f-417a-a489-913d5879b895','0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
 
 -- Transactions that are related to a specific message.
+-- key, message, transaction
 INSERT INTO "messagetransactions" VALUES('fd179b3f-9beb-4597-b0cb-d3b03ca84026','e24528a5-b12f-417a-a489-913d5879b895','1ffc9267-b51f-4970-91a2-ae20f4487f78');
 
 ------------------

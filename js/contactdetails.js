@@ -1,4 +1,6 @@
-exports = module.exports = function (sri4node, cacheconfig) {
+var common = require('./common.js');
+
+exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
@@ -39,7 +41,7 @@ exports = module.exports = function (sri4node, cacheconfig) {
     select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
   }
 
-  return {
+  var ret = {
     type: '/contactdetails',
     'public': true, // eslint-disable-line
     secure: [],
@@ -114,7 +116,9 @@ exports = module.exports = function (sri4node, cacheconfig) {
     },
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [],
-    cache: cacheconfig
+    afterdelete: []
   };
+
+  common.objectMerge(ret, extra);
+  return ret;
 };

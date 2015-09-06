@@ -1,53 +1,20 @@
-//var Q = require('q');
+var common = require('./common.js');
+//var cl = common.cl;
 
-exports = module.exports = function (sri4node, cacheconfig) {
+exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
-/*
-  function addRelatedResources(database, elements) {
-    var deferred = Q.defer();
-    var tablename, query, elementKeys, elementKeysToElement;
-    var permalink, elementKey;
 
-    if (elements && elements.length && elements.length > 0) {
-      query = $u.prepareSQL();
-      elementKeys = [];
-      elementKeysToElement = {};
-      elements.forEach(function (element) {
-        permalink = element.$$meta.permalink;
-        elementKey = permalink.split('/')[2];
-        elementKeys.push(elementKey);
-        elementKeysToElement[elementKey] = element;
-      });
-
-      query.sql('select key,' + column + ' as fkey from ' + tablename +
-        ' where ' + column + ' in (').array(elementKeys).sql(')');
-      pgExec(database, query).then(function (result) {
-        var element;
-        result.rows.forEach(function (row) {
-          element = elementKeysToElement[row.fkey];
-          if (!element[targetkey]) {
-            element[targetkey] = [];
-          }
-          element[targetkey].push(type + '/' + row.key);
-        });
-        deferred.resolve();
-      }).fail(function (e) {
-        cl('query to include related resource on /messages failed');
-        cl(e.stack);
-        deferred.reject();
-      })
-    } else {
-      deferred.resolve();
-    }
-
-    return deferred.promise;
+  function addLinks(database, elements) {
+    elements.forEach(function (element) {
+      element.$$transactions = {href: '/transaction?forMessages=' + element.$$meta.permalink};
+    });
   }
-*/
-  return {
+
+  var ret = {
     type: '/messages',
     'public': true, // eslint-disable-line
     secure: [],
@@ -114,16 +81,18 @@ exports = module.exports = function (sri4node, cacheconfig) {
     },
     validate: [],
     query: {
+      postedInParties: common.filterRelatedManyToMany($u, 'messageparties', 'message', 'party'),
+      postedByParties: $q.filterReferencedType('/parties', 'author'),
       defaultFilter: $q.defaultFilter
     },
     afterread: [
-            $u.addReferencingResources('/messagecontactdetails', 'message', '$$messagecontactdetails'),
-            $u.addReferencingResources('/messageparties', 'message', '$$messageparties'),
-            $u.addReferencingResources('/messagetransactions', 'message', '$$messagetransaction')
-        ],
+      addLinks
+    ],
     afterupdate: [],
     afterinsert: [],
-    afterdelete: [],
-    cache: cacheconfig
+    afterdelete: []
   };
+
+  common.objectMerge(ret, extra);
+  return ret;
 };
