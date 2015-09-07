@@ -6,3 +6,4 @@ Procfile.debug
 npm-debug.log
 .idea
 Procfile.dimi
+*.swp
