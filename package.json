@@ -35,8 +35,6 @@
     "grunt-eslint": "^17.1.0",
     "jake": "^8.0.12",
     "load-grunt-tasks": "^3.2.0",
-    "mocha": "^2.2.5",
-    "nodemon": "1.4.*",
-    "foreman": "1.4.*"
+    "mocha": "^2.2.5"
   }
 }
