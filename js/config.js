@@ -59,9 +59,11 @@ exports = module.exports = function (sri4node, verbose) {
         alias: row.alias,
         dateofbirth: row.dateofbirth,
         imageurl: row.imageurl,
-        messages: '/messages?postedByParties=/parties/' + row.key,
-        transaction: '/transactions?involvingParties=/parties/' + row.key,
-        contactdetails: '/contactdetails?forParties=/parties/' + row.key
+        messages: {href: '/messages?postedByParties=/parties/' + row.key},
+        transactions: {href: '/transactions?involvingParties=/parties/' + row.key},
+        contactdetails: {href: '/contactdetails?forParties=/parties/' + row.key},
+        parents: {href: '/parties?parentsOf=/parties/' + row.key},
+        partyrelations: {href: '/partyrelations?from=/parties/' + row.key}
       };
       if (ret.imageurl === null) {
         delete ret.imageurl;
@@ -69,17 +71,12 @@ exports = module.exports = function (sri4node, verbose) {
       if (ret.alias === null) {
         delete ret.alias;
       }
-      parentsquery = $u.prepareSQL('my-parents');
-      parentsquery.sql('select key from parties where 1=1');
-      common.parentsOf($u)('/parties/' + row.key, parentsquery);
-      return $u.executeSQL(database, parentsquery);
-    }).then(function (result) {
-      ret.parents = [];
-      result.rows.forEach(function (parentrow) {
-        ret.parents.push('/parties/' + parentrow.key);
-      });
-    }).then(function () {
       deferred.resolve(ret);
+    }).fail(function (error) {
+      cl('Error retrieving /me for login [' + username + ']');
+      cl(error);
+      cl(error.stack);
+      deferred.reject();
     });
 
     return deferred.promise;

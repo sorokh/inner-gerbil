@@ -57,7 +57,8 @@ exports = module.exports = function (sri4node, extra) {
       defaultFilter: $q.defaultFilter
     },
     afterread: [
-      
+      common.addRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message',
+                                  '/messages', '$$messages')
     ],
     afterupdate: [],
     afterinsert: [],

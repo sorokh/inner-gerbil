@@ -15,8 +15,9 @@ sri4node.configure(app, pg, mapping);
 var welcome =
   '<p>Welcome to the <a href="https://github.com/dimitrydhondt/inner-gerbil">Inner Gerbil API.</a></p>' +
   '<p>You can access the following resources :</p>' +
+  '<ul><li>Current user identity : <a href="/me">/me</a> (e.g. username: annadv, password: test)</li></ul>' +
   '<ul>' +
-  '<li>Parties : <a href="/parties">/parties<a></li>' +
+  '<li>Parties : <a href="/parties">/parties</a></li>' +
   '<li>Messages : <a href="/messages">/messages</a></li>' +
   '<li>Transactions : <a href="/transactions">/transactions<a></li>' +
   '</ul><ul>' +

@@ -66,7 +66,7 @@ exports = module.exports = {
           if (!element[resourceTargetKey]) {
             element[resourceTargetKey] = [];
           }
-          element[resourceTargetKey].push(remoteType + '/' + row[remoteKey]);
+          element[resourceTargetKey].push({href: remoteType + '/' + row[remoteKey]});
         });
         deferred.resolve();
       }).fail(function () {
