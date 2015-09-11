@@ -23,11 +23,24 @@ var welcome =
   '</ul><ul>' +
   '<li>Contact details for parties : <a href="/contactdetails">/contactdetails<a></li>' +
   '<li>Trace of transactions : <a href="/transactionrelations">/transactionrelations<a></li>' +
-  '</ul><ul>' +
+  '</ul>' +
+  '<p>Other resource :</p>' +
+  '<ul>' +
+  '<li>Messages can have contact details : <a href="/messagecontactdetails">/messagecontactdetails</a></li>' +
+  '<li>Messages are posted to one or more parties : <a href="/messageparties">/messageparties</a></li>' +
+  '<li>Messages have relationships (e.g. a response to another message) : <a href="/messagerelations">/messagerelations</a></li>' +
+  '<li>Messages can have associated transactions : <a href="/messagetransactions">/messagetransactions</a></li>' +
+  '<li>Parties have contactdetails : <a href="/partycontactdetails">/partycontactdetails</a></li>' +
+  '<li>Parties have relationships with other parties (e.g. are member of) : <a href="/partyrelations">/partyrelations</a></li>' +
+  '</ul>' +
+  '<p>Plugins can be authorized, can store data about other resources, etc :</p>' +
+  '<ul>' +
   '<li>Plugins : <a href="/plugins">/plugins</a></li>' +
   '<li>Plugins authorisations : <a href="/pluginauthorisations">/pluginauthorisations</a></li>' +
   '<li>Plugins data : <a href="/plugindata">/plugindata</a></li>' +
-  '</ul>';
+  '<li>Plugins are configured : <a href="/pluginconfigurations">/pluginconfigurations</a></li>' +
+  '</ul>' +
+  '';
 app.get('/', function (request, response) {
   'use strict';
   response.send(welcome);
