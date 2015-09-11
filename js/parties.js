@@ -11,11 +11,13 @@ exports = module.exports = function (sri4node, extra) {
 
   function addLinks(database, elements) { /* eslint-disable-line */
     elements.forEach(function (element) {
-      element.$$messagesPostedHere = {href: '/messages?postedInParties=' + element.$$meta.permalink};
-      element.$$messagesPostedBy = {href: '/messages?postedByParties=' + element.$$meta.permalink};
-      element.$$transactions = {href: '/transactions?involvingParties=' + element.$$meta.permalink};
-      element.$$transactionsBy = {href: '/transactions?from=' + element.$$meta.permalink};
-      element.$$transactionsTo = {href: '/transactions?to=' + element.$$meta.permalink};
+      if (element.type && element.type !== 'person') {
+        element.$$messagesPostedHere = {href: '/messages?postedInParties=' + element.$$meta.permalink};
+      }
+      if (element.type && element.type === 'person') {
+        element.$$messagesPostedBy = {href: '/messages?postedByParties=' + element.$$meta.permalink};
+        element.$$transactions = {href: '/transactions?involvingParties=' + element.$$meta.permalink};
+      }
       element.$$allParents = {href: '/parties?parentsOf=' + element.$$meta.permalink};
     });
   }
@@ -29,7 +31,7 @@ exports = module.exports = function (sri4node, extra) {
       keys.push(element.key);
       keyToElement[element.key] = element;
     });
-
+    
     var q = $u.prepareSQL('direct-parent-of-parties');
     q.sql('select "from","to" from "partyrelations" where "type" = \'member\' and "from" in (').array(keys).sql(')');
     cl(q);
@@ -46,6 +48,7 @@ exports = module.exports = function (sri4node, extra) {
       });
       deferred.resolve();
     });
+    
     return deferred.promise;
   }
 

@@ -13,18 +13,24 @@ var verbose = false;
 var app = express();
 var mapping = require('../js/config.js')(sri4node, verbose);
 var port = 5000;
-app.set('port', port);
-sri4node.configure(app, pg, mapping);
 var base = 'http://localhost:' + port;
 
-
-app.listen(port, function () {
+describe('Sri4node testing', function () {
   'use strict';
-  cl('Node app is running at localhost:' + port);
+  before(function (done) {
+    sri4node.configure(app, pg, mapping).then(function () {
+      app.set('port', port);
+      app.listen(port, function () {
+        'use strict';
+        cl('Node app is running at localhost:' + port);
+        done();
+      });
+    });
+  });
+  
+  require('./testTransactions.js')(base, verbose);
+  require('./testContactdetails.js')(base, verbose);
+  require('./testParties.js')(base, verbose);
+  require('./testMessages.js')(base, verbose);
+  require('./testPlugins.js')(base, verbose);
 });
-
-require('./testTransactions.js')(base, verbose);
-require('./testContactdetails.js')(base, verbose);
-require('./testParties.js')(base, verbose);
-require('./testMessages.js')(base, verbose);
-require('./testPlugins.js')(base, verbose);

@@ -18,6 +18,8 @@ exports = module.exports = function (base, logverbose) {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
         return doGet(base + '/transactions').then(function (response) {
+          debug('statusCode : ' + response.statusCode);
+          debug(response.body);
           assert.equal(response.statusCode, 200);
           // TODO: add more transactions to test data
           if (response.body.$$meta.count < 2) {
@@ -28,7 +30,7 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.contain('/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78');
         });
       });
-
+/*
       it('should support ?forMessages=', function () {
         return doGet(base + '/transactions?forMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
           .then(function (response) {
@@ -38,6 +40,7 @@ exports = module.exports = function (base, logverbose) {
           assert.equal(response.body.results[0].href, '/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78');
         });
       });
+      */
     });
   });
 };

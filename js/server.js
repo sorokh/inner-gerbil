@@ -1,4 +1,4 @@
-/*eslint-env node */
+  /*eslint-env node */
 var express = require('express'),
   compress = require('compression'),
   pg = require('pg');
@@ -17,11 +17,11 @@ var welcome =
   '<p>You can access the following resources :</p>' +
   '<ul>' +
   '<li>Parties : <a href="/parties">/parties<a></li>' +
-  '<li>Relations : <a href="/partyrelations">/partyrelations<a></li>' +
-  '<li>Contact details for parties : <a href="/contactdetails">/contactdetails<a></li>' +
-  '<li>Transactions : <a href="/transactions">/transactions<a></li>' +
-  '<li>Trace of transactions : <a href="/transactionrelations">/transactionrelations<a></li>' +
   '<li>Messages : <a href="/messages">/messages</a></li>' +
+  '<li>Transactions : <a href="/transactions">/transactions<a></li>' +
+  '</ul><ul>' +
+  '<li>Contact details for parties : <a href="/contactdetails">/contactdetails<a></li>' +
+  '<li>Trace of transactions : <a href="/transactionrelations">/transactionrelations<a></li>' +
   '</ul><ul>' +
   '<li>Plugins : <a href="/plugins">/plugins</a></li>' +
   '<li>Plugins authorisations : <a href="/pluginauthorisations">/pluginauthorisations</a></li>' +

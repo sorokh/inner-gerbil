@@ -1,4 +1,5 @@
 var common = require('./common.js');
+var Q = require('q');
 
 exports = module.exports = function (sri4node, extra) {
   'use strict';
@@ -40,7 +41,7 @@ exports = module.exports = function (sri4node, extra) {
     select.with(q, 'relatedcontactdetails');
     select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
   }
-
+  
   var ret = {
     type: '/contactdetails',
     'public': true, // eslint-disable-line
@@ -114,6 +115,10 @@ exports = module.exports = function (sri4node, extra) {
       forMessages: forMessages,
       defaultFilter: $q.defaultFilter
     },
+    afterread: [
+      common.addRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party', '/parties', '$$parties'),
+      common.addRelatedManyToMany($u, 'messagecontactdetails', 'contactdetail', 'message', '/messages', '$$messages'),
+    ],
     afterupdate: [],
     afterinsert: [],
     afterdelete: []

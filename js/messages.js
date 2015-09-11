@@ -86,7 +86,10 @@ exports = module.exports = function (sri4node, extra) {
       defaultFilter: $q.defaultFilter
     },
     afterread: [
-      addLinks
+      common.addRelatedManyToMany($u, 'messagetransactions', 'message', 'transaction', '/transactions', '$$transactions'),
+      common.addRelatedManyToMany($u, 'messageparties', 'message', 'party', '/parties', '$$postedInParties'), 
+      common.addRelatedManyToMany($u, 'messagecontactdetails', 'message', 'contactdetail', '/contactdetails', '$$contactdetails')
+      //common.addRelatedManyToMany($u, 'messagerelations', 'to','from', '/messages', '$$reactions')
     ],
     afterupdate: [],
     afterinsert: [],
