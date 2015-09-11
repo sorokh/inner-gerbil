@@ -21,13 +21,12 @@ describe('Sri4node testing', function () {
     sri4node.configure(app, pg, mapping).then(function () {
       app.set('port', port);
       app.listen(port, function () {
-        'use strict';
         cl('Node app is running at localhost:' + port);
         done();
       });
     });
   });
-  
+
   require('./testTransactions.js')(base, verbose);
   require('./testContactdetails.js')(base, verbose);
   require('./testParties.js')(base, verbose);

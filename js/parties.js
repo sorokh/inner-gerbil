@@ -31,7 +31,7 @@ exports = module.exports = function (sri4node, extra) {
       keys.push(element.key);
       keyToElement[element.key] = element;
     });
-    
+
     var q = $u.prepareSQL('direct-parent-of-parties');
     q.sql('select "from","to" from "partyrelations" where "type" = \'member\' and "from" in (').array(keys).sql(')');
     cl(q);
@@ -48,7 +48,7 @@ exports = module.exports = function (sri4node, extra) {
       });
       deferred.resolve();
     });
-    
+
     return deferred.promise;
   }
 

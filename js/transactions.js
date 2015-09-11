@@ -56,6 +56,9 @@ exports = module.exports = function (sri4node, extra) {
       involvingParties: involvingParties,
       defaultFilter: $q.defaultFilter
     },
+    afterread: [
+      
+    ],
     afterupdate: [],
     afterinsert: [],
     afterdelete: []

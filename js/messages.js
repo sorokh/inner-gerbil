@@ -8,12 +8,6 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function addLinks(database, elements) {
-    elements.forEach(function (element) {
-      element.$$transactions = {href: '/transaction?forMessages=' + element.$$meta.permalink};
-    });
-  }
-
   var ret = {
     type: '/messages',
     'public': true, // eslint-disable-line
@@ -86,9 +80,12 @@ exports = module.exports = function (sri4node, extra) {
       defaultFilter: $q.defaultFilter
     },
     afterread: [
-      common.addRelatedManyToMany($u, 'messagetransactions', 'message', 'transaction', '/transactions', '$$transactions'),
-      common.addRelatedManyToMany($u, 'messageparties', 'message', 'party', '/parties', '$$postedInParties'), 
-      common.addRelatedManyToMany($u, 'messagecontactdetails', 'message', 'contactdetail', '/contactdetails', '$$contactdetails')
+      common.addRelatedManyToMany($u, 'messagetransactions', 'message', 'transaction',
+                                  '/transactions', '$$transactions'),
+      common.addRelatedManyToMany($u, 'messageparties', 'message', 'party',
+                                  '/parties', '$$postedInParties'),
+      common.addRelatedManyToMany($u, 'messagecontactdetails', 'message', 'contactdetail',
+                                  '/contactdetails', '$$contactdetails')
       //common.addRelatedManyToMany($u, 'messagerelations', 'to','from', '/messages', '$$reactions')
     ],
     afterupdate: [],

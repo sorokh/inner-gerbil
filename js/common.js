@@ -40,40 +40,41 @@ exports = module.exports = {
       select.sql(' and key in (select "' + localColumn + '" from ' + cteName + ') ');
     };
   },
-  
-  /* 
+
+  /*
   returns an afterread function that adds the other side of a many-to-many resource.
   */
   addRelatedManyToMany: function ($u, relationTable, localKey, remoteKey, remoteType, resourceTargetKey) {
+    'use strict';
     return function (database, elements) {
       var deferred = Q.defer();
 
       var element;
       var keys = [];
       var keyToElement = {};
-      elements.forEach(function (element) {
-        keys.push(element.key);
-        keyToElement[element.key] = element;
+      elements.forEach(function (e) {
+        keys.push(e.key);
+        keyToElement[e.key] = e;
       });
 
       var q = $u.prepareSQL();
-      q.sql('select ' + remoteKey + ',' + localKey + 
+      q.sql('select ' + remoteKey + ',' + localKey +
             ' from ' + relationTable + ' where ' + localKey + ' in (').array(keys).sql(')');
-      $u.executeSQL(database, q).then(function(results) {
-        results.rows.forEach(function(row) {
+      $u.executeSQL(database, q).then(function (results) {
+        results.rows.forEach(function (row) {
           element = keyToElement[row[localKey]];
-          if(!element[resourceTargetKey]) {
+          if (!element[resourceTargetKey]) {
             element[resourceTargetKey] = [];
           }
           element[resourceTargetKey].push(remoteType + '/' + row[remoteKey]);
         });
         deferred.resolve();
-      }).fail(function(results) {
-        deffered.reject();
+      }).fail(function () {
+        deferred.reject();
       });
 
       return deferred.promise;
-    }
+    };
   },
 
   /*
