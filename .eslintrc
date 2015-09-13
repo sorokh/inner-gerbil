@@ -2,15 +2,15 @@
 
 ecmaFeatures:
   jsx: true
-  
+
 env:
   browser: true
   es6: true
   node: true
   mocha: true
-  
+
 rules:
-  #Possible Errors  
+  #Possible Errors
   comma-dangle: [2, "never"] #disallow trailing commas
   no-comma-dangle: 0 #deprecated as of eslint 0.16.0
   no-cond-assign: 2 #disallow assignment in conditional expressions
@@ -20,7 +20,7 @@ rules:
   no-debugger: 2 #disallow use of debugger
   no-dupe-keys: 2 #disallow duplicate keys when creating object literals
   no-empty: 2 #disallow empty statements
-  no-empty-class: 2 #disallow the use of empty character classes in regular expressions
+  no-empty-character-class: 2 #Empty character classes in regular expressions do not match anything and can result in code that may not work as intended
   no-ex-assign: 2 #disallow assigning to the exception in a catch block
   no-extra-boolean-cast: 2 #disallow double-negation boolean casts in a boolean context
   no-extra-parens: 2 #disallow unnecessary parentheses
@@ -38,8 +38,8 @@ rules:
   use-isnan: 2 #disallow comparisons with the value NaN
   valid-jsdoc: 0 #ensure JSDoc comments are valid
   valid-typeof: 2 #ensure that the results of typeof are compared against a valid string
-  
-  #Best Practices  
+
+  #Best Practices
   block-scoped-var: 2 #treat var statements as if they were block scoped
   complexity: 0 #specify the maximum cyclomatic complexity allowed in a program
   consistent-return: 2 #require return statements to either always or never specify values
@@ -88,12 +88,12 @@ rules:
   wrap-iife: 2 #require immediate function invocation to be wrapped in parentheses
   yoda: 2 #require or disallow Yoda conditions
   no-unused-expressions: 0
-  
+
   #Strict Mode
   global-strict: 0 #deprecated
   no-extra-strict: 0 #deprecated
   strict: [2, "function"] #controls location of Use Strict Directives
-  
+
   #Variables
   no-catch-shadow: 2 #disallow the catch clause parameter name being the same as a variable in the outer scope
   no-delete-var: 2 #disallow deletion of variables
@@ -105,7 +105,7 @@ rules:
   no-undefined: 2 #disallow use of undefined variable
   no-unused-vars: 2 #disallow declaration of variables that are not used in the code
   no-use-before-define: 2 #disallow use of variables before they are defined
-  
+
   #Stylistic Issues
   indent: [1, 2] #this option sets a specific tab width for your code
   brace-style: [1, "1tbs", { "allowSingleLine": true }] #enforce one true brace style
@@ -154,7 +154,7 @@ rules:
   wrap-regex: 0 #require regex literals to be wrapped in parentheses
   no-var: 0 #require let or const instead of var
   generator-star: [2, "start"] #enforce the position of the * in generator functions
-  
+
   #Legacy
   max-depth: [2, 5] #specify the maximum depth that blocks can be nested
   max-len: [1, 120] #specify the maximum length of a line in your program
