@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Include="Gruntfile.js" />
     <Compile Include="Jakefile.js" />
+    <Compile Include="js\common.js" />
     <Compile Include="js\config.js" />
     <Compile Include="js\contactdetails.js" />
     <Compile Include="js\messagecontactdetails.js" />
@@ -43,8 +44,10 @@
     <Compile Include="test\testMessages.js" />
     <Compile Include="test\testParties.js" />
     <Compile Include="test\testPartyrelations.js" />
+    <Compile Include="test\testPlugins.js" />
     <Compile Include="test\tests.js" />
     <Compile Include="test\testTransactions.js" />
+    <Content Include=".eslintrc" />
     <Content Include="app.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
