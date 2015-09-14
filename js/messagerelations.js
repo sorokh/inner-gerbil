@@ -24,7 +24,7 @@ exports = module.exports = function (sri4node, extra) {
         type: {
           type: 'string',
           description: 'The type of relationship. Currently "response_private" and "response_public" are in use.',
-          'enum': ['response_private', 'response_public']
+          enum: ['response_private', 'response_public']
         }
       },
       required: ['from', 'to', 'type']

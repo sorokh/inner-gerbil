@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function notfound() {
+  function notfound () {
     var defer = Q.defer();
 
     defer.reject({
@@ -36,7 +36,7 @@ exports = module.exports = function (sri4node, extra) {
           description: 'An array of permissions the plugin requires',
           item: {
             type: 'string',
-            'enum': [
+            enum: [
               'create_transactions',
               'create_messages',
               'create_parties',

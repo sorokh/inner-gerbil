@@ -46,7 +46,6 @@ exports = module.exports = function (sri4node, verbose) {
     var row;
     var ret;
     var query;
-    var parentsquery;
 
     query = $u.prepareSQL('me');
     query.sql('select * from parties where login = ').param(username);

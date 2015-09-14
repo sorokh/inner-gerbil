@@ -27,7 +27,7 @@ exports = module.exports = function (sri4node, extra) {
         type: {
           type: 'string',
           description: 'The type of relationship. Currently "member" and "adminsitrator" are in use.',
-          'enum': ['member', 'administrator']
+          enum: ['member', 'administrator']
         },
         balance: $s.numeric(
           'The balance (currency) of party A in his relationship with party B. Positive means party "from" has ' +
@@ -36,7 +36,7 @@ exports = module.exports = function (sri4node, extra) {
         status: {
           type: 'string',
           description: 'The status of this relation. Is it active / inactive ?',
-          'enum': ['active', 'inactive']
+          enum: ['active', 'inactive']
         }
       },
       required: ['from', 'to', 'type', 'balance', 'status']

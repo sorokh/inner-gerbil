@@ -8,7 +8,7 @@ var expect = require('chai').expect;
 exports = module.exports = function (base, logverbose) {
   'use strict';
 
-  function debug(x) {
+  function debug (x) {
     if (logverbose) {
       console.log(x); // eslint-disable-line
     }

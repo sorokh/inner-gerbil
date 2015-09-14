@@ -9,7 +9,7 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function addLinks(database, elements) { /* eslint-disable-line */
+  function addLinks (database, elements) { /* eslint-disable-line */
     elements.forEach(function (element) {
       if (element.type && element.type !== 'person') {
         element.$$messagesPostedHere = {href: '/messages?postedInParties=' + element.$$meta.permalink};
@@ -22,7 +22,7 @@ exports = module.exports = function (sri4node, extra) {
     });
   }
 
-  function addDirectParent(database, elements) {
+  function addDirectParent (database, elements) {
     var deferred = Q.defer();
 
     var keys = [];
@@ -52,7 +52,7 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function reachableFrom(value, select) {
+  function reachableFrom (value, select) {
     var permalinks,
       keys = [],
       nonrecursive = $u.prepareSQL(),
@@ -83,7 +83,7 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
-  function childrenOf(value, select) {
+  function childrenOf (value, select) {
     var permalinks, keys = [],
       nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL();
@@ -107,7 +107,7 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
-  function forMessages(value, select) {
+  function forMessages (value, select) {
     var q = $u.prepareSQL();
 
     var links, keys, key;
@@ -135,9 +135,9 @@ exports = module.exports = function (sri4node, extra) {
     // They receive a database object and
     // the security context of the current user.
     secure: [
-            //checkAccessOnResource,
-            //checkSomeMoreRules
-        ],
+      //checkAccessOnResource,
+      //checkSomeMoreRules
+    ],
     // Standard JSON Schema definition.
     // It uses utility functions, for compactness.
     schema: {
@@ -149,7 +149,7 @@ exports = module.exports = function (sri4node, extra) {
         type: {
           type: 'string',
           description: 'The type of party this resource describes.',
-          'enum': ['person', 'organisation', 'subgroup', 'group', 'connector']
+          enum: ['person', 'organisation', 'subgroup', 'group', 'connector']
         },
         name: $s.string(
           'The name of the party. If it is a person with a christian name you should store ' +
@@ -172,7 +172,7 @@ exports = module.exports = function (sri4node, extra) {
         status: {
           type: 'string',
           description: 'The status of this party. Is it active / inactive',
-          'enum': ['active', 'inactive']
+          enum: ['active', 'inactive']
         }
       },
       required: ['type', 'name', 'status']
@@ -180,8 +180,8 @@ exports = module.exports = function (sri4node, extra) {
     // Functions that validate the incoming resource
     // when a PUT operation is executed.
     validate: [
-            //validateAuthorVersusThemes
-        ],
+      //validateAuthorVersusThemes
+    ],
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
     query: {
@@ -231,8 +231,8 @@ exports = module.exports = function (sri4node, extra) {
     // After update, insert or delete
     // you can perform extra actions.
     afterread: [
-            addLinks, addDirectParent
-        ],
+      addLinks, addDirectParent
+    ],
     afterupdate: [],
     afterinsert: [],
     afterdelete: []

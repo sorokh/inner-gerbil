@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function forMessages(value, select) {
+  function forMessages (value, select) {
     var q = $u.prepareSQL();
 
     var links, keys, key;
@@ -24,7 +24,7 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
   }
 
-  function forParties(value, select) {
+  function forParties (value, select) {
     var q = $u.prepareSQL();
 
     var links, keys, key;
@@ -54,7 +54,7 @@ exports = module.exports = function (sri4node, extra) {
         type: {
           type: 'string',
           description: 'The type of contactdetail.',
-          'enum': ['address', 'email', 'facebook', 'website']
+          enum: ['address', 'email', 'facebook', 'website']
         },
         label: $s.string('A display label for this contact detail.'),
 
