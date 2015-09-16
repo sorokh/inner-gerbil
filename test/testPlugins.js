@@ -44,7 +44,7 @@ exports = module.exports = function (base, logverbose) {
   describe('/pluginauthorisations', function () {
     describe('GET', function () {
       it('should find the authorisation for LETS dendermonde on plugin MAIL', function () {
-        var url = base + '/pluginauthorisations?party=' + hrefs.PARTY_DENDERMONDE + '&plugin=' + hrefs.PLUGIN_MAIL;
+        var url = base + '/pluginauthorisations?party=' + hrefs.PARTY_LETSDENDERMONDE + '&plugin=' + hrefs.PLUGIN_MAIL;
         return doGet(url).then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -52,7 +52,7 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should not find any plugin authorisations on LETS Lebbeke', function () {
-        var url = base + '/pluginauthorisations?party=' + hrefs.PARTY_LEBBEKE + '&plugin=' + hrefs.PLUGIN_MAIL;
+        var url = base + '/pluginauthorisations?party=' + hrefs.PARTY_LETSLEBBEKE + '&plugin=' + hrefs.PLUGIN_MAIL;
         debug(url);
         return doGet(url).then(function (response) {
           debug(response.body);
@@ -66,7 +66,7 @@ exports = module.exports = function (base, logverbose) {
   describe('/plugindata', function () {
     describe('GET', function () {
       it('should allow retrieval of data for mail plugin, on LETS Dendermonde', function () {
-        var url = base + '/plugindata?resource=' + hrefs.PARTY_DENDERMONDE + '&plugin=' + hrefs.PLUGIN_MAIL;
+        var url = base + '/plugindata?resource=' + hrefs.PARTY_LETSDENDERMONDE + '&plugin=' + hrefs.PLUGIN_MAIL;
         debug('GET' + url);
         return doGet(url).then(function (response) {
           debug(response.body);

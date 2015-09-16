@@ -41,6 +41,13 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
   }
 
+  function forDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and key in ' +
+               '(select contactdetail from partycontactdetails where party in ' +
+               '(select key from descendantsOfParties)) ');
+  }
+
   var ret = {
     type: '/contactdetails',
     'public': true, // eslint-disable-line
@@ -110,6 +117,7 @@ exports = module.exports = function (sri4node, extra) {
     },
     validate: [],
     query: {
+      forDescendantsOfParties: forDescendantsOfParties,
       forParties: forParties,
       forMessages: forMessages,
       defaultFilter: $q.defaultFilter

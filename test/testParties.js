@@ -26,9 +26,9 @@ exports = module.exports = function (base, logverbose) {
         });
       });
 
-      it('should support parentsOf as URL parameter', function () {
+      it('should support ancestorsOfParties as URL parameter', function () {
         // Find parents of LETS Lebbeke, should return LETS Regio Dendermonde
-        return doGet(base + '/parties?parentsOf=/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5')
+        return doGet(base + '/parties?ancestorsOfParties=/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5')
           .then(function (response) {
             assert.equal(response.statusCode, 200);
             assert.equal(response.body.$$meta.count, 1);
@@ -36,8 +36,8 @@ exports = module.exports = function (base, logverbose) {
           });
       });
 
-      it('should support parentsOf with multiple parameters', function () {
-        return doGet(base + '/parties?parentsOf=' +
+      it('should support ancestorsOfParties with multiple parameters', function () {
+        return doGet(base + '/parties?ancestorsOfParties=' +
             '/parties/5df52f9f-e51f-4942-a810-1496c51e64db,/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504')
           .then(function (response) {
             var hrefs = [];
@@ -112,7 +112,7 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieve all children below 1 node', function () {
-        return doGet(base + '/parties?childrenOf=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849')
+        return doGet(base + '/parties?descendantsOfParties=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -130,7 +130,7 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieve all children below 1 node & of a certain type', function () {
-        return doGet(base + '/parties?childrenOf=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person')
+        return doGet(base + '/parties?descendantsOfParties=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);

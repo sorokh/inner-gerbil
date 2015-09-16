@@ -80,7 +80,7 @@ exports = module.exports = {
   /*
   Extends the give SQL 'select' to restrict on parent of 'value'
    */
-  parentsOf: function ($u) {
+  ancestorsOfParties: function ($u) {
     'use strict';
     return function (value, select) {
       var permalinks = value.split(',');
@@ -108,6 +108,36 @@ exports = module.exports = {
       select.sql(' AND key IN (SELECT key FROM search_relations) ');
       select.sql(' AND key NOT IN (').array(keys).sql(') ');
     };
+  },
+
+  /*
+  Adds a CTE to the given select query, and created a virtual table that
+  has a single column (the key) of all descendants (recursively) of the given
+  value (a comma-separated list of permalinks to /parties).
+  */
+  descendantsOfParties: function ($u, value, select, virtualtablename) {
+    'use strict';
+    var permalinks, keys = [],
+      nonrecursive = $u.prepareSQL(),
+      recursive = $u.prepareSQL();
+
+    permalinks = value.split(',');
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
+
+    nonrecursive.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        nonrecursive.sql(',');
+      }
+      nonrecursive.sql('(').param(key).sql('::uuid)');
+    });
+
+    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + ' c ' +
+                  'where r."to" = c.key and r.type = \'member\'');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');    
   }
 };
 

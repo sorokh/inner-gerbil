@@ -9,18 +9,23 @@ INSERT INTO "parties" VALUES ('aca5e15d-9f4c-4c79-b906-f7e868b3abc5','subgroup',
 INSERT INTO "parties" VALUES ('0a98e68d-1fb9-4a31-a4e2-9289ee2dd301','group','LETS Hamme',null,null,null,null,null,180,'zaadje','active');
 
 -- People
+-- Anna De Vlaming is member of LETS Lebbeke
 INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','test',null,null,'active');
+-- Steven Butink is member of LETS Lebbeke
 INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','Steven Buytink',null,'1979-04-01 00:00:00',null,'stevenb','test',null,null,'active');
+-- Rudi Rudolf is member of LETS Dendermonde
+INSERT INTO "parties" VALUES ('eb6e3ad7-066f-4357-a582-dfb31e173606','person','Rudi Rudolf',null,'1968-10-23 00:00:00',null,'rudir','test',null,null,'active');
 -- Eddy is not a member of any group/subgroup/...
 INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,'eddym','test',null,null,'active');
 -- Leen De Baere of LETS Hamme
 INSERT INTO "parties" VALUES ('abcb3c6e-721e-4f7c-ae4a-935e1980f15e','person','Leen De Baere',null,'1980-04-01',null,'leendb','test',null,null,'active');
 INSERT INTO "parties" VALUES ('508f9ec9-df73-4a55-ad42-32839abd1760','person','Emmanuella',null,'1982-05-01',null,'emmanuella','test',null,null,'active');
 
--- Relations
+-- partyrelations -- key, from, to, type, balance, status
 -- LETS Lebbeke is a member of LETS Dendermonde
-INSERT INTO "partyrelations" VALUEs('cddffa35-6a2f-46c4-aa39-5b9040b4f429','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,'active');
-
+INSERT INTO "partyrelations" VALUES('cddffa35-6a2f-46c4-aa39-5b9040b4f429','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,'active');
+-- Rudi Rudolf is a member of LETS Dendermonde
+INSERT INTO "partyrelations" VALUES('c67139c2-779f-4d5c-9183-bbb9252574de','eb6e3ad7-066f-4357-a582-dfb31e173606','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,'active');
 -- Anna in LETS Lebbeke
 INSERT INTO "partyrelations" VALUES('419e6446-9b3e-4e7d-9381-0c38af0b316a','5df52f9f-e51f-4942-a810-1496c51e64db','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',-20,'active');
 -- Steven in LETS Lebbeke
@@ -32,12 +37,20 @@ INSERT INTO "partyrelations" VALUES('912ae080-29fa-4387-b031-c594167601e0','abcb
 -- Emmanuella is a member of LETS Hamme
 INSERT INTO "partyrelations" VALUES('d7669476-91ef-420b-99cd-ac906f985481','508f9ec9-df73-4a55-ad42-32839abd1760','0a98e68d-1fb9-4a31-a4e2-9289ee2dd301','member',20,'active');
 
--- Contactdetails
+-- Contactdetails key,type,label,street,streetnumber,streetbus,zipcode,city,latitude,longitude,value,public
 -- Anna De Vlaming
 INSERT INTO "contactdetails" VALUES('843437b3-29dd-4704-afa8-6b06824b2e92','address','thuis','Ijzerenweg','14',null,'9280','Lebbeke',50.9961341,4.1464628,null,true);
 INSERT INTO "partycontactdetails" VALUES('986b91dd-1bcc-4703-ae8d-6799442a7518','5df52f9f-e51f-4942-a810-1496c51e64db','843437b3-29dd-4704-afa8-6b06824b2e92');
 INSERT INTO "contactdetails" VALUES('b059ef61-340c-45d8-be4f-02436bcc03d9','email',null,null,null,null,null,null,null,null,'anna@email.be',true);
 INSERT INTO "partycontactdetails" VALUES('469062e5-0c7c-4c0b-9db9-6e1e1676da9c','5df52f9f-e51f-4942-a810-1496c51e64db','b059ef61-340c-45d8-be4f-02436bcc03d9');
+-- Steven Buytink
+INSERT INTO "contactdetails" VALUES('3266043e-c70d-4bb4-b0ee-6ff0ae42ce44','address','thuis','Stationstraat','34',null,'9280','Lebbeke',51.0025491,4.1311224,null,true);
+INSERT INTO "partycontactdetails" VALUEs('494367e8-4f7a-4e2a-98c1-d33da8c92257','fa17e7f5-ade9-49d4-abf3-dc3722711504','3266043e-c70d-4bb4-b0ee-6ff0ae42ce44');
+INSERT INTO "contactdetails" VALUES('77818c02-b15c-4304-9ac1-776dbb376770','email',null,null,null,null,null,null,null,null,'steven@email.be',true);
+INSERT INTO "partycontactdetails" VALUES('1cd5baa2-7838-4d84-8a6b-78a85892425c','fa17e7f5-ade9-49d4-abf3-dc3722711504','77818c02-b15c-4304-9ac1-776dbb376770');
+-- Rudi Rudolf has only an email
+INSERT INTO "contactdetails" VALUES('351cbc67-fb30-4e2e-afd8-f02243148c26','email',null,null,null,null,null,null,null,null,'rudi@email.be',true);
+INSERT INTO "partycontactdetails" VALUES('d9a89658-a873-4d53-ab43-5fd4c57a45b8','eb6e3ad7-066f-4357-a582-dfb31e173606','351cbc67-fb30-4e2e-afd8-f02243148c26');
 -- LETS Dendermonde
 INSERT INTO "contactdetails" VALUES('96de9531-d777-4dca-9997-7a774d2d7595','address',null,'Beekveldstraat','1a','2','9280','Lebbeke',50.9948538,4.1473891,null,true);
 INSERT INTO "partycontactdetails" VALUES('5e47192d-1957-4959-89bb-3418ab296080','8bf649b4-c50a-4ee9-9b02-877aa0a71849','96de9531-d777-4dca-9997-7a774d2d7595');

@@ -18,7 +18,7 @@ exports = module.exports = function (sri4node, extra) {
         element.$$messagesPostedBy = {href: '/messages?postedByParties=' + element.$$meta.permalink};
         element.$$transactions = {href: '/transactions?involvingParties=' + element.$$meta.permalink};
       }
-      element.$$allParents = {href: '/parties?parentsOf=' + element.$$meta.permalink};
+      element.$$allParents = {href: '/parties?ancestorsOfParties=' + element.$$meta.permalink};
     });
   }
 
@@ -83,27 +83,8 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
-  function childrenOf (value, select) {
-    var permalinks, keys = [],
-      nonrecursive = $u.prepareSQL(),
-      recursive = $u.prepareSQL();
-
-    permalinks = value.split(',');
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
-
-    nonrecursive.sql('VALUES ');
-    keys.forEach(function (key, index) {
-      if (index !== 0) {
-        nonrecursive.sql(',');
-      }
-      nonrecursive.sql('(').param(key).sql('::uuid)');
-    });
-
-    recursive.sql('SELECT r."from" FROM partyrelations r, childrenof c where r."to" = c.key and r.type = \'member\'');
-    select.with(nonrecursive, 'UNION', recursive, 'childrenof(key)');
+  function descendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'childrenof');
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
@@ -185,17 +166,17 @@ exports = module.exports = function (sri4node, extra) {
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
     query: {
-      parentsOf: common.parentsOf($u),
+      ancestorsOfParties: common.ancestorsOfParties($u),
       reachableFrom: reachableFrom,
-      childrenOf: childrenOf,
+      descendantsOfParties: descendantsOfParties,
       forMessages: forMessages,
       defaultFilter: $q.defaultFilter
     },
     querydocs: {
-      parentsOf: 'Only retrieve parties that are direct, or indirect parent of given parties.',
-      reachableFrom: 'Only retrieve parties that are reachable. ' +
+      ancestorsOfParties: 'Only retrieve parties that are direct, or indirect parent of given parties.',
+      reachableFromParties: 'Only retrieve parties that are reachable. ' +
         '(by find all children of the given parties their parents)',
-      childrenOf: 'Only retrieve direct and indirect members of the given parties.',
+      descendantsOfParties: 'Only retrieve direct and indirect members of the given parties.',
       forMessages: 'Only retrieve parties where the given messages were posted.'
     },
     // All columns in the table that appear in the
