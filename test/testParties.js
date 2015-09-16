@@ -57,8 +57,8 @@ exports = module.exports = function (base, logverbose) {
           });
       });
 
-      it('should support retrieving all reachable parties ?reachableFrom', function () {
-        return doGet(base + '/parties?reachableFrom=/parties/5df52f9f-e51f-4942-a810-1496c51e64db')
+      it('should support retrieving all reachable parties ?reachableFromParties', function () {
+        return doGet(base + '/parties?reachableFromParties=/parties/5df52f9f-e51f-4942-a810-1496c51e64db')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -79,7 +79,7 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieving reachable parties for multiple start nodes', function () {
-        return doGet(base + '/parties?reachableFrom=/parties/5df52f9f-e51f-4942-a810-1496c51e64db,' +
+        return doGet(base + '/parties?reachableFromParties=/parties/5df52f9f-e51f-4942-a810-1496c51e64db,' +
             '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504')
           .then(function (response) {
             var hrefs = [];

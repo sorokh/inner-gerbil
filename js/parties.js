@@ -52,40 +52,14 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function reachableFrom (value, select) {
-    var permalinks,
-      keys = [],
-      nonrecursive = $u.prepareSQL(),
-      recursive = $u.prepareSQL(),
-      nr2 = $u.prepareSQL(),
-      r2 = $u.prepareSQL();
-
-    permalinks = value.split(',');
-
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
-
-    nonrecursive.sql('VALUES ');
-    keys.forEach(function (key, index) {
-      if (index !== 0) {
-        nonrecursive.sql(',');
-      }
-      nonrecursive.sql('(').param(key).sql('::uuid)');
-    });
-
-    recursive.sql('select r.to FROM partyrelations r, parentsof s where r."from" = s.key and r.type = \'member\'');
-    select.with(nonrecursive, 'UNION', recursive, 'parentsof(key)');
-    nr2.sql('SELECT key FROM parentsof');
-    r2.sql('SELECT r."from" FROM partyrelations r, childrenof c where r."to" = c.key and r.type = \'member\'');
-    select.with(nr2, 'UNION', r2, 'childrenof(key)');
+  function reachableFromParties (value, select) {
+    common.reachableFromParties($u, value, select, 'childrenof');
     select.sql(' AND key IN (SELECT key FROM childrenof) ');
   }
 
   function descendantsOfParties (value, select) {
-    common.descendantsOfParties($u, value, select, 'childrenof');
-    select.sql(' AND key IN (SELECT key FROM childrenof) ');
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' AND key IN (SELECT key FROM descendantsOfParties) ');
   }
 
   function forMessages (value, select) {
@@ -167,7 +141,7 @@ exports = module.exports = function (sri4node, extra) {
     // this allows filtering on the list resource.
     query: {
       ancestorsOfParties: common.ancestorsOfParties($u),
-      reachableFrom: reachableFrom,
+      reachableFromParties: reachableFromParties,
       descendantsOfParties: descendantsOfParties,
       forMessages: forMessages,
       defaultFilter: $q.defaultFilter
