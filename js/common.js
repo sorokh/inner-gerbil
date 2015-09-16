@@ -137,10 +137,11 @@ exports = module.exports = {
 
     recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + ' c ' +
                   'where r."to" = c.key and r.type = \'member\'');
-    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');    
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
   },
-  
+
   reachableFromParties: function ($u, value, select, virtualtablename) {
+    'use strict';
     var permalinks,
       keys = [],
       nonrecursive = $u.prepareSQL(),
@@ -163,10 +164,12 @@ exports = module.exports = {
       nonrecursive.sql('(').param(key).sql('::uuid)');
     });
 
-    recursive.sql('select r.to FROM partyrelations r, ' + virtualtablename + 'parentsof s where r."from" = s.key and r.type = \'member\'');
+    recursive.sql('select r.to FROM partyrelations r, ' + virtualtablename +
+                  'parentsof s where r."from" = s.key and r.type = \'member\'');
     select.with(nonrecursive, 'UNION', recursive, virtualtablename + 'parentsof(key)');
     nr2.sql('SELECT key FROM ' + virtualtablename + 'parentsof');
-    r2.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + ' c where r."to" = c.key and r.type = \'member\'');
+    r2.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename +
+           ' c where r."to" = c.key and r.type = \'member\'');
     select.with(nr2, 'UNION', r2, virtualtablename + '(key)');
   }
 };
