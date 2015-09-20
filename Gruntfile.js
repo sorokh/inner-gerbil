@@ -8,7 +8,6 @@ module.exports = function (grunt) {
   grunt.initConfig({
     eslint: {
       options: {
-        config: '.eslintrc',
         reset: true
       },
       target: ['js/**/*.js', 'test/**/*.js', 'Jakefile.js', 'Gruntfile.js']
