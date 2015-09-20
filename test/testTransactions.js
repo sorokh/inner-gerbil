@@ -52,6 +52,50 @@ exports = module.exports = function (base, logverbose) {
           });
         });
       });
+
+      it('should allow parameter ?fromDescendantsOfParties=LEBBEKE|DENDERMONDE', function () {
+        return doGet(base + '/transactions?fromDescendantsOfParties=' +
+                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+          debug('statusCode : ' + response.statusCode);
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.TRANSACTION_ANNA_STEVEN_20);
+          expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
+        }).then(function () {
+          return doGet(base + '/transactions?fromDescendantsOfParties=' +
+                       common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+            debug('statusCode : ' + response.statusCode);
+            debug(response.body);
+            assert.equal(response.statusCode, 200);
+            var hrefs = createHrefArray(response);
+            expect(hrefs).to.contain(common.hrefs.TRANSACTION_ANNA_STEVEN_20);
+            expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
+          });
+        });
+      });
+
+      it('should allow parameter ?toDescendantsOfParties=LEBBEKE|DENDERMONDE', function () {
+        return doGet(base + '/transactions?toDescendantsOfParties=' +
+                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+          debug('statusCode : ' + response.statusCode);
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.TRANSACTION_ANNA_STEVEN_20);
+          expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
+        }).then(function () {
+          return doGet(base + '/transactions?toDescendantsOfParties=' +
+                       common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+            debug('statusCode : ' + response.statusCode);
+            debug(response.body);
+            assert.equal(response.statusCode, 200);
+            var hrefs = createHrefArray(response);
+            expect(hrefs).to.contain(common.hrefs.TRANSACTION_ANNA_STEVEN_20);
+            expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
+          });
+        });
+      });
     });
   });
 };

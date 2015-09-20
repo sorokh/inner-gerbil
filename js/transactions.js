@@ -25,6 +25,16 @@ exports = module.exports = function (sri4node, extra) {
                ' or "to" in (select key from descendantsOfParties) ');
   }
 
+  function fromDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and "from" in (select key from descendantsOfParties) ');
+  }
+
+  function toDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and "to" in (select key from descendantsOfParties) ');
+  }
+
   var ret = {
     type: '/transactions',
     'public': true, // eslint-disable-line
@@ -61,6 +71,8 @@ exports = module.exports = function (sri4node, extra) {
       forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
       involvingParties: involvingParties,
       involvingDescendantsOfParties: involvingDescendantsOfParties,
+      fromDescendantsOfParties: fromDescendantsOfParties,
+      toDescendantsOfParties: toDescendantsOfParties,
       defaultFilter: $q.defaultFilter
     },
     afterread: [
