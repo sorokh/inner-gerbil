@@ -32,6 +32,58 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.contain('/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15');
         });
       });
+
+      it('should support ?postedInDescendantsOfParties=LEBBEKE', function () {
+        return doGet(base + '/messages?postedInDescendantsOfParties=' +
+                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
+
+      it('should support ?postedInDescendantsOfParties=DENDERMONDE', function () {
+        return doGet(base + '/messages?postedInDescendantsOfParties=' +
+                     common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
+
+      it('should support ?postedInDescendantsOfParties=HAMME', function () {
+        return doGet(base + '/messages?postedInDescendantsOfParties=' +
+                     common.hrefs.PARTY_LETSHAMME).then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
+
     });
   });
 };
