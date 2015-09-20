@@ -29,6 +29,13 @@ exports = module.exports = {
     PARTY_LETSLEBBEKE: '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5',
     PARTY_LETSHAMME: '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301',
 
+    PARTY_ANNA: '/parties/5df52f9f-e51f-4942-a810-1496c51e64db',
+    PARTY_STEVEN: '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504',
+    PARTY_RUDI: '/parties/eb6e3ad7-066f-4357-a582-dfb31e173606',
+    PARTY_EDDY: '/parties/437d9b64-a3b4-467c-9abe-e9410332c1e5',
+    PARTY_LEEN: '/parties/abcb3c6e-721e-4f7c-ae4a-935e1980f15e',
+    PARTY_EMMANUELLA: '/parties/508f9ec9-df73-4a55-ad42-32839abd1760',
+
     PLUGIN_MAIL: '/plugins/7bd68a4b-138e-4228-9826-a002468222de',
 
     CONTACTDETAIL_ADDRESS_ANNA: '/contactdetails/843437b3-29dd-4704-afa8-6b06824b2e92',
@@ -49,6 +56,9 @@ exports = module.exports = {
     MESSAGE_STEVEN_INDISCH: '/messages/642f3d85-a21e-44d0-b6b3-969746feee9b',
     MESSAGE_STEVEN_SWITCH: '/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15',
     // LETS Hamme
-    MESSAGE_LEEN_PLANTS: '/messages/e24528a5-b12f-417a-a489-913d5879b895'
+    MESSAGE_LEEN_PLANTS: '/messages/e24528a5-b12f-417a-a489-913d5879b895',
+
+    TRANSACTION_ANNA_STEVEN_20: '/transactions/e068c284-26f1-4d11-acf3-8942610b26e7',
+    TRANSACTION_LEEN_EMMANUELLA_20: '/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78'
   }
 };

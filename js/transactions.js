@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
     $q = sri4node.queryUtils,
     $u = sri4node.utils;
 
-  var involvingParties = function (value, select) {
+  function involvingParties (value, select) {
     var permalinks = value.split(',');
     var keys = [];
 
@@ -16,8 +16,14 @@ exports = module.exports = function (sri4node, extra) {
       keys.push(key);
     });
 
-    select.sql('AND ("from" IN (').array(keys).sql(') OR "to" IN (').array(keys).sql(')) ');
-  };
+    select.sql(' and ("from" in (').array(keys).sql(') or "to" in (').array(keys).sql(')) ');
+  }
+
+  function involvingDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and "from" in (select key from descendantsOfParties)' +
+               ' or "to" in (select key from descendantsOfParties) ');
+  }
 
   var ret = {
     type: '/transactions',
@@ -54,6 +60,7 @@ exports = module.exports = function (sri4node, extra) {
       to: $q.filterReferencedType('/parties', 'to'),
       forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
       involvingParties: involvingParties,
+      involvingDescendantsOfParties: involvingDescendantsOfParties,
       defaultFilter: $q.defaultFilter
     },
     afterread: [
