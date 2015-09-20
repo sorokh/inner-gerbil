@@ -55,6 +55,7 @@
     <Content Include="sql\privileges.sql" />
     <Content Include="sql\schema.sql" />
     <Content Include="sql\testdata.sql" />
+    <Content Include="test\.eslintrc" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="js\" />

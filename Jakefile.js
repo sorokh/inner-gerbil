@@ -9,9 +9,9 @@ task('clean-database', {async: true}, function () {
     'psql -U postgres --echo-all < ./sql/clean-database.sql'
   ];
   jake.exec(cmds, {printStdout: true}, function () {
-      console.log('Database cleaned.');
-      complete();
-    });
+    console.log('Database cleaned.');
+    complete();
+  });
 });
 
 desc('Recreates database.');
@@ -23,9 +23,9 @@ task('create-database', ['clean-database'], {async: true}, function () {
     'psql -U postgres --echo-all < ./sql/testdata.sql'
   ];
   jake.exec(cmds, {printStdout: true}, function () {
-      console.log('Database created.');
-      complete();
-    });
+    console.log('Database created.');
+    complete();
+  });
 
   // Test to log OS version if we need to do something different for windows
   console.log(os.platform());
