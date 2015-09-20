@@ -14,6 +14,11 @@ exports = module.exports = function (sri4node, extra) {
                '(select key from partiesDescendantsOfParties))');
   }
 
+  function postedByDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
+    select.sql(' and author in (select key from partiesDescendantsOfParties)');
+  }
+
   var ret = {
     type: '/messages',
     'public': true, // eslint-disable-line
@@ -84,6 +89,7 @@ exports = module.exports = function (sri4node, extra) {
       postedInParties: common.filterRelatedManyToMany($u, 'messageparties', 'message', 'party'),
       postedByParties: $q.filterReferencedType('/parties', 'author'),
       postedInDescendantsOfParties: postedInDescendantsOfParties,
+      postedByDescendantsOfParties: postedByDescendantsOfParties,
       defaultFilter: $q.defaultFilter
     },
     afterread: [
