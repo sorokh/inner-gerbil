@@ -17,7 +17,7 @@ exports = module.exports = function (base, logverbose) {
   describe('/messages', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
-        return doGet(base + '/messages').then(function (response) {
+        return doGet(base + '/messages', 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           if (response.body.$$meta.count < 6) {
@@ -37,7 +37,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?postedInDescendantsOfParties=LEBBEKE', function () {
         return doGet(base + '/messages?postedInDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+                     common.hrefs.PARTY_LETSLEBBEKE, 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
@@ -54,7 +54,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?postedInDescendantsOfParties=DENDERMONDE', function () {
         return doGet(base + '/messages?postedInDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+                     common.hrefs.PARTY_LETSDENDERMONDE, 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
@@ -71,7 +71,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?postedInDescendantsOfParties=HAMME', function () {
         return doGet(base + '/messages?postedInDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSHAMME).then(function (response) {
+                     common.hrefs.PARTY_LETSHAMME, 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
@@ -88,7 +88,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?postedByDescendantsOfParties=LEBBEKE', function () {
         return doGet(base + '/messages?postedByDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+                     common.hrefs.PARTY_LETSLEBBEKE, 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
@@ -105,7 +105,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?postedByDescendantsOfParties=DENDERMONDE', function () {
         return doGet(base + '/messages?postedByDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+                     common.hrefs.PARTY_LETSDENDERMONDE, 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
@@ -122,7 +122,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?descendantsOfMessages=x', function () {
         return doGet(base + '/messages?descendantsOfMessages=' +
-                     common.hrefs.MESSAGE_ANNA_ASPERGES).then(function (response) {
+                     common.hrefs.MESSAGE_ANNA_ASPERGES, 'annadv', 'test').then(function (response) {
           debug(response.statusCode);
           debug(response.body);
           assert.equal(response.statusCode, 200);

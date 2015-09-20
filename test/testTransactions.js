@@ -17,7 +17,7 @@ exports = module.exports = function (base, logverbose) {
   describe('/transactions', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
-        return doGet(base + '/transactions').then(function (response) {
+        return doGet(base + '/transactions', 'annadv', 'test').then(function (response) {
           debug('statusCode : ' + response.statusCode);
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -33,7 +33,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should allow parameter ?involvingDescendantsOfParties=LEBBEKE|DENDERMONDE', function () {
         return doGet(base + '/transactions?involvingDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+                     common.hrefs.PARTY_LETSLEBBEKE, 'annadv', 'test').then(function (response) {
           debug('statusCode : ' + response.statusCode);
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -42,7 +42,7 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
         }).then(function () {
           return doGet(base + '/transactions?involvingDescendantsOfParties=' +
-                       common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+                       common.hrefs.PARTY_LETSDENDERMONDE, 'annadv', 'test').then(function (response) {
             debug('statusCode : ' + response.statusCode);
             debug(response.body);
             assert.equal(response.statusCode, 200);
@@ -55,7 +55,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should allow parameter ?fromDescendantsOfParties=LEBBEKE|DENDERMONDE', function () {
         return doGet(base + '/transactions?fromDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+                     common.hrefs.PARTY_LETSLEBBEKE, 'annadv', 'test').then(function (response) {
           debug('statusCode : ' + response.statusCode);
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -64,7 +64,7 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
         }).then(function () {
           return doGet(base + '/transactions?fromDescendantsOfParties=' +
-                       common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+                       common.hrefs.PARTY_LETSDENDERMONDE, 'annadv', 'test').then(function (response) {
             debug('statusCode : ' + response.statusCode);
             debug(response.body);
             assert.equal(response.statusCode, 200);
@@ -77,7 +77,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should allow parameter ?toDescendantsOfParties=LEBBEKE|DENDERMONDE', function () {
         return doGet(base + '/transactions?toDescendantsOfParties=' +
-                     common.hrefs.PARTY_LETSLEBBEKE).then(function (response) {
+                     common.hrefs.PARTY_LETSLEBBEKE, 'annadv', 'test').then(function (response) {
           debug('statusCode : ' + response.statusCode);
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -86,7 +86,7 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.not.contain(common.hrefs.TRANSACTION_LEEN_EMMANUELLA_20);
         }).then(function () {
           return doGet(base + '/transactions?toDescendantsOfParties=' +
-                       common.hrefs.PARTY_LETSDENDERMONDE).then(function (response) {
+                       common.hrefs.PARTY_LETSDENDERMONDE, 'annadv', 'test').then(function (response) {
             debug('statusCode : ' + response.statusCode);
             debug(response.body);
             assert.equal(response.statusCode, 200);

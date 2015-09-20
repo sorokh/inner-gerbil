@@ -17,7 +17,7 @@ exports = module.exports = function (base, logverbose) {
   describe('/parties', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
-        return doGet(base + '/parties').then(function (response) {
+        return doGet(base + '/parties', 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           if (response.body.$$meta.count < 4) {
@@ -28,7 +28,8 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ancestorsOfParties as URL parameter', function () {
         // Find parents of LETS Lebbeke, should return LETS Regio Dendermonde
-        return doGet(base + '/parties?ancestorsOfParties=/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5')
+        return doGet(base + '/parties?ancestorsOfParties=' +
+                     '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5', 'annadv', 'test')
           .then(function (response) {
             assert.equal(response.statusCode, 200);
             assert.equal(response.body.$$meta.count, 1);
@@ -38,7 +39,8 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ancestorsOfParties with multiple parameters', function () {
         return doGet(base + '/parties?ancestorsOfParties=' +
-            '/parties/5df52f9f-e51f-4942-a810-1496c51e64db,/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504')
+            '/parties/5df52f9f-e51f-4942-a810-1496c51e64db,' +
+            '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -58,7 +60,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieving all reachable parties ?reachableFromParties', function () {
-        return doGet(base + '/parties?reachableFromParties=/parties/5df52f9f-e51f-4942-a810-1496c51e64db')
+        return doGet(base + '/parties?reachableFromParties=' +
+                     '/parties/5df52f9f-e51f-4942-a810-1496c51e64db', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -79,8 +82,9 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieving reachable parties for multiple start nodes', function () {
-        return doGet(base + '/parties?reachableFromParties=/parties/5df52f9f-e51f-4942-a810-1496c51e64db,' +
-            '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504')
+        return doGet(base + '/parties?reachableFromParties=' +
+            '/parties/5df52f9f-e51f-4942-a810-1496c51e64db,' +
+            '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -100,7 +104,7 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieving all parties of type "person"', function () {
-        return doGet(base + '/parties?type=person')
+        return doGet(base + '/parties?type=person', 'annadv', 'test')
           .then(function (response) {
             assert.equal(response.statusCode, 200);
             if (response.body.count < 2) {
@@ -112,7 +116,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieve all children below 1 node', function () {
-        return doGet(base + '/parties?descendantsOfParties=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849')
+        return doGet(base + '/parties?descendantsOfParties=' +
+                    '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -130,7 +135,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support retrieve all children below 1 node & of a certain type', function () {
-        return doGet(base + '/parties?descendantsOfParties=/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person')
+        return doGet(base + '/parties?descendantsOfParties=' +
+                     '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -148,7 +154,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support ?forMessages=...', function () {
-        return doGet(base + '/parties?forMessages=/messages/e24528a5-b12f-417a-a489-913d5879b895')
+        return doGet(base + '/parties?forMessages=' +
+                     '/messages/e24528a5-b12f-417a-a489-913d5879b895', 'annadv', 'test')
           .then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -157,5 +164,4 @@ exports = module.exports = function (base, logverbose) {
       });
     });
   });
-
 };

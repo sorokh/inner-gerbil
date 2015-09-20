@@ -6,7 +6,7 @@ exports = module.exports = function (sri4node, extra) {
 
   var ret = {
     type: '/messagerelations',
-    'public': true, // eslint-disable-line
+    public: false,
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
