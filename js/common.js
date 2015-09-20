@@ -203,4 +203,3 @@ exports = module.exports = {
     select.with(nr2, 'UNION', r2, virtualtablename + '(key)');
   }
 };
-

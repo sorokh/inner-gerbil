@@ -54,29 +54,12 @@ exports = module.exports = function (sri4node, extra) {
 
   function reachableFromParties (value, select) {
     common.reachableFromParties($u, value, select, 'childrenof');
-    select.sql(' AND key IN (SELECT key FROM childrenof) ');
+    select.sql(' and key in (select key from childrenof) ');
   }
 
   function descendantsOfParties (value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' AND key IN (SELECT key FROM descendantsOfParties) ');
-  }
-
-  function forMessages (value, select) {
-    var q = $u.prepareSQL();
-
-    var links, keys, key;
-    keys = [];
-    links = value.split(',');
-    links.forEach(function (link) {
-      key = link.split('/')[2];
-      keys.push(key);
-    });
-
-    q.sql('select party from messageparties where message in (')
-      .array(keys).sql(')');
-    select.with(q, 'relatedmessages');
-    select.sql(' and key in (select party from relatedmessages) ');
   }
 
   var ret = {
@@ -143,7 +126,7 @@ exports = module.exports = function (sri4node, extra) {
       ancestorsOfParties: common.ancestorsOfParties($u),
       reachableFromParties: reachableFromParties,
       descendantsOfParties: descendantsOfParties,
-      forMessages: forMessages,
+      forMessages: common.filterRelatedManyToMany($u, 'messageparties', 'party', 'message'),
       defaultFilter: $q.defaultFilter
     },
     querydocs: {
