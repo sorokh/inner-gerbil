@@ -120,6 +120,16 @@ exports = module.exports = function (base, logverbose) {
         });
       });
 
+      it('should support ?descendantsOfMessages=x', function () {
+        return doGet(base + '/messages?descendantsOfMessages=' +
+                     common.hrefs.MESSAGE_ANNA_ASPERGES).then(function (response) {
+          debug(response.statusCode);
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_REPLY_TO_ASPERGES);
+        });
+      });
     });
   });
 };

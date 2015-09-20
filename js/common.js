@@ -140,6 +140,36 @@ exports = module.exports = {
     select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
   },
 
+  /*
+  Adds a CTE to the given select query, and created a virtual table that
+  has a single column (the key) of all descendants (recursively) of the given
+  value (a comma-separated list of permalinks to /messages).
+  */
+  descendantsOfMessages: function ($u, value, select, virtualtablename) {
+    'use strict';
+    var permalinks, keys = [],
+      nonrecursive = $u.prepareSQL(),
+      recursive = $u.prepareSQL();
+
+    permalinks = value.split(',');
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
+
+    nonrecursive.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        nonrecursive.sql(',');
+      }
+      nonrecursive.sql('(').param(key).sql('::uuid)');
+    });
+
+    recursive.sql('SELECT r."from" FROM messagerelations r, ' + virtualtablename + ' c ' +
+                  'where r."to" = c.key');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
+  },
+
   reachableFromParties: function ($u, value, select, virtualtablename) {
     'use strict';
     var permalinks,
