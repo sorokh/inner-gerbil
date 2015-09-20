@@ -55,6 +55,7 @@ exports = module.exports = {
     MESSAGE_ANNA_ASPERGES: '/messages/0cc3d15f-47ef-450a-a0ac-518202d7a67b',
     MESSAGE_STEVEN_INDISCH: '/messages/642f3d85-a21e-44d0-b6b3-969746feee9b',
     MESSAGE_STEVEN_SWITCH: '/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15',
+    MESSAGE_STEVEN_REPLY_TO_ASPERGES: '/messages/e8a73a40-bfcd-4f5a-9f8a-9355cc956af0',
     // LETS Hamme
     MESSAGE_LEEN_PLANTS: '/messages/e24528a5-b12f-417a-a489-913d5879b895',
 

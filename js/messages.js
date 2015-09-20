@@ -11,12 +11,17 @@ exports = module.exports = function (sri4node, extra) {
   function postedInDescendantsOfParties (value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
     select.sql(' and key in (select message from messageparties where party in ' +
-               '(select key from partiesDescendantsOfParties))');
+               '(select key from partiesDescendantsOfParties)) ');
   }
 
   function postedByDescendantsOfParties (value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
-    select.sql(' and author in (select key from partiesDescendantsOfParties)');
+    select.sql(' and author in (select key from partiesDescendantsOfParties) ');
+  }
+
+  function descendantsOfMessages (value, select) {
+    common.descendantsOfMessages($u, value, select, 'messagesDescendantsOfMessages');
+    select.sql(' and key in (select key from messagesDescendantsOfMessages) ');
   }
 
   var ret = {
@@ -90,6 +95,7 @@ exports = module.exports = function (sri4node, extra) {
       postedByParties: $q.filterReferencedType('/parties', 'author'),
       postedInDescendantsOfParties: postedInDescendantsOfParties,
       postedByDescendantsOfParties: postedByDescendantsOfParties,
+      descendantsOfMessages: descendantsOfMessages,
       defaultFilter: $q.defaultFilter
     },
     afterread: [
