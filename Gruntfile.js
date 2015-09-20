@@ -11,7 +11,7 @@ module.exports = function (grunt) {
         config: '.eslintrc',
         reset: true
       },
-      target: ['js/**/*.js', 'Jakefile.js', 'Gruntfile.js']
+      target: ['js/**/*.js', 'test/**/*.js', 'Jakefile.js', 'Gruntfile.js']
     }
   });
 
