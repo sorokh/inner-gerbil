@@ -85,7 +85,7 @@ exports = module.exports = function (sri4node, extra) {
     type: '/parties',
     // Is this resource public ?
     // Can it be read / updated / inserted publicly ?
-    public: false,   
+    public: false,
     // Multiple function that check access control
     // They receive a database object and
     // the security context of the current user.
