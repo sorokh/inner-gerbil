@@ -14,8 +14,7 @@
     "pg": "^4.4.1",
     "q": "^1.4.1",
     "sri4node": "^1.1.11",
-    "sri4node-client": "^1.0.1",
-    "supervisor": "^0.7.1"
+    "sri4node-client": "^1.0.1"
   },
   "engines": {
     "node": "0.12.2"

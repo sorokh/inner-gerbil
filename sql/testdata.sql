@@ -19,6 +19,7 @@ INSERT INTO "parties" VALUES ('eb6e3ad7-066f-4357-a582-dfb31e173606','person','R
 INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,'eddym','test',null,null,'active');
 -- Leen De Baere of LETS Hamme
 INSERT INTO "parties" VALUES ('abcb3c6e-721e-4f7c-ae4a-935e1980f15e','person','Leen De Baere',null,'1980-04-01',null,'leendb','test',null,null,'active');
+-- Emmanuella of LETS Hamme
 INSERT INTO "parties" VALUES ('508f9ec9-df73-4a55-ad42-32839abd1760','person','Emmanuella',null,'1982-05-01',null,'emmanuella','test',null,null,'active');
 
 -- partyrelations -- key, from, to, type, balance, status
@@ -69,6 +70,7 @@ INSERT INTO "transactionrelations" VALUES('525fbf3b-5886-47e3-a08a-8b5273a944cb'
 INSERT INTO "transactionrelations" VALUES('1fda908c-66c1-4b42-921c-562c3c4a2e56','1ffc9267-b51f-4970-91a2-ae20f4487f78','912ae080-29fa-4387-b031-c594167601e0',-20);
 INSERT INTO "transactionrelations" VALUES('ebf2b62d-684f-4f60-bcd0-c94c56e9129f','1ffc9267-b51f-4970-91a2-ae20f4487f78','d7669476-91ef-420b-99cd-ac906f985481',20);
 
+-- key,author,title,description,eventdate,amount,unit,tags[], photos[], created, modified, expires
 -- Messages
 -- For Anna
 INSERT INTO "messages" VALUES('a998ff05-1291-4399-8604-16001015e147','5df52f9f-e51f-4942-a810-1496c51e64db','Help met windows 8','Ik ben meer vertrouwd met windows 7, en weet soms niet waar iets staat. Wie kan me wat hulp/advies geven.',null,20,'uur',ARRAY['dienst','vraag'],null,'2015-01-13','2015-01-14','2016-01-13');
@@ -87,16 +89,28 @@ INSERT INTO "messages" VALUES('d1c23a0c-4420-4bd3-9fa0-d542b0155a15','fa17e7f5-a
 -- For Leen
 INSERT INTO "messages" VALUES('e24528a5-b12f-417a-a489-913d5879b895','abcb3c6e-721e-4f7c-ae4a-935e1980f15e','Mooie planten in de aanbieding',null,null,5,'plant',ARRAY['goed','aanbod'],null,'2015-01-11','2015-01-11','2016-01-11');
 
+-- For Rudi
+INSERT INTO "messages" VALUES('11f2229f-1dea-4c5a-8abe-2980b2812cc4','eb6e3ad7-066f-4357-a582-dfb31e173606','Website op maat maken','Ik maak een eenvoudige, moderne website, op maat voor jouw project, organisatie of activiteit',null,20,'uur',ARRAY['dienst','aanbod'],null,'2015-06-01','2015-06-01','2016-06-01');
+
 -- Contact details for event
 INSERT INTO "contactdetails" VALUES('3362d325-cf19-4730-8490-583da50e114e','address',null,'Stationstraat','15',null,'9280','Lebbeke',51.0018547,4.1304841,null,true);
 INSERT INTO "messagecontactdetails" VALUES('aac80841-3e05-4139-b8de-8bb5159f893c','d1c23a0c-4420-4bd3-9fa0-d542b0155a15','3362d325-cf19-4730-8490-583da50e114e');
 
+-- key, message, party
 -- Messages posted to LETS Lebbeke
+-- For Anna
 INSERT INTO "messageparties" VALUES('1f4cf370-683d-4c87-8523-2e2061706dbc','a998ff05-1291-4399-8604-16001015e147','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
 INSERT INTO "messageparties" VALUES('4f386747-865e-4052-b62d-18154c239b77','b7c41d85-687d-4f9e-a4ef-0c67515cbb63','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
 INSERT INTO "messageparties" VALUES('8dd608e1-17c1-449a-a161-a4a19c471e4f','1f2e1d34-c3b7-42e8-9478-45cdc0839427','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
 INSERT INTO "messageparties" VALUES('df0dfbce-6bb8-4eff-b3aa-0e24a825ccec','0cc3d15f-47ef-450a-a0ac-518202d7a67b','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
--- To LETS Hamme
+-- For Steven
+INSERT INTO "messageparties" VALUES('822e363c-962a-466a-a438-56ba6235c542','642f3d85-a21e-44d0-b6b3-969746feee9b','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+INSERT INTO "messageparties" VALUES('724eed7f-cee5-466b-8013-a0d1990d7622','d1c23a0c-4420-4bd3-9fa0-d542b0155a15','aca5e15d-9f4c-4c79-b906-f7e868b3abc5');
+-- Messages posted to LETS Dendermonde
+-- For Rudi
+INSERT INTO "messageparties" VALUES('fe670dab-42ac-4f7d-b208-9d7b4a05e7e7','11f2229f-1dea-4c5a-8abe-2980b2812cc4','8bf649b4-c50a-4ee9-9b02-877aa0a71849');
+-- Messages posted to LETS Hamme
+-- For Leen
 INSERT INTO "messageparties" VALUES('568a36bf-a1bb-4fdf-8abc-eb7913c88461','e24528a5-b12f-417a-a489-913d5879b895','0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
 
 -- Transactions that are related to a specific message.

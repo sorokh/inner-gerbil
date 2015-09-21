@@ -7,40 +7,6 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function forMessages (value, select) {
-    var q = $u.prepareSQL();
-
-    var links, keys, key;
-    keys = [];
-    links = value.split(',');
-    links.forEach(function (link) {
-      key = link.split('/')[2];
-      keys.push(key);
-    });
-
-    q.sql('select contactdetail from messagecontactdetails where message in (')
-      .array(keys).sql(')');
-    select.with(q, 'relatedcontactdetails');
-    select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
-  }
-
-  function forParties (value, select) {
-    var q = $u.prepareSQL();
-
-    var links, keys, key;
-    keys = [];
-    links = value.split(',');
-    links.forEach(function (link) {
-      key = link.split('/')[2];
-      keys.push(key);
-    });
-
-    q.sql('select contactdetail from partycontactdetails where party in (')
-  .array(keys).sql(')');
-    select.with(q, 'relatedcontactdetails');
-    select.sql(' and key in (select contactdetail from relatedcontactdetails) ');
-  }
-
   function forDescendantsOfParties (value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' and key in ' +
@@ -48,9 +14,16 @@ exports = module.exports = function (sri4node, extra) {
                '(select key from descendantsOfParties)) ');
   }
 
+  function forPartiesReachableFromParties (value, select) {
+    common.reachableFromParties($u, value, select, 'partiesReachableFromParties');
+    select.sql(' and key in ' +
+               '(select contactdetail from partycontactdetails where party in ' +
+               '(select key from partiesReachableFromParties)) ');
+  }
+
   var ret = {
     type: '/contactdetails',
-    'public': true, // eslint-disable-line
+    public: false,
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
@@ -117,9 +90,10 @@ exports = module.exports = function (sri4node, extra) {
     },
     validate: [],
     query: {
+      forPartiesReachableFromParties: forPartiesReachableFromParties,
       forDescendantsOfParties: forDescendantsOfParties,
-      forParties: forParties,
-      forMessages: forMessages,
+      forParties: common.filterRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party'),
+      forMessages: common.filterRelatedManyToMany($u, 'messagecontactdetails', 'contactdetail', 'message'),
       defaultFilter: $q.defaultFilter
     },
     afterread: [

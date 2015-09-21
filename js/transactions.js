@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
     $q = sri4node.queryUtils,
     $u = sri4node.utils;
 
-  var involvingParties = function (value, select) {
+  function involvingParties (value, select) {
     var permalinks = value.split(',');
     var keys = [];
 
@@ -16,12 +16,28 @@ exports = module.exports = function (sri4node, extra) {
       keys.push(key);
     });
 
-    select.sql('AND ("from" IN (').array(keys).sql(') OR "to" IN (').array(keys).sql(')) ');
-  };
+    select.sql(' and ("from" in (').array(keys).sql(') or "to" in (').array(keys).sql(')) ');
+  }
+
+  function involvingDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and "from" in (select key from descendantsOfParties)' +
+               ' or "to" in (select key from descendantsOfParties) ');
+  }
+
+  function fromDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and "from" in (select key from descendantsOfParties) ');
+  }
+
+  function toDescendantsOfParties (value, select) {
+    common.descendantsOfParties($u, value, select, 'descendantsOfParties');
+    select.sql(' and "to" in (select key from descendantsOfParties) ');
+  }
 
   var ret = {
     type: '/transactions',
-    'public': true, // eslint-disable-line
+    public: false,
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
@@ -54,6 +70,9 @@ exports = module.exports = function (sri4node, extra) {
       to: $q.filterReferencedType('/parties', 'to'),
       forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
       involvingParties: involvingParties,
+      involvingDescendantsOfParties: involvingDescendantsOfParties,
+      fromDescendantsOfParties: fromDescendantsOfParties,
+      toDescendantsOfParties: toDescendantsOfParties,
       defaultFilter: $q.defaultFilter
     },
     afterread: [

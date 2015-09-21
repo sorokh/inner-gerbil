@@ -25,7 +25,7 @@ exports = module.exports = function (base, logverbose) {
         var PARTY_HREF_ANNA = '/parties/5df52f9f-e51f-4942-a810-1496c51e64db';
         var PARTY_HREF_STEVEN = '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504';
 
-        return doGet(base + '/partyrelations').then(function (response) {
+        return doGet(base + '/partyrelations', 'annadv', 'test').then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           if (response.body.$$meta.count < 3) {
@@ -66,5 +66,4 @@ exports = module.exports = function (base, logverbose) {
       });
     });
   });
-
 };

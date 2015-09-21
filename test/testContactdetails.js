@@ -17,7 +17,7 @@ exports = module.exports = function (base, logverbose) {
   describe('/contactdetails', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
-        return doGet(base + '/contactdetails').then(function (response) {
+        return doGet(base + '/contactdetails', 'annadv', 'test').then(function (response) {
           assert.equal(response.statusCode, 200);
           if (response.body.$$meta.count < 3) {
             assert.fail('Expected all contactdetails');
@@ -30,7 +30,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support ?forMessages=', function () {
-        return doGet(base + '/contactdetails?forMessages=/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15')
+        return doGet(base + '/contactdetails?forMessages=' +
+                     '/messages/d1c23a0c-4420-4bd3-9fa0-d542b0155a15', 'annadv', 'test')
           .then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
@@ -39,7 +40,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support ?forDescendantsOfParties=', function () {
-        return doGet(base + '/contactdetails?forDescendantsOfParties=' + common.hrefs.PARTY_LETSDENDERMONDE)
+        return doGet(base + '/contactdetails?forDescendantsOfParties=' + common.hrefs.PARTY_LETSDENDERMONDE,
+                    'annadv', 'test')
           .then(function (response) {
           debug(response.body);
           var hrefs = createHrefArray(response);
@@ -55,7 +57,8 @@ exports = module.exports = function (base, logverbose) {
       });
 
       it('should support ?forDescendantsOfParties=', function () {
-        return doGet(base + '/contactdetails?forDescendantsOfParties=' + common.hrefs.PARTY_LETSLEBBEKE)
+        return doGet(base + '/contactdetails?forDescendantsOfParties=' + common.hrefs.PARTY_LETSLEBBEKE,
+                    'annadv', 'test')
           .then(function (response) {
           debug(response.body);
           var hrefs = createHrefArray(response);
