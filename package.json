@@ -4,7 +4,8 @@
   "description": "The core API for a next generation mutual credit system",
   "main": "index.js",
   "scripts": {
-    "start": "foreman start -f Procfile.start",
+    "start": "node js/server.js"
+    "dev": "nodemon --debug --watch . js/server.js",
     "test": "mocha"
   },
   "dependencies": {
