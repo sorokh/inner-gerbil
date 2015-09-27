@@ -7,14 +7,14 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function forDescendantsOfParties (value, select) {
+  function forDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' and key in ' +
                '(select contactdetail from partycontactdetails where party in ' +
                '(select key from descendantsOfParties)) ');
   }
 
-  function forPartiesReachableFromParties (value, select) {
+  function forPartiesReachableFromParties(value, select) {
     common.reachableFromParties($u, value, select, 'partiesReachableFromParties');
     select.sql(' and key in ' +
                '(select contactdetail from partycontactdetails where party in ' +

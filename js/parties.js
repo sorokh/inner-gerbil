@@ -9,7 +9,7 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function addLinks (database, elements) { /* eslint-disable-line */
+  function addLinks(database, elements) { /* eslint-disable-line */
     elements.forEach(function (element) {
       if (element.type && element.type !== 'person') {
         element.$$messagesPostedHere = {href: '/messages?postedInParties=' + element.$$meta.permalink};
@@ -22,7 +22,7 @@ exports = module.exports = function (sri4node, extra) {
     });
   }
 
-  function addDirectParent (database, elements) {
+  function addDirectParent(database, elements) {
     var deferred = Q.defer();
 
     var keys = [];
@@ -52,14 +52,19 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function reachableFromParties (value, select) {
+  function reachableFromParties(value, select) {
     common.reachableFromParties($u, value, select, 'childrenof');
     select.sql(' and key in (select key from childrenof) ');
   }
 
-  function descendantsOfParties (value, select) {
+  function descendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
-    select.sql(' AND key IN (SELECT key FROM descendantsOfParties) ');
+    select.sql(' and key in (select key from descendantsOfParties) ');
+  }
+
+  function inLatLong(value, select) {
+    common.filterLatLong($u, value, select, 'parties', 'latlongcontactdetails');
+    select.sql(' and key in (select key from latlongcontactdetails) ');
   }
 
   var ret = {
@@ -127,6 +132,7 @@ exports = module.exports = function (sri4node, extra) {
       reachableFromParties: reachableFromParties,
       descendantsOfParties: descendantsOfParties,
       forMessages: common.filterRelatedManyToMany($u, 'messageparties', 'party', 'message'),
+      inLatLong: inLatLong,
       defaultFilter: $q.defaultFilter
     },
     querydocs: {

@@ -8,18 +8,18 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function postedInDescendantsOfParties (value, select) {
+  function postedInDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
     select.sql(' and key in (select message from messageparties where party in ' +
                '(select key from partiesDescendantsOfParties)) ');
   }
 
-  function postedByDescendantsOfParties (value, select) {
+  function postedByDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
     select.sql(' and author in (select key from partiesDescendantsOfParties) ');
   }
 
-  function descendantsOfMessages (value, select) {
+  function descendantsOfMessages(value, select) {
     common.descendantsOfMessages($u, value, select, 'messagesDescendantsOfMessages');
     select.sql(' and key in (select key from messagesDescendantsOfMessages) ');
   }

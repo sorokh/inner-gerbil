@@ -201,5 +201,45 @@ exports = module.exports = {
     r2.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename +
            ' c where r."to" = c.key and r.type = \'member\'');
     select.with(nr2, 'UNION', r2, virtualtablename + '(key)');
+  },
+
+  /*
+  Adds a CTE to your query :
+  Selects parties from 'partiestablename' that have a contactdetail with coordinates inside of
+  those specified in the value (minLat,maxLat,minLong,maxLong) where are of these vales have 1 decimal digit.
+  It selects the keys of the matching parties into a virtual table called 'virtualtablename'.
+  */
+  filterLatLong: function ($u, value, select, partiestablename, virtualtablename) {
+    'use strict';
+    var pattern = new RegExp('[0-9]+\.[0-9]\,[0-9]+\.[0-9]\,[0-9]+\.[0-9]\,[0-9]+\.[0-9]');
+    var parts = [];
+    var q;
+    var error;
+
+    if (pattern.test(value)) {
+      parts = value.split(',');
+      q = $u.prepareSQL('filterLatLong-' + partiestablename);
+      q.sql('select party as key from partycontactdetails where contactdetail in ');
+      q.sql('(select key from contactdetails ');
+      q.sql('where ');
+      q.sql(' key in ' +
+            '(select contactdetail from partycontactdetails where party in ' +
+            '(select key from ' + partiestablename + '))');
+      q.sql(' and latitude > ').param(parseFloat(parts[0]));
+      q.sql(' and latitude < ').param(parseFloat(parts[1]));
+      q.sql(' and longitude > ').param(parseFloat(parts[2]));
+      q.sql(' and longitude < ').param(parseFloat(parts[3]));
+      q.sql(')');
+      select.with(q, virtualtablename);
+    } else {
+      error = {
+        code: 'invalid.syntax.lat.long.boundaries',
+        description: 'Specify latitude and longitude with comma-separated values ' +
+                     'that have 1 decimal digit (use dot for decimal separation). ' +
+                     'Example : 50.9,51.0,4.1,4.2',
+        type: 'ERROR'
+      };
+      throw error;
+    }
   }
 };
