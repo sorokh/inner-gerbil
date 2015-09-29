@@ -62,6 +62,13 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and key in (select key from descendantsOfParties) ');
   }
 
+  function ancestorsOfParties(value, select) {
+    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
+    common.ancestorsOfParties($u, value, select, 'ancestorsOfParties');
+    select.sql(' AND key IN (SELECT key FROM ancestorsOfParties) ');
+    select.sql(' AND key NOT IN (').array(keys).sql(') ');
+  }
+
   function inLatLong(value, select) {
     common.filterLatLong($u, value, select, 'parties', 'latlongcontactdetails');
     select.sql(' and key in (select key from latlongcontactdetails) ');
@@ -128,7 +135,7 @@ exports = module.exports = function (sri4node, extra) {
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
     query: {
-      ancestorsOfParties: common.ancestorsOfParties($u),
+      ancestorsOfParties: ancestorsOfParties,
       reachableFromParties: reachableFromParties,
       descendantsOfParties: descendantsOfParties,
       forMessages: common.filterRelatedManyToMany($u, 'messageparties', 'party', 'message'),

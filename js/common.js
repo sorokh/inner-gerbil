@@ -77,37 +77,49 @@ exports = module.exports = {
     };
   },
 
-  /*
-  Extends the give SQL 'select' to restrict on parent of 'value'
-   */
-  ancestorsOfParties: function ($u) {
+  uuidsFromCommaSeparatedListOfPermalinks: function (value) {
     'use strict';
-    return function (value, select) {
-      var permalinks = value.split(',');
-      var keys = [], nonrecursive, recursive;
+    var permalinks = value.split(',');
+    var keys = [];
 
-      permalinks.forEach(function (permalink) {
-        var key = permalink.split('/')[2];
-        keys.push(key);
-      });
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
 
-      nonrecursive = $u.prepareSQL();
-      recursive = $u.prepareSQL();
+    return keys;
+  },
 
-      nonrecursive.sql('VALUES ');
-      keys.forEach(function (key, index) {
-        if (index !== 0) {
-          nonrecursive.sql(',');
-        }
-        nonrecursive.sql('(').param(key).sql('::uuid)');
-      });
+  valuesFromKeys: function ($u, keys) {
+    'use strict';
+    var ret = $u.prepareSQL();
 
-      recursive.sql('SELECT r.to FROM partyrelations r, search_relations s ' +
-          'where r."from" = s.key and r.type=\'member\'');
-      select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
-      select.sql(' AND key IN (SELECT key FROM search_relations) ');
-      select.sql(' AND key NOT IN (').array(keys).sql(') ');
-    };
+    ret.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        ret.sql(',');
+      }
+      ret.sql('(').param(key).sql('::uuid)');
+    });
+
+    return ret;
+  },
+
+  /*
+  Adds a CTE to your select, that creates a virtual table with one column :
+  'key' that has keys of parties that are (recursively) ancestors of the given
+  permalinks in value.
+   */
+  ancestorsOfParties: function ($u, value, select, virtualtablename) {
+    'use strict';
+    var nonrecursive, recursive;
+
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
+    nonrecursive = this.valuesFromKeys($u, keys);
+    recursive = $u.prepareSQL();
+    recursive.sql('SELECT r.to FROM partyrelations r, ' + virtualtablename + ' s ' +
+        'where r."from" = s.key and r.type=\'member\'');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
   },
 
   /*
@@ -117,15 +129,10 @@ exports = module.exports = {
   */
   descendantsOfParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var permalinks, keys = [],
-      nonrecursive = $u.prepareSQL(),
+    var nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL();
 
-    permalinks = value.split(',');
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
 
     nonrecursive.sql('VALUES ');
     keys.forEach(function (key, index) {
@@ -147,15 +154,10 @@ exports = module.exports = {
   */
   descendantsOfMessages: function ($u, value, select, virtualtablename) {
     'use strict';
-    var permalinks, keys = [],
-      nonrecursive = $u.prepareSQL(),
+    var nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL();
 
-    permalinks = value.split(',');
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
 
     nonrecursive.sql('VALUES ');
     keys.forEach(function (key, index) {
@@ -172,19 +174,12 @@ exports = module.exports = {
 
   reachableFromParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var permalinks,
-      keys = [],
-      nonrecursive = $u.prepareSQL(),
+    var nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL(),
       nr2 = $u.prepareSQL(),
       r2 = $u.prepareSQL();
 
-    permalinks = value.split(',');
-
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
 
     nonrecursive.sql('VALUES ');
     keys.forEach(function (key, index) {
