@@ -1,4 +1,4 @@
-  /*eslint-env node */
+/*eslint-env node */
 var express = require('express'),
   compress = require('compression'),
   pg = require('pg');
@@ -51,5 +51,5 @@ app.get('/', function (request, response) {
 
 app.listen(app.get('port'), function () {
   'use strict';
-  cl('Node app is running on port', app.get('port'));
+  cl('Node app is running on port ' + app.get('port'));
 });

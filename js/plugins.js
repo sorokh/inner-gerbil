@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function notfound () {
+  function notfound() {
     var defer = Q.defer();
 
     defer.reject({

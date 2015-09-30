@@ -7,18 +7,28 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
-  function forDescendantsOfParties (value, select) {
+  function forDescendantsOfParties(value, select) {
+    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' and key in ' +
                '(select contactdetail from partycontactdetails where party in ' +
-               '(select key from descendantsOfParties)) ');
+               '(select key from descendantsOfParties where key not in (').array(keys).sql('))) ');
   }
 
-  function forPartiesReachableFromParties (value, select) {
+  function forPartiesReachableFromParties(value, select) {
+    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
     common.reachableFromParties($u, value, select, 'partiesReachableFromParties');
     select.sql(' and key in ' +
                '(select contactdetail from partycontactdetails where party in ' +
-               '(select key from partiesReachableFromParties)) ');
+               '(select key from partiesReachableFromParties where key not in (').array(keys).sql('))) ');
+  }
+
+  function forAncestorsOfParties(value, select) {
+    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
+    common.ancestorsOfParties($u, value, select, 'ancestorsOfParties');
+    select.sql(' and key in ' +
+               '(select contactdetail from partycontactdetails where party in ' +
+               '(select key from ancestorsOfParties where key not in (').array(keys).sql('))) ');
   }
 
   var ret = {
@@ -92,6 +102,7 @@ exports = module.exports = function (sri4node, extra) {
     query: {
       forPartiesReachableFromParties: forPartiesReachableFromParties,
       forDescendantsOfParties: forDescendantsOfParties,
+      forAncestorsOfParties: forAncestorsOfParties,
       forParties: common.filterRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party'),
       forMessages: common.filterRelatedManyToMany($u, 'messagecontactdetails', 'contactdetail', 'message'),
       defaultFilter: $q.defaultFilter

@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
     $q = sri4node.queryUtils,
     $u = sri4node.utils;
 
-  function involvingParties (value, select) {
+  function involvingParties(value, select) {
     var permalinks = value.split(',');
     var keys = [];
 
@@ -19,18 +19,18 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and ("from" in (').array(keys).sql(') or "to" in (').array(keys).sql(')) ');
   }
 
-  function involvingDescendantsOfParties (value, select) {
+  function involvingDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' and "from" in (select key from descendantsOfParties)' +
                ' or "to" in (select key from descendantsOfParties) ');
   }
 
-  function fromDescendantsOfParties (value, select) {
+  function fromDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' and "from" in (select key from descendantsOfParties) ');
   }
 
-  function toDescendantsOfParties (value, select) {
+  function toDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
     select.sql(' and "to" in (select key from descendantsOfParties) ');
   }

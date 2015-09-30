@@ -1,1 +1,0 @@
-web: nodemon --debug --watch . js/server.js

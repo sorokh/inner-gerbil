@@ -77,37 +77,49 @@ exports = module.exports = {
     };
   },
 
-  /*
-  Extends the give SQL 'select' to restrict on parent of 'value'
-   */
-  ancestorsOfParties: function ($u) {
+  uuidsFromCommaSeparatedListOfPermalinks: function (value) {
     'use strict';
-    return function (value, select) {
-      var permalinks = value.split(',');
-      var keys = [], nonrecursive, recursive;
+    var permalinks = value.split(',');
+    var keys = [];
 
-      permalinks.forEach(function (permalink) {
-        var key = permalink.split('/')[2];
-        keys.push(key);
-      });
+    permalinks.forEach(function (permalink) {
+      var key = permalink.split('/')[2];
+      keys.push(key);
+    });
 
-      nonrecursive = $u.prepareSQL();
-      recursive = $u.prepareSQL();
+    return keys;
+  },
 
-      nonrecursive.sql('VALUES ');
-      keys.forEach(function (key, index) {
-        if (index !== 0) {
-          nonrecursive.sql(',');
-        }
-        nonrecursive.sql('(').param(key).sql('::uuid)');
-      });
+  valuesFromKeys: function ($u, keys) {
+    'use strict';
+    var ret = $u.prepareSQL();
 
-      recursive.sql('SELECT r.to FROM partyrelations r, search_relations s ' +
-          'where r."from" = s.key and r.type=\'member\'');
-      select.with(nonrecursive, 'UNION', recursive, 'search_relations(key)');
-      select.sql(' AND key IN (SELECT key FROM search_relations) ');
-      select.sql(' AND key NOT IN (').array(keys).sql(') ');
-    };
+    ret.sql('VALUES ');
+    keys.forEach(function (key, index) {
+      if (index !== 0) {
+        ret.sql(',');
+      }
+      ret.sql('(').param(key).sql('::uuid)');
+    });
+
+    return ret;
+  },
+
+  /*
+  Adds a CTE to your select, that creates a virtual table with one column :
+  'key' that has keys of parties that are (recursively) ancestors of the given
+  permalinks in value.
+   */
+  ancestorsOfParties: function ($u, value, select, virtualtablename) {
+    'use strict';
+    var nonrecursive, recursive;
+
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
+    nonrecursive = this.valuesFromKeys($u, keys);
+    recursive = $u.prepareSQL();
+    recursive.sql('SELECT r.to FROM partyrelations r, ' + virtualtablename + ' s ' +
+        'where r."from" = s.key and r.type=\'member\'');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
   },
 
   /*
@@ -117,15 +129,10 @@ exports = module.exports = {
   */
   descendantsOfParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var permalinks, keys = [],
-      nonrecursive = $u.prepareSQL(),
+    var nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL();
 
-    permalinks = value.split(',');
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
 
     nonrecursive.sql('VALUES ');
     keys.forEach(function (key, index) {
@@ -147,15 +154,10 @@ exports = module.exports = {
   */
   descendantsOfMessages: function ($u, value, select, virtualtablename) {
     'use strict';
-    var permalinks, keys = [],
-      nonrecursive = $u.prepareSQL(),
+    var nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL();
 
-    permalinks = value.split(',');
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
 
     nonrecursive.sql('VALUES ');
     keys.forEach(function (key, index) {
@@ -172,19 +174,12 @@ exports = module.exports = {
 
   reachableFromParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var permalinks,
-      keys = [],
-      nonrecursive = $u.prepareSQL(),
+    var nonrecursive = $u.prepareSQL(),
       recursive = $u.prepareSQL(),
       nr2 = $u.prepareSQL(),
       r2 = $u.prepareSQL();
 
-    permalinks = value.split(',');
-
-    permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
-      keys.push(key);
-    });
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
 
     nonrecursive.sql('VALUES ');
     keys.forEach(function (key, index) {
@@ -201,5 +196,45 @@ exports = module.exports = {
     r2.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename +
            ' c where r."to" = c.key and r.type = \'member\'');
     select.with(nr2, 'UNION', r2, virtualtablename + '(key)');
+  },
+
+  /*
+  Adds a CTE to your query :
+  Selects parties from 'partiestablename' that have a contactdetail with coordinates inside of
+  those specified in the value (minLat,maxLat,minLong,maxLong) where are of these vales have 1 decimal digit.
+  It selects the keys of the matching parties into a virtual table called 'virtualtablename'.
+  */
+  filterLatLong: function ($u, value, select, partiestablename, virtualtablename) {
+    'use strict';
+    var pattern = new RegExp('[0-9]+\.[0-9]\,[0-9]+\.[0-9]\,[0-9]+\.[0-9]\,[0-9]+\.[0-9]');
+    var parts = [];
+    var q;
+    var error;
+
+    if (pattern.test(value)) {
+      parts = value.split(',');
+      q = $u.prepareSQL('filterLatLong-' + partiestablename);
+      q.sql('select party as key from partycontactdetails where contactdetail in ');
+      q.sql('(select key from contactdetails ');
+      q.sql('where ');
+      q.sql(' key in ' +
+            '(select contactdetail from partycontactdetails where party in ' +
+            '(select key from ' + partiestablename + '))');
+      q.sql(' and latitude > ').param(parseFloat(parts[0]));
+      q.sql(' and latitude < ').param(parseFloat(parts[1]));
+      q.sql(' and longitude > ').param(parseFloat(parts[2]));
+      q.sql(' and longitude < ').param(parseFloat(parts[3]));
+      q.sql(')');
+      select.with(q, virtualtablename);
+    } else {
+      error = {
+        code: 'invalid.syntax.lat.long.boundaries',
+        description: 'Specify latitude and longitude with comma-separated values ' +
+                     'that have 1 decimal digit (use dot for decimal separation). ' +
+                     'Example : 50.9,51.0,4.1,4.2',
+        type: 'ERROR'
+      };
+      throw error;
+    }
   }
 };
