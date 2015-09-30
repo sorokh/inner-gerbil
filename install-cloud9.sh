@@ -10,3 +10,4 @@ sudo apt-get install -y nodejs
 sudo npm install -g npm@2
 npm install
 npm run createdb
+cp env.example .env
