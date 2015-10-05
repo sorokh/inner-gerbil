@@ -15,6 +15,14 @@ exports = module.exports = function (base, logverbose) {
   }
 
   describe('/contactdetails', function () {
+    describe('POST',function(){
+      it('should allow the creation of a new contactdetail if you have group admin rights');
+      it('should not be possible to add duplicate contactdetails');
+    });
+    describe('PUT', function(){
+      it('should allow updating your own contactdetails');
+      it('should allow updating contactdetail if you have administrative rights');
+    });
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
         return doGet(base + '/contactdetails', 'annadv', 'test').then(function (response) {
