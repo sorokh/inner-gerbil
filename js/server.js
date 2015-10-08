@@ -10,10 +10,10 @@ var verbose = false;
 var mapping = require('./config.js')(sri4node, verbose);
 var app = express();
 
-var c9_hostname = process.env.C9_HOSTNAME; // eslint-disable-line
+var c9hostname = process.env.C9_HOSTNAME; // eslint-disable-line
 
-if(c9_hostname) {
-  cl('https://' + c9_hostname);
+if (c9hostname) {
+  cl('https://' + c9hostname);
 }
 
 app.use(compress());
