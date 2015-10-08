@@ -36,8 +36,8 @@ exports = module.exports = {
         login: 'annadv',
         password: 'test'
       }
-    }
-
+    },
+  
   hrefs: {
     PARTY_LETSDENDERMONDE: '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849',
     PARTY_LETSLEBBEKE: '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5',
