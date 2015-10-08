@@ -22,7 +22,7 @@ exports = module.exports = function (base, logverbose) {
         return doGet(base+'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504',anna.login,anna.password) {
           assert.equal(response.statusCode, 200);
           }
-        }
+        })
       });
       it('should allow the retrieval of a private party, but filter the private attributes.')
       it('should allow the full retrieval of a private party, if you have sufficient rights to do so.')
