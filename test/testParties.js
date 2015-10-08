@@ -4,6 +4,7 @@ var doGet = sriclient.get;
 //var common = require('./common.js');
 //var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
+var anna = common.accounts.PARTY_ANNA;
 
 exports = module.exports = function (base, logverbose) {
   'use strict';
@@ -13,16 +14,22 @@ exports = module.exports = function (base, logverbose) {
       console.log(x); // eslint-disable-line
     }
   }
+  
   describe('/parties/{party_id}', function(){
     describe('GET', function(){
-      it('should allow the retrieval of a public party.');
+      it('should allow the retrieval of a public party.',function(){
+        return doGet(base+'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504',anna.login,anna.password) {
+          assert.equal(response.statusCode, 200);
+          }
+        }
+      });
       it('should allow the retrieval of a private party, but filter the private attributes.')
       it('should allow the full retrieval of a private party, if you have sufficient rights to do so.')
     });
-    describe('POST',function(){
+    describe('POST', function(){
       it('should allow the creation of a party, if you have sufficient rights to do so.')
     });
-    describe('PUT',function(){
+    describe('PUT', function(){
       it('should allow the update of a party, if you have sufficient rights to do so.')
     })
   });
