@@ -13,7 +13,19 @@ exports = module.exports = function (base, logverbose) {
       console.log(x); // eslint-disable-line
     }
   }
-
+  describe('/parties/{party_id}', function(){
+    describe('GET', function(){
+      it('should allow the retrieval of a public party.');
+      it('should allow the retrieval of a private party, but filter the private attributes.')
+      it('should allow the full retrieval of a private party, if you have sufficient rights to do so.')
+    });
+    describe('POST',function(){
+      it('should allow the creation of a party, if you have sufficient rights to do so.')
+    });
+    describe('PUT',function(){
+      it('should allow the update of a party, if you have sufficient rights to do so.')
+    })
+  });
   describe('/parties', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
