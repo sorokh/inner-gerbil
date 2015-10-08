@@ -29,7 +29,7 @@ exports = module.exports = {
         login: 'annadv',
         password: 'test'
       }
-    }
+    },
   
   hrefs: {
     PARTY_LETSDENDERMONDE: '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849',
