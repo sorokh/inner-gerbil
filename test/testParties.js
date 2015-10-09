@@ -21,8 +21,8 @@ exports = module.exports = function (base, logverbose) {
       it('should allow the retrieval of a public party.', function (){
         return doGet(base+'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504', anna.login, anna.password).then(function (response) {
           assert.equal(response.statusCode, 200);
-          assert.equal(response.key, 'fa17e7f5-ade9-49d4-abf3-dc3722711504');
-          assert.equals(response.meta.permalink,'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504');
+          assert.equal(response.body.key, 'fa17e7f5-ade9-49d4-abf3-dc3722711504');
+          assert.equals(response.body.$$meta.permalink,'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504');
           });
         });
     });
