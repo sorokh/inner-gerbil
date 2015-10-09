@@ -32,8 +32,16 @@ exports = module.exports = {
 
 
   accounts: {
-    PARTY_ANNA: {
+    ANNA: {
         login: 'annadv',
+        password: 'test'
+      },
+    STEVEN: {
+        login: 'stevenb',
+        password: 'test'
+      },
+    EDDY: {
+        login: 'eddym',
         password: 'test'
       }
     },
