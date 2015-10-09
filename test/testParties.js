@@ -18,7 +18,7 @@ exports = module.exports = function (base, logverbose) {
 
   describe('/parties/{party_id}', function () {
     describe('GET', function () {
-      it('should allow the retrieval of a public party.', function(){
+      it('should allow the retrieval of a public party.', function (){
         return doGet(base+'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504', anna.login, anna.password).then(function (response) {
           assert.equal(response.statusCode, 200);
           });
@@ -31,7 +31,7 @@ exports = module.exports = function (base, logverbose) {
     });
     describe('PUT', function (){
       it('should allow the update of a party, if you have sufficient rights to do so.');
-    })
+    });
   });
   describe('/parties', function () {
     describe('GET', function () {
