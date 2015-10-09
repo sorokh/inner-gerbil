@@ -45,7 +45,7 @@
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^2.2.5",
     "eslint": "1.4.3",
-    "nodemon": "1.7.0"
+    "nodemon": "1.7.0",
     "plato": "latest"
   }
 }
