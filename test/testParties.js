@@ -6,6 +6,7 @@ var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
 var anna = common.accounts.PARTY_ANNA;
+var 
 
 exports = module.exports = function (base, logverbose) {
   'use strict';
@@ -21,16 +22,21 @@ exports = module.exports = function (base, logverbose) {
       it('should allow the retrieval of a public party.', function (){
         return doGet(base+'/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504', anna.login, anna.password).then(function (response) {
           assert.equal(response.statusCode, 200);
+          assert.equal(response.body.$$meta.count, 1);
+          assert.equal(response.body.results[0].href, '/parties/fa17e7f5-ade9-49d4-abf3-dc3722711504');
           });
         });
-      it('should allow the retrieval of a private party, but filter the private attributes.');
-      it('should allow the full retrieval of a private party, if you have sufficient rights to do so.');
     });
     describe('POST', function (){
       it('should allow the creation of a party, if you have sufficient rights to do so.');
+      it('should disallow the creation of a party, if you don\'t have sufficient rights to do so.');
+      it('should disallow the creation of duplicates (login,alias)');
+      it('should allow the creation of accounts with the same personal data (name,surname,birthday)');
+      it('should disallow the creation of (sub-)groups with the same name');
     });
     describe('PUT', function (){
       it('should allow the update of a party, if you have sufficient rights to do so.');
+      it('should disallow the update of a party, if it\'s not yourself and you don\'t have sufficient administrative rights');
     });
   });
   describe('/parties', function () {
