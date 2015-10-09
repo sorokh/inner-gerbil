@@ -5,7 +5,7 @@ var doPut = sriclient.put;
 var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
-var anna = common.accounts.PARTY_ANNA;
+var anna = common.accounts.ANNA;
 
 exports = module.exports = function (base, logverbose) {
   'use strict';
