@@ -2,7 +2,7 @@ var assert = require('assert');
 var sriclient = require('sri4node-client');
 var doGet = sriclient.get;
 var common = require('./common.js');
-//var createHrefArray = common.createHrefArray;
+var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
 var anna = common.accounts.ANNA;
 
@@ -183,6 +183,18 @@ exports = module.exports = function (base, logverbose) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           assert.equal(response.body.results[0].href, '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
+        });
+      });
+
+      it('should support ?inLatLong=...', function () {
+        return doGet(base + '/parties?inLatLong=50.9,51.0,4.1,4.2', 'annadv', 'test').then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.PARTY_ANNA);
+          expect(hrefs).to.contain(common.hrefs.PARTY_LETSDENDERMONDE);
+          expect(hrefs).to.not.contain(common.hrefs.PARTY_LETSLEBBEKE);
+          expect(hrefs).to.not.contain(common.hrefs.PARTY_LETSHAMME);
         });
       });
     });

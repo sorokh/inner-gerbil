@@ -81,6 +81,48 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
         });
       });
+
+      it('should support ?forPartiesReachableFromParties=', function () {
+        return doGet(base + '/contactdetails?forPartiesReachableFromParties=' + common.hrefs.PARTY_ANNA,
+                    'annadv', 'test')
+          .then(function (response) {
+          debug(response.body);
+          var hrefs = createHrefArray(response);
+          // No contactetails for Anna, as reachableFromParties excludes it's initial root (anna)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
+
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_STEVEN); // address for steven
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN); // email steven
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_RUDI); // email rudi
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
+
+          // address for event. (non-party contactdetail)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
+        });
+      });
+
+      it('should support ?forAncestorsOfParties=', function () {
+        return doGet(base + '/contactdetails?forAncestorsOfParties=' + common.hrefs.PARTY_ANNA,
+                    'annadv', 'test')
+          .then(function (response) {
+          debug(response.body);
+          var hrefs = createHrefArray(response);
+          // No contactetails for Anna, as reachableFromParties excludes it's initial root (anna)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
+          // No contact details of the other members of LETS Dendermonde
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_STEVEN); // address for steven
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN); // email steven
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_RUDI); // email rudi
+
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
+
+          // address for event. (non-party contactdetail)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
+        });
+      });
+
     });
   });
 };
