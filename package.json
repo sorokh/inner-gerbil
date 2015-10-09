@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "test:jenkins": "mocha -R xunit | grep \"[<|</]test\" >mocha-report.xml",
+    "dev": "env $(cat .env) nodemon --debug --watch ./js js/server.js",
     "dev": "env $(cat .env) nodemon --debug=15454 --watch ./js js/server.js",
     "lint": "eslint js test",
     "start": "node js/server.js",
