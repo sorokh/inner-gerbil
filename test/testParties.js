@@ -6,7 +6,6 @@ var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
 var anna = common.accounts.PARTY_ANNA;
-var 
 
 exports = module.exports = function (base, logverbose) {
   'use strict';
