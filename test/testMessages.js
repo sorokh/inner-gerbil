@@ -149,6 +149,23 @@ exports = module.exports = function (base, logverbose) {
       });
 
 
+      it('should support ?postedInAncestorsOfParties=ANNA', function () {
+        return doGet(base + '/messages?postedInAncestorsOfParties=' +
+                     common.hrefs.PARTY_ANNA, 'annadv', 'test').then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
+
     });
   });
 };

@@ -8,6 +8,12 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
+  function postedInAncestorsOfParties(value, select) {
+    common.ancestorsOfParties($u, value, select, 'partiesAncestorsOfParties');
+    select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
+               '(select "key" from partiesAncestorsOfParties)) ');
+  }
+
   function postedInDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
     select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
@@ -98,10 +104,13 @@ exports = module.exports = function (sri4node, extra) {
     validate: [],
     query: {
       postedInParties: common.filterRelatedManyToMany($u, 'messageparties', 'message', 'party'),
-      postedByParties: $q.filterReferencedType('/parties', 'author'),
+      postedInAncestorsOfParties: postedInAncestorsOfParties,
       postedInDescendantsOfParties: postedInDescendantsOfParties,
-      postedByDescendantsOfParties: postedByDescendantsOfParties,
       postedInPartiesReachableFromParties: postedInPartiesReachableFromParties,
+
+      postedByParties: $q.filterReferencedType('/parties', 'author'),
+      postedByDescendantsOfParties: postedByDescendantsOfParties,
+
       descendantsOfMessages: descendantsOfMessages,
       defaultFilter: $q.defaultFilter
     },
