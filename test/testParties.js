@@ -1,6 +1,7 @@
 var assert = require('assert');
 var sriclient = require('sri4node-client');
 var doGet = sriclient.get;
+var doPut = sriclient.put;
 var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
@@ -29,7 +30,7 @@ exports = module.exports = function (base, logverbose) {
       it('should support ancestorsOfParties as URL parameter', function () {
         // Find parents of LETS Lebbeke, should return LETS Regio Dendermonde
         return doGet(base + '/parties?ancestorsOfParties=' +
-                     '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5', 'annadv', 'test')
+            '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5', 'annadv', 'test')
           .then(function (response) {
             assert.equal(response.statusCode, 200);
             assert.equal(response.body.$$meta.count, 1);
@@ -61,7 +62,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support retrieving all reachable parties ?reachableFromParties', function () {
         return doGet(base + '/parties?reachableFromParties=' +
-                     '/parties/5df52f9f-e51f-4942-a810-1496c51e64db', 'annadv', 'test')
+            '/parties/5df52f9f-e51f-4942-a810-1496c51e64db', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -117,7 +118,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support retrieve all children below 1 node', function () {
         return doGet(base + '/parties?descendantsOfParties=' +
-                    '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849', 'annadv', 'test')
+            '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -136,7 +137,7 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support retrieve all children below 1 node & of a certain type', function () {
         return doGet(base + '/parties?descendantsOfParties=' +
-                     '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person', 'annadv', 'test')
+            '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849&type=person', 'annadv', 'test')
           .then(function (response) {
             var hrefs = [];
             assert.equal(response.statusCode, 200);
@@ -155,16 +156,17 @@ exports = module.exports = function (base, logverbose) {
 
       it('should support ?forMessages=...', function () {
         return doGet(base + '/parties?forMessages=' +
-                     '/messages/e24528a5-b12f-417a-a489-913d5879b895', 'annadv', 'test')
+            '/messages/e24528a5-b12f-417a-a489-913d5879b895', 'annadv', 'test')
           .then(function (response) {
-          debug(response.body);
-          assert.equal(response.statusCode, 200);
-          assert.equal(response.body.results[0].href, '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
-        });
+            debug(response.body);
+            assert.equal(response.statusCode, 200);
+            assert.equal(response.body.results[0].href, '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301');
+          });
       });
 
       it('should support ?inLatLong=...', function () {
-        return doGet(base + '/parties?inLatLong=50.9,51.0,4.1,4.2', 'annadv', 'test').then(function (response) {
+        return doGet(base + '/parties?inLatLong=50.9,51.0,4.1,4.2', 'annadv', 'test').then(function (
+          response) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
@@ -173,6 +175,49 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.not.contain(common.hrefs.PARTY_LETSLEBBEKE);
           expect(hrefs).to.not.contain(common.hrefs.PARTY_LETSHAMME);
         });
+      });
+    });
+    describe('PUT', function () {
+      it('should allow insertion of new party.', function () {
+        var body = {
+          type: 'person',
+          name: 'test user',
+          status: 'active'
+        };
+        var uuid = common.generateUUID();
+        debug('Generated UUID=' + uuid);
+        return doPut(base + '/parties/' + uuid, body, 'annadv', 'test').then(
+          function (response) {
+            assert.equal(response.statusCode, 200);
+            return doGet(base + '/parties/' + uuid, 'annadv', 'test').then(
+              function (response) {
+                assert.equal(response.statusCode, 200);
+                var party = response.body;
+                assert.equal(party.type, 'person');
+                assert.equal(party.name, 'test user');
+                assert.equal(party.status, 'active');
+              });
+
+          });
+      });
+      it('should update party.', function () {
+        return doGet(base + common.hrefs.PARTY_ANNA, 'annadv', 'test').then(
+          function (response) {
+            debug(response.body);
+            var p = response.body;
+            p.alias = 'myAlias';
+            return doPut(base + common.hrefs.PARTY_ANNA, p, 'annadv', 'test').then(
+              function (response) {
+                debug(response.body);
+                assert.equal(response.statusCode, 200);
+                return doGet(base + common.hrefs.PARTY_ANNA, 'annadv', 'test')
+                  .then(
+                    function (response) {
+                      var party = response.body;
+                      assert.equal(party.alias, 'myAlias');
+                    });
+              });
+          });
       });
     });
   });

@@ -8,7 +8,7 @@
     "dev": "env $(cat .env) nodemon --debug --watch ./js js/server.js",
     "lint": "eslint js test",
     "start": "node js/server.js",
-    "createdb": "./create-database.sh"    
+    "createdb": "./create-database.sh"
   },
   "dependencies": {
     "compression": "^1.5.2",
@@ -39,7 +39,6 @@
     "jake": "^8.0.12",
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^2.2.5",
-    "eslint": "1.4.3",
     "nodemon": "1.7.0"
   }
 }
