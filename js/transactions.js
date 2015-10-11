@@ -21,8 +21,14 @@ exports = module.exports = function (sri4node, extra) {
 
   function involvingDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
-    select.sql(' and "from" in (select key from descendantsOfParties)' +
-               ' or "to" in (select key from descendantsOfParties) ');
+    select.sql(' and ("from" in (select key from descendantsOfParties)' +
+               ' or "to" in (select key from descendantsOfParties)) ');
+  }
+
+  function involvingAncestorsOfParties(value, select) {
+    common.ancestorsOfParties($u, value, select, 'ancestorsOfParties');
+    select.sql(' and ("from" in (select key from ancestorsOfParties)' +
+               ' or "to" in (select key from ancestorsOfParties)) ');
   }
 
   function fromDescendantsOfParties(value, select) {
@@ -69,8 +75,11 @@ exports = module.exports = function (sri4node, extra) {
       from: $q.filterReferencedType('/parties', 'from'),
       to: $q.filterReferencedType('/parties', 'to'),
       forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
+
       involvingParties: involvingParties,
+      involvingAncestorsOfParties: involvingAncestorsOfParties,
       involvingDescendantsOfParties: involvingDescendantsOfParties,
+
       fromDescendantsOfParties: fromDescendantsOfParties,
       toDescendantsOfParties: toDescendantsOfParties,
       defaultFilter: $q.defaultFilter

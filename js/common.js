@@ -112,14 +112,17 @@ exports = module.exports = {
    */
   ancestorsOfParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var nonrecursive, recursive;
+    var nonrecursive,
+      recursive = $u.prepareSQL(),
+      excluderoots = $u.prepareSQL();
 
     var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
     nonrecursive = this.valuesFromKeys($u, keys);
-    recursive = $u.prepareSQL();
-    recursive.sql('SELECT r.to FROM partyrelations r, ' + virtualtablename + ' s ' +
-        'where r."from" = s.key and r.type=\'member\'');
-    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
+    recursive.sql('SELECT r.to FROM partyrelations r, ' + virtualtablename + 'withroots s ' +
+        'where r."from" = s.key and r.type=\'member\' and r.status = \'active\' ');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + 'withroots(key)');
+    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
+    select.with(excluderoots, virtualtablename);
   },
 
   /*
@@ -129,73 +132,38 @@ exports = module.exports = {
   */
   descendantsOfParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var nonrecursive = $u.prepareSQL(),
-      recursive = $u.prepareSQL();
+    var nonrecursive,
+      recursive = $u.prepareSQL(),
+      excluderoots = $u.prepareSQL();
 
     var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
-
-    nonrecursive.sql('VALUES ');
-    keys.forEach(function (key, index) {
-      if (index !== 0) {
-        nonrecursive.sql(',');
-      }
-      nonrecursive.sql('(').param(key).sql('::uuid)');
-    });
-
-    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + ' c ' +
-                  'where r."to" = c.key and r.type = \'member\'');
-    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
-  },
-
-  /*
-  Adds a CTE to the given select query, and created a virtual table that
-  has a single column (the key) of all descendants (recursively) of the given
-  value (a comma-separated list of permalinks to /messages).
-  */
-  descendantsOfMessages: function ($u, value, select, virtualtablename) {
-    'use strict';
-    var nonrecursive = $u.prepareSQL(),
-      recursive = $u.prepareSQL();
-
-    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
-
-    nonrecursive.sql('VALUES ');
-    keys.forEach(function (key, index) {
-      if (index !== 0) {
-        nonrecursive.sql(',');
-      }
-      nonrecursive.sql('(').param(key).sql('::uuid)');
-    });
-
-    recursive.sql('SELECT r."from" FROM messagerelations r, ' + virtualtablename + ' c ' +
-                  'where r."to" = c.key');
-    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
+    nonrecursive = this.valuesFromKeys($u, keys);
+    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + 'withroots c ' +
+                  'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + 'withroots(key)');
+    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
+    select.with(excluderoots, virtualtablename);
   },
 
   reachableFromParties: function ($u, value, select, virtualtablename) {
     'use strict';
-    var nonrecursive = $u.prepareSQL(),
+    var nonrecursive,
       recursive = $u.prepareSQL(),
       nr2 = $u.prepareSQL(),
-      r2 = $u.prepareSQL();
+      r2 = $u.prepareSQL(),
+      excluderoots = $u.prepareSQL();
 
     var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
-
-    nonrecursive.sql('VALUES ');
-    keys.forEach(function (key, index) {
-      if (index !== 0) {
-        nonrecursive.sql(',');
-      }
-      nonrecursive.sql('(').param(key).sql('::uuid)');
-    });
-
+    nonrecursive = this.valuesFromKeys($u, keys);
     recursive.sql('select r.to FROM partyrelations r, ' + virtualtablename +
-                  'parentsof s where r."from" = s.key and r.type = \'member\'');
+                  'parentsof s where r."from" = s.key and r.type = \'member\' and r.status=\'active\' ');
     select.with(nonrecursive, 'UNION', recursive, virtualtablename + 'parentsof(key)');
     nr2.sql('SELECT key FROM ' + virtualtablename + 'parentsof');
-    r2.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename +
-           ' c where r."to" = c.key and r.type = \'member\'');
-    select.with(nr2, 'UNION', r2, virtualtablename + '(key)');
+    r2.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + 'withroots' +
+           ' c where r."to" = c.key and r.type = \'member\' and r.status=\'active\'');
+    select.with(nr2, 'UNION', r2, virtualtablename + 'withroots(key)');
+    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
+    select.with(excluderoots, virtualtablename);
   },
 
   /*
@@ -236,5 +204,22 @@ exports = module.exports = {
       };
       throw error;
     }
+  },
+
+  /*
+  Adds a CTE to the given select query, and created a virtual table that
+  has a single column (the key) of all descendants (recursively) of the given
+  value (a comma-separated list of permalinks to /messages).
+  */
+  descendantsOfMessages: function ($u, value, select, virtualtablename) {
+    'use strict';
+    var nonrecursive = $u.prepareSQL(),
+      recursive = $u.prepareSQL();
+
+    var keys = this.uuidsFromCommaSeparatedListOfPermalinks(value);
+    nonrecursive = this.valuesFromKeys($u, keys);
+    recursive.sql('SELECT r."from" FROM messagerelations r, ' + virtualtablename + ' c ' +
+                  'where r."to" = c.key');
+    select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
   }
 };
