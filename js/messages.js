@@ -10,8 +10,14 @@ exports = module.exports = function (sri4node, extra) {
 
   function postedInDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
-    select.sql(' and key in (select message from messageparties where party in ' +
-               '(select key from partiesDescendantsOfParties)) ');
+    select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
+               '(select "key" from partiesDescendantsOfParties)) ');
+  }
+
+  function postedInPartiesReachableFromParties(value, select) {
+    common.reachableFromParties($u, value, select, 'partiesReachableFromParties');
+    select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
+               '(select "key" from partiesReachableFromParties)) ');
   }
 
   function postedByDescendantsOfParties(value, select) {
@@ -23,7 +29,7 @@ exports = module.exports = function (sri4node, extra) {
     common.descendantsOfMessages($u, value, select, 'messagesDescendantsOfMessages');
     select.sql(' and key in (select key from messagesDescendantsOfMessages) ');
   }
-
+  
   var ret = {
     type: '/messages',
     public: false,
@@ -95,6 +101,7 @@ exports = module.exports = function (sri4node, extra) {
       postedByParties: $q.filterReferencedType('/parties', 'author'),
       postedInDescendantsOfParties: postedInDescendantsOfParties,
       postedByDescendantsOfParties: postedByDescendantsOfParties,
+      postedInPartiesReachableFromParties: postedInPartiesReachableFromParties,
       descendantsOfMessages: descendantsOfMessages,
       defaultFilter: $q.defaultFilter
     },
