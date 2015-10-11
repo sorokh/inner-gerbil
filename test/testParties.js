@@ -190,14 +190,13 @@ exports = module.exports = function (base, logverbose) {
           function (response) {
             assert.equal(response.statusCode, 200);
             return doGet(base + '/parties/' + uuid, 'annadv', 'test').then(
-              function (response) {
-                assert.equal(response.statusCode, 200);
-                var party = response.body;
+              function (response2) {
+                assert.equal(response2.statusCode, 200);
+                var party = response2.body;
                 assert.equal(party.type, 'person');
                 assert.equal(party.name, 'test user');
                 assert.equal(party.status, 'active');
               });
-
           });
       });
       it('should update party.', function () {

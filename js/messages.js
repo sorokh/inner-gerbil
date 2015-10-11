@@ -35,7 +35,13 @@ exports = module.exports = function (sri4node, extra) {
     common.descendantsOfMessages($u, value, select, 'messagesDescendantsOfMessages');
     select.sql(' and key in (select key from messagesDescendantsOfMessages) ');
   }
-  
+
+  function postedByPartiesInLatLong(value, select) {
+    common.filterLatLong($u, value, select, 'parties', 'partiesforlatlongcontactdetails');
+    select.sql(' and "author" in ' +
+               '(select "key" from partiesforlatlongcontactdetails) ');
+  }
+
   var ret = {
     type: '/messages',
     public: false,
@@ -110,6 +116,8 @@ exports = module.exports = function (sri4node, extra) {
 
       postedByParties: $q.filterReferencedType('/parties', 'author'),
       postedByDescendantsOfParties: postedByDescendantsOfParties,
+
+      postedByPartiesInLatLong: postedByPartiesInLatLong,
 
       descendantsOfMessages: descendantsOfMessages,
       defaultFilter: $q.defaultFilter

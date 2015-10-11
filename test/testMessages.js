@@ -130,7 +130,7 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_REPLY_TO_ASPERGES);
         });
       });
-      
+
       it('should support ?postedInPartiesReachableFromParties=ANNA', function () {
         return doGet(base + '/messages?postedInPartiesReachableFromParties=' +
                      common.hrefs.PARTY_ANNA, 'annadv', 'test').then(function (response) {
@@ -166,6 +166,23 @@ exports = module.exports = function (base, logverbose) {
         });
       });
 
+      it('should support ?postedByPartiesInLatLong=...', function () {
+        return doGet(base + '/messages?postedByPartiesInLatLong=50.9,51.0,4.1,4.2', 'annadv', 'test').then(function (
+          // Anna and LETS Dendermonde are in this geo area.
+          response) {
+          console.log(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
     });
   });
 };
