@@ -21,7 +21,7 @@ CREATE TABLE "contactdetails" (
     
     "public" boolean not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
@@ -40,7 +40,7 @@ CREATE TABLE "parties" (
     "currencyname" text,
     "status" text not null, /* active, inactive, ... */
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
@@ -50,7 +50,7 @@ CREATE TABLE "partycontactdetails" (
     "party" uuid references "parties"(key) not null,
     "contactdetail" uuid references "contactdetails"(key) not null,
 
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 
@@ -67,7 +67,7 @@ CREATE TABLE "partyrelations" (
     "balance" integer,
     "status" text not null, /* active/inactive */
 
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
@@ -82,7 +82,7 @@ CREATE TABLE "transactions" (
     "amount" integer not null,
     "description" text,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -95,7 +95,7 @@ CREATE TABLE "transactionrelations" (
     "partyrelation" uuid references "partyrelations"(key) not null,
     "amount" integer not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
@@ -117,7 +117,7 @@ CREATE TABLE "messages" (
     "modified" timestamp with time zone not null default (now() at time zone 'utc'),
     "expires" timestamp with time zone, -- not required for responses.
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -134,7 +134,7 @@ CREATE TABLE "messagecontactdetails" (
     "message" uuid references "messages"(key) not null,
     "contactdetail" uuid references "contactdetails"(key) not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -146,7 +146,7 @@ CREATE TABLE "messageparties" (
     "message" uuid references "messages"(key) not null,
     "party" uuid references "parties"(key) not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -158,7 +158,7 @@ CREATE TABLE "messagetransactions" (
     "message" uuid references "messages"(key),
     "transaction" uuid references "transactions"(key) not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -171,7 +171,7 @@ CREATE TABLE "messagerelations" (
     "to" uuid references "messages"(key) not null,
     "type" text not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
@@ -187,7 +187,7 @@ CREATE TABLE "plugins" (
     "permissions" text[] not null,
     "configurationschema" text,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -197,7 +197,7 @@ CREATE TABLE "pluginauthorisations" (
     "plugin" uuid references "plugins"(key) not null,
     "party" uuid references "parties"(key) not null,
 
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
@@ -210,7 +210,7 @@ CREATE TABLE "plugindata" (
     "resource" text not null,
     "data" jsonb not null,
   
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp  
 );
@@ -224,7 +224,7 @@ CREATE TABLE "pluginconfigurations" (
     "party" uuid references "parties"(key) not null,
     "data" jsonb not null,
 
-    "$$meta.deleted" boolean,
+    "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
