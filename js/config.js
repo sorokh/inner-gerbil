@@ -125,7 +125,7 @@ exports = module.exports = function (sri4node, verbose) {
     logsql: verbose,
     logdebug: verbose,
     defaultdatabaseurl: 'postgres://gerbil:inner@localhost:5432/postgres',
-    description: '<h2>Inner Gerbil<h2> '+
+    description: '<h2>Inner Gerbil<h2> ' +
       '<p>' +
       'Core RESTful API for building mutual credit systems and knowledge banks. ' +
       'It allows for the creation of various interfaces, and supports extensive scenario\'s ' +

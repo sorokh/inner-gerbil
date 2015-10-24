@@ -22,7 +22,7 @@ sri4node.configure(app, pg, mapping);
 
 var welcome =
   '<script>location.replace("/docs");</script>';
-  
+
 app.get('/', function (request, response) {
   'use strict';
   response.send(welcome);
