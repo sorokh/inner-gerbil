@@ -41,12 +41,14 @@ exports = module.exports = function (base, logverbose) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          // All messages were posted to LETS Lebbeke, or LETS Dendermonde (Rudi's messages)
+          // So don't expect anything to return...
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
           expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
           expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
         });
@@ -58,13 +60,16 @@ exports = module.exports = function (base, logverbose) {
           debug(response.body);
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
+          // All messages were posted in LETS Lebbeke, so do expect those to be returned
           expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
           expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
           expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
           expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
           expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
           expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          // Rudi's message was posted in LETS Dendermonde, so do not expect this to be returned
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          // Messages from a different, isolated group, should not return, obviously.
           expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
         });
       });
@@ -82,7 +87,9 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
           expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
           expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+          // Leen posted here message in LETS Hamme,
+          // and we are asking messages posted to descendants of LETS Hamme... So not expected..
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
         });
       });
 
@@ -128,6 +135,59 @@ exports = module.exports = function (base, logverbose) {
           assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
           expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_REPLY_TO_ASPERGES);
+        });
+      });
+
+      it('should support ?postedInPartiesReachableFromParties=ANNA', function () {
+        return doGet(base + '/messages?postedInPartiesReachableFromParties=' +
+                     common.hrefs.PARTY_ANNA, 'annadv', 'test').then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
+
+
+      it('should support ?postedInAncestorsOfParties=ANNA', function () {
+        return doGet(base + '/messages?postedInAncestorsOfParties=' +
+                     common.hrefs.PARTY_ANNA, 'annadv', 'test').then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+        });
+      });
+
+      it('should support ?postedByPartiesInLatLong=...', function () {
+        return doGet(base + '/messages?postedByPartiesInLatLong=50.9,51.0,4.1,4.2', 'annadv', 'test').then(function (
+          // Anna and LETS Dendermonde are in this geo area.
+          response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
         });
       });
     });

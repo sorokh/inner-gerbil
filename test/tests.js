@@ -32,4 +32,5 @@ describe('Sri4node testing', function () {
   require('./testParties.js')(base, verbose);
   require('./testMessages.js')(base, verbose);
   require('./testPlugins.js')(base, verbose);
+  //require('./testIsolated.js')(base, verbose);
 });

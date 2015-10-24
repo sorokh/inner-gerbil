@@ -31,6 +31,20 @@ exports = module.exports = function (sri4node, extra) {
                '(select key from ancestorsOfParties where key not in (').array(keys).sql('))) ');
   }
 
+  function forParentsOfParties(value, select) {
+    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
+    select.sql(' and "key" in ' +
+               '(select "contactdetail" from partycontactdetails where "party" in ' +
+               '(select "to" from partyrelations where "from" in (').array(keys).sql(') and "type" = \'member\')) ');
+  }
+
+  function forChildrenOfParties(value, select) {
+    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
+    select.sql(' and "key" in ' +
+               '(select "contactdetail" from partycontactdetails where "party" in ' +
+               '(select "from" from partyrelations where "to" in (').array(keys).sql(') and "type" = \'member\')) ');
+  }
+
   var ret = {
     type: '/contactdetails',
     public: false,
@@ -103,6 +117,8 @@ exports = module.exports = function (sri4node, extra) {
       forPartiesReachableFromParties: forPartiesReachableFromParties,
       forDescendantsOfParties: forDescendantsOfParties,
       forAncestorsOfParties: forAncestorsOfParties,
+      forParentsOfParties: forParentsOfParties,
+      forChildrenOfParties: forChildrenOfParties,
       forParties: common.filterRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party'),
       forMessages: common.filterRelatedManyToMany($u, 'messagecontactdetails', 'contactdetail', 'message'),
       defaultFilter: $q.defaultFilter
