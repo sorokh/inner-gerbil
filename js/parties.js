@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
-    $q = sri4node.queryUtils;
+    $q = sri4node.queryUtils
 
   function addLinks(database, elements) { /* eslint-disable-line */
     elements.forEach(function (element) {
@@ -72,6 +72,24 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and key in (select key from latlongcontactdetails) ');
   }
 
+  function validateUnicity(value,database){
+    var deferred = Q.defer();
+
+    var q = $u.prepareSQL('count-parties-by-login');
+    q.sql('select count("key") from "parties" where ("$$meta.deleted" = FALSE or "$$meta.deleted" IS NULL) and"login"=\''+value.login+'\'');
+    cl(q);
+    $u.executeSQL(database,q).then(function (result){
+      cl(result.rows);
+      if(result.rows.pop().count >0){
+        deferred.reject("Login already exists");
+      }else{
+        deferred.resolve();
+      }
+    });
+
+    return deferred.promise;
+  }
+
   var ret = {
     // Base url, maps 1:1 with a table in postgres
     // Same name, except the '/' is removed
@@ -129,6 +147,7 @@ exports = module.exports = function (sri4node, extra) {
     // when a PUT operation is executed.
     validate: [
       //validateAuthorVersusThemes
+        validateUnicity
     ],
     // Supported URL parameters are configured
     // this allows filtering on the list resource.

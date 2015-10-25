@@ -1,3 +1,4 @@
+var sriclient = require('sri4node-client');
 var uuid = require('uuid');
 
 exports = module.exports = {
@@ -8,6 +9,24 @@ exports = module.exports = {
       hrefs.push(item.href);
     });
     return hrefs;
+  },
+
+  doGet: function (base) {
+    return function (path, user, password) {
+      return sriclient.get(base + path, user, password);
+    };
+  },
+
+  doPut: function (base) {
+    return function (path, body, user, password){
+      return sriclient.put(base + path, body , user, password);
+    };
+  },
+
+  doDelete: function (base) {
+    return function (path, user, password){
+      return  sriclient.delete(base + path, user, password);
+    };
   },
 
   getResultForHref: function (response, href) {
@@ -43,10 +62,16 @@ exports = module.exports = {
     EDDY: {
         login: 'eddym',
         password: 'test'
+      },
+    DUMMY: {
+      login: 'fake',
+      passwork: ''
       }
     },
   
   hrefs: {
+    PARTIES: '/parties',
+
     PARTY_LETSDENDERMONDE: '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849',
     PARTY_LETSLEBBEKE: '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5',
     PARTY_LETSHAMME: '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301',
@@ -57,6 +82,7 @@ exports = module.exports = {
     PARTY_EDDY: '/parties/437d9b64-a3b4-467c-9abe-e9410332c1e5',
     PARTY_LEEN: '/parties/abcb3c6e-721e-4f7c-ae4a-935e1980f15e',
     PARTY_EMMANUELLA: '/parties/508f9ec9-df73-4a55-ad42-32839abd1760',
+    PARTY_DUMMY: '/parties/00000000-0000-0000-0000-000000000000',
 
     PLUGIN_MAIL: '/plugins/7bd68a4b-138e-4228-9826-a002468222de',
 
@@ -83,5 +109,12 @@ exports = module.exports = {
 
     TRANSACTION_ANNA_STEVEN_20: '/transactions/e068c284-26f1-4d11-acf3-8942610b26e7',
     TRANSACTION_LEEN_EMMANUELLA_20: '/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78'
+  },
+
+  responses: {
+    OK: 200,
+    CREATED: 201,
+    NOT_FOUND: 404,
+    CONFLICT: 409
   }
 };
