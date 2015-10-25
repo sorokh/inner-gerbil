@@ -132,6 +132,11 @@ exports = module.exports = function (sri4node, verbose) {
       'for creating many groups, while still maintaining a flexible approach to exchanging credit ' +
       'between multiple groups. User can join multiple (unrelated) groups and still see a single ' +
       'consistent view of all messages, transactions, etc..' +
+      '</p>' +
+      '<p>' +
+      'It conforms to the <a href="https://github.com/dimitrydhondt/sri">SRI specification</a> for RESTful APIs. ' +
+      'A chrome extension <a href="">sri-view</em> is available, and we advise you to install it in order to browse the API. ' +
+      '' +
       '</p>',
     resources: [
       require('./contactdetails')(sri4node, extraResourceConfig),

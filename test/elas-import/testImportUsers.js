@@ -9,7 +9,7 @@ exports = module.exports = function () {
 
     describe('Import users', function () {
       it('should load users from CSV file', function () {
-        usersImporter(process.cwd() + '/' + PATH_TO_FILE);
+        return usersImporter(process.cwd() + '/' + PATH_TO_FILE);
       });
     });
   });
