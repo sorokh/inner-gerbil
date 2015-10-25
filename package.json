@@ -4,15 +4,13 @@
   "description": "The core API for a next generation mutual credit system",
   "main": "index.js",
   "scripts": {
-    "start": "foreman start -f Procfile.start",
+    "start": "node js/server.js",
     "test": "mocha",
     "test:jenkins": "mocha -R xunit | grep \"[<|</]test\" >mocha-report.xml",
     "build": "",
-    "plato": "plato -r -l .eslintrc.json -d report js",
     "dev": "env $(cat .env) nodemon --debug --watch ./js js/server.js",
     "lint": "eslint js test",
-    "start": "node js/server.js",
-    "createdb": "./create-database.sh"    
+    "createdb": "./create-database.sh"
   },
   "dependencies": {
     "compression": "^1.5.2",
@@ -20,7 +18,7 @@
     "node-logentries": "^0.1.4",
     "pg": "^4.4.1",
     "q": "^1.4.1",
-    "sri4node": "^1.1.12",
+    "sri4node": "^1.1.17",
     "sri4node-client": "^1.0.1"
   },
   "engines": {
@@ -43,8 +41,7 @@
     "jake": "^8.0.12",
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^2.2.5",
-    "eslint": "1.4.3",
     "nodemon": "1.7.0",
-    "plato": "latest"
+    "node-uuid": "~1.4.3"
   }
 }

@@ -6,7 +6,7 @@ var express = require('express'),
 var sri4node = require('sri4node');
 var common = require('./common.js');
 var cl = common.cl;
-var verbose = false;
+var verbose = true;
 var mapping = require('./config.js')(sri4node, verbose);
 var app = express();
 
