@@ -1,6 +1,7 @@
 /*eslint-env node*/
 var common = require('../test/common.js');
 var Q = require('q');
+var deferred = Q.defer();
 
 var port = 5000;
 var base = 'http://localhost:' + port;
@@ -73,10 +74,13 @@ exports = module.exports = function (fileName) {
         console.log('End import');
       }));
     });
-    return Q.all(promises);
+    return Q.all(promises).then(function () {
+      deferred.resolve();
+    });
   });
 
   //read from file
   console.log('Reading file: ' + fileName);
   require('fs').createReadStream(fileName).pipe(converter);
+  return deferred.promise;
 };
