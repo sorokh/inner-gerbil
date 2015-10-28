@@ -61,7 +61,7 @@ exports = module.exports = function (sri4node, verbose) {
         messages: {href: '/messages?postedByParties=/parties/' + row.key},
         transactions: {href: '/transactions?involvingParties=/parties/' + row.key},
         contactdetails: {href: '/contactdetails?forParties=/parties/' + row.key},
-        parents: {href: '/parties?parentsOf=/parties/' + row.key},
+        parents: {href: '/parties?ancestorsOfParties=/parties/' + row.key},
         partyrelations: {href: '/partyrelations?from=/parties/' + row.key}
       };
       if (ret.imageurl === null) {
@@ -125,7 +125,7 @@ exports = module.exports = function (sri4node, verbose) {
     logsql: verbose,
     logdebug: verbose,
     defaultdatabaseurl: 'postgres://gerbil:inner@localhost:5432/postgres',
-    description: '<h2>Inner Gerbil<h2> ' +
+    description: '<h2>Inner Gerbil</h2> ' +
       '<p>' +
       'Core RESTful API for building mutual credit systems and knowledge banks. ' +
       'It allows for the creation of various interfaces, and supports extensive scenario\'s ' +
@@ -135,7 +135,7 @@ exports = module.exports = function (sri4node, verbose) {
       '</p>' +
       '<p>' +
       'It conforms to the <a href="https://github.com/dimitrydhondt/sri">SRI specification</a> for RESTful APIs. ' +
-      'A chrome extension <a href="">sri-view</em> is available, and we advise you to install it in order to browse the API. ' +
+      'A chrome extension <a href="">sri-view</a> is available, and we advise you to install it in order to browse the API. ' +
       '' +
       '</p>',
     resources: [
