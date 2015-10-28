@@ -22,7 +22,8 @@
     "csvtojson": "0.4.3"
   },
   "engines": {
-    "node": "0.12.2"
+    "node": "4.1.1",
+    "npm": "2.14.8"
   },
   "repository": {
     "type": "git",
