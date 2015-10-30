@@ -135,7 +135,8 @@ exports = module.exports = function (sri4node, verbose) {
       '</p>' +
       '<p>' +
       'It conforms to the <a href="https://github.com/dimitrydhondt/sri">SRI specification</a> for RESTful APIs. ' +
-      'A chrome extension <a href="">sri-view</a> is available, and we advise you to install it in order to browse the API. ' +
+      'A chrome extension <a href="">sri-view</a> is available, ' +
+      'and we advise you to install it in order to browse the API. ' +
       '' +
       '</p>',
     resources: [
