@@ -1,6 +1,7 @@
 /* Configuration for sri4node, used for our server.js, but also for mocha tests */
 var Q = require('q');
 var common = require('./common.js');
+var fs = require('fs');
 var cl = common.cl;
 var knownIdentities = {};
 var knownPasswords = {};
@@ -117,6 +118,8 @@ exports = module.exports = function (sri4node, verbose) {
     }
   };
 
+  var description = fs.readFileSync(__dirname + '/api-description.html');
+
   return {
     authenticate: $u.basicAuthentication(myAuthenticator),
     identify: getMe,
@@ -125,37 +128,24 @@ exports = module.exports = function (sri4node, verbose) {
     logsql: verbose,
     logdebug: verbose,
     defaultdatabaseurl: 'postgres://gerbil:inner@localhost:5432/postgres',
-    description: '<h2>Inner Gerbil</h2> ' +
-      '<p>' +
-      'Core RESTful API for building mutual credit systems and knowledge banks. ' +
-      'It allows for the creation of various interfaces, and supports extensive scenario\'s ' +
-      'for creating many groups, while still maintaining a flexible approach to exchanging credit ' +
-      'between multiple groups. User can join multiple (unrelated) groups and still see a single ' +
-      'consistent view of all messages, transactions, etc..' +
-      '</p>' +
-      '<p>' +
-      'It conforms to the <a href="https://github.com/dimitrydhondt/sri">SRI specification</a> for RESTful APIs. ' +
-      'A chrome extension <a href="">sri-view</a> is available, ' +
-      'and we advise you to install it in order to browse the API. ' +
-      '' +
-      '</p>',
+    description: description,
     resources: [
-      require('./contactdetails')(sri4node, extraResourceConfig),
       require('./parties')(sri4node, extraResourceConfig),
       require('./partyrelations')(sri4node, extraResourceConfig),
+      require('./contactdetails')(sri4node, extraResourceConfig),
       require('./partycontactdetails')(sri4node, extraResourceConfig),
-      require('./transactions')(sri4node, extraResourceConfig),
-      require('./transactionrelations')(sri4node, extraResourceConfig),
       require('./messages')(sri4node, extraResourceConfig),
       require('./messagecontactdetails')(sri4node, extraResourceConfig),
       require('./messageparties')(sri4node, extraResourceConfig),
       require('./messagetransactions')(sri4node, extraResourceConfig),
       require('./messagerelations')(sri4node, extraResourceConfig),
+      require('./transactions')(sri4node, extraResourceConfig),
+      require('./transactionrelations')(sri4node, extraResourceConfig),
 
       require('./plugins.js')(sri4node, extraResourceConfig),
       require('./pluginauthorisations.js')(sri4node, extraResourceConfig),
-      require('./plugindata.js')(sri4node, extraResourceConfig),
-      require('./pluginconfigurations.js')(sri4node, extraResourceConfig)
+      require('./pluginconfigurations.js')(sri4node, extraResourceConfig),
+      require('./plugindata.js')(sri4node, extraResourceConfig)
     ]
   };
 };

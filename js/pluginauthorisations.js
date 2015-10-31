@@ -11,7 +11,7 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'An authorisations giving a certain plugin access ' +
+      title: 'An authorisation giving a certain plugin access ' +
         'to the information of the party that granted authorisation.',
       type: 'object',
       properties: {
@@ -31,11 +31,11 @@ exports = module.exports = function (sri4node, extra) {
       party: $q.filterReferencedType('/parties', 'party'),
       defaultFilter: $q.defaultFilter
     },
-    querydocs: {
+    queryDocs: {
       plugin: 'Limit the list to authorisations for one plugin only. ' +
-        'You can filter on more than one plugin by comma-seperating multiple permalinks.',
+        'You can filter on more than one plugin by comma separating multiple permalinks.',
       party: 'Limit the list to authorisations for a party. ' +
-        'You can filter on more than one plugin by comma-seperating multiple permalinks.'
+        'You can filter on more than one plugin by comma-separating multiple permalinks.'
     },
     afterupdate: [],
     afterinsert: [],

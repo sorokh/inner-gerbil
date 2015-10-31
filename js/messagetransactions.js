@@ -11,8 +11,9 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'When a transaction is created, and we know it relates to a certain message,' +
-        ' we create one or more /messagetransactions resource.',
+      title: 'Expresses that a certain message has a certain transaction associated with it. ' +
+      'One message can have multiple /messagetransactions, and as such have many transactions ' +
+      'associated with it.',
       type: 'object',
       properties: {
         message: $s.permalink('/messages', 'The message.'),

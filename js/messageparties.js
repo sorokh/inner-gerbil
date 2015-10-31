@@ -11,8 +11,8 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'Messages can be posted in more than one group/subgroup.' +
-        'This resource expresses the relationship between a messages and the party where the message is posted.',
+      title: 'Messages can be posted to one or more people/groups/subgroups/connector groups.' +
+        'This resource expresses the relationship between a messages and a target party where that message is posted.',
       type: 'object',
       properties: {
         message: $s.permalink('/messages',

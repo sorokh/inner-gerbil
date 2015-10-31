@@ -51,8 +51,8 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'A contact detail of one of the parties involves in a mutual credit system. ' +
-        'It can be an adres, e-mail, website, facebook, etc.. etc..',
+      title: 'A contact detail of one of the parties involves in a mutual credit system or knowledge bank. ' +
+        'It can be an address, e-mail, website, facebook, etc.. etc..',
       type: 'object',
       properties: {
         type: {
@@ -63,15 +63,17 @@ exports = module.exports = function (sri4node, extra) {
         label: $s.string('A display label for this contact detail.'),
 
         /* Generic value of the contact detail */
-        value: $s.string('Value for this contact detail. Addresses use different fields.'),
+        value: $s.string('Value for a contact detail such as an email, website, facebook page. ' +
+          'Addresses use different fields.'),
+
         /* Address fields */
-        street: $s.string('Streetname of the address of residence.'),
-        streetnumber: $s.string('Street number of the address of residence.'),
-        streetbus: $s.string('Postal box of the address of residence.'),
-        zipcode: $s.belgianzipcode('4 digit postal code of the city for the address of residence.'),
-        city: $s.string('City for the address of residence.'),
-        latitude: $s.numeric('Latitude of the address.'),
-        longitude: $s.numeric('Longitude of the address.'),
+        street: $s.string('Streetname of an address.'),
+        streetnumber: $s.string('Street number of an address.'),
+        streetbus: $s.string('Postal box of an address.'),
+        zipcode: $s.belgianzipcode('4 digit postal code of the city for an address.'),
+        city: $s.string('City for an address.'),
+        latitude: $s.numeric('Latitude of an address.'),
+        longitude: $s.numeric('Longitude of an address.'),
 
         'public': // eslint-disable-line
           $s.boolean('Is this contact detail visible to other members of your group (and all it\'s subgroups ?')
@@ -122,6 +124,24 @@ exports = module.exports = function (sri4node, extra) {
       forParties: common.filterRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party'),
       forMessages: common.filterRelatedManyToMany($u, 'messagecontactdetails', 'contactdetail', 'message'),
       defaultFilter: $q.defaultFilter
+    },
+    queryDocs: {
+      forPartiesReachableFromParties: 'Returns contact details that belong to parties that are reachable ' +
+        '(potentially via a parent group / subgroup) from a given (comma separated) list of parties. ' +
+        'The term "reachable" means the graph of parties will be scanned to all top parents of the ' +
+        'given list of parties, and then recursed down to include all parties that are a member ' +
+        '(directly or indirectly) of those parent.',
+      forDescendantsOfParties: 'Returns contact details that belong to  ' +
+        'direct or indirect members of a given (comma separated) list of parties.',
+      forAncestorsOfParties: 'Returns contact details that belong to ancestors ' +
+        '(direct or indirect parents via an "is member of" relation) of a given ' +
+        '(comma separated) list of parties.',
+      forParentsOfParties: 'Returns contact details that belong to direct parents ' +
+        '(via an "is member of" relation) of a (comma separated) list of parties.',
+      forChildrenOfParties: 'Returns contact details that belong to direct members ' +
+        'of a (comma separated) list of parties.',
+      forParties: 'Returns contact details for a given (comma separated) list of parties.',
+      forMessages: 'Returns contact details associated to a (comma separated) list of messages.'
     },
     afterread: [
       common.addRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party', '/parties', '$$parties'),

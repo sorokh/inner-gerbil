@@ -90,8 +90,8 @@ exports = module.exports = function (sri4node, extra) {
     // It uses utility functions, for compactness.
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'A person, organisations, subgroup, group, connectorgroup, etc... ' +
-        'participating in a mutual credit / knowledge exchange system.',
+      title: 'A person, organisations, subgroup, group, connector group, etc... ' +
+        'participating in a mutual credit system, time bank or knowledge exchange system.',
       type: 'object',
       properties: {
         type: {
@@ -110,16 +110,16 @@ exports = module.exports = function (sri4node, extra) {
         login: $s.string('Login for accessing the API. Only people have a login.', 3),
         password: $s.string(
           'Password for accessing the API. Only people have a password. A group is managed by a person that has ' +
-          'a relation of type "administrator" with that group.',
+          'a relation of type "administrator" with that group. Can only be PUT, and is never returned on GET.',
           3),
         secondsperunit: $s.numeric(
-          'If the party is a group, and it is using the mutual credit system as a time-bank (i.e. agreements with ' +
+          'If the party is a group, that operates a time bank (i.e. agreements with ' +
           'the members exist about using time as currency), then this value expresses the number units per second.'
         ),
-        currencyname: $s.string('The name of the currency, as used by a group'),
+        currencyname: $s.string('The name of the currency, as used by a mutual credit group'),
         status: {
           type: 'string',
-          description: 'The status of this party. Is it active / inactive',
+          description: 'The status of this party.',
           enum: ['active', 'inactive']
         }
       },

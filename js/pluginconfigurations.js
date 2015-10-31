@@ -32,11 +32,11 @@ exports = module.exports = function (sri4node, extra) {
       party: $q.filterReferencedType('/parties', 'party'),
       defaultFilter: $q.defaultFilter
     },
-    querydocs: {
+    queryDocs: {
       plugin: 'Limit the list to configurations for one plugin only. ' +
-        'You can filter on more than one plugin by comma-seperating multiple permalinks.',
+        'You can filter on more than one plugin by comma separating multiple permalinks.',
       party: 'Limit the list to configuration for one party only. ' +
-        'You can filter on more than one plugin by comma-seperating multiple permalinks.'
+        'You can filter on more than one plugin by comma separating multiple permalinks.'
     },
     afterupdate: [],
     afterinsert: [],
