@@ -140,7 +140,7 @@ exports = module.exports = function (sri4node, extra) {
       inLatLong: inLatLong,
       defaultFilter: $q.defaultFilter
     },
-    querydocs: {
+    queryDocs: {
       ancestorsOfParties: 'Only retrieve parties that are direct, or indirect parent of given parties.',
       reachableFromParties: 'Only retrieve parties that are reachable. ' +
         '(by find all children of the given parties their parents)',

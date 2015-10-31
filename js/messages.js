@@ -53,7 +53,7 @@ exports = module.exports = function (sri4node, extra) {
       properties: {
         author: $s.permalink('/parties', 'The person/organisation that posted this message.'),
         title: $s.string('Title of the message'),
-        description: $s.string('Message body, in HTML.'),
+        description: $s.string('Message body, in semantic HTML.'),
         eventdate: $s.timestamp('If the message has tag "evenement", it must supply an event date/time here.'),
         amount: $s.numeric('The amount of currency requested/offered for a certain activity.'),
         unit: $s.string('The unit the currency amount applies to. Like : per hour, per item, per person, etc..'),
