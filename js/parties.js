@@ -91,7 +91,7 @@ exports = module.exports = function (sri4node, extra) {
     schema: {
       $schema: 'http://json-schema.org/schema#',
       title: 'A person, organisations, subgroup, group, connector group, etc... ' +
-        'participating in a mutual credit system, time bank or knowledge exchange system.',
+        'participating in a mutual credit system, time bank or knowledge bank.',
       type: 'object',
       properties: {
         type: {
@@ -109,11 +109,11 @@ exports = module.exports = function (sri4node, extra) {
         imageurl: $s.string('URL to a profile image for people, a logo for groups, etc...'),
         login: $s.string('Login for accessing the API. Only people have a login.', 3),
         password: $s.string(
-          'Password for accessing the API. Only people have a password. A group is managed by a person that has ' +
-          'a relation of type "administrator" with that group. Can only be PUT, and is never returned on GET.',
+          'Password for accessing the API. Only people have a password. ' +
+          'Can only be PUT, and is never returned on GET.',
           3),
         secondsperunit: $s.numeric(
-          'If the party is a group, that operates a time bank (i.e. agreements with ' +
+          'If the party is a group that operates a time bank (i.e. agreements with ' +
           'the members exist about using time as currency), then this value expresses the number units per second.'
         ),
         currencyname: $s.string('The name of the currency, as used by a mutual credit group'),
@@ -141,11 +141,17 @@ exports = module.exports = function (sri4node, extra) {
       defaultFilter: $q.defaultFilter
     },
     queryDocs: {
-      ancestorsOfParties: 'Only retrieve parties that are direct, or indirect parent of given parties.',
-      reachableFromParties: 'Only retrieve parties that are reachable. ' +
-        '(by find all children of the given parties their parents)',
+      ancestorsOfParties: 'Only retrieve parties that are direct, or indirect parent ' +
+        '(via an "is member of" relation) of given parties.',
+      reachableFromParties: 'Only retrieve parties that are reachable from a (comma-separated) ' +
+        'list of parties. By reachable we mean parties that are found by first finding all ' +
+        '(direct or indirect) parents (via an "is member of" relation) of a list of parties. ' +
+        'And then by finding, from those top level parents, all (direct or indirect) children.',
       descendantsOfParties: 'Only retrieve direct and indirect members of the given parties.',
-      forMessages: 'Only retrieve parties where the given messages were posted.'
+      forMessages: 'Only retrieve parties where the given messages were posted.',
+      inLatLong: 'Retrieve parties in a geographic box. The box must be expressed in terms of a ' +
+        'minimum and maximum latitude and longitude. The boundaries MUST have a single decimal digit. ' +
+        'They must be specified in the format minLat,maxLat,minLong,maxLong (comma separated).'
     },
     // All columns in the table that appear in the
     // resource should be declared.
