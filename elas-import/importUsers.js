@@ -16,6 +16,7 @@ exports = module.exports = function (fileName) {
     var party = {
       type: 'person',
       name: user.name,
+      alias: user.letscode.toString(),
       status: 'inactive'
     };
 
