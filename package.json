@@ -21,7 +21,8 @@
     "sri4node": "^1.1.17",
     "sri4node-client": "^1.0.1",
     "uuid": "2.0.x",
-    "csvtojson": "0.4.3"
+    "csvtojson": "0.4.3",
+    "bcrypt": "^0.8.5"
   },
   "engines": {
     "node": "0.12.2"

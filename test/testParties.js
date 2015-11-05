@@ -1,7 +1,4 @@
 var assert = require('assert');
-var sriclient = require('sri4node-client');
-var doGet = sriclient.get;
-var doPut = sriclient.put;
 var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
@@ -14,7 +11,7 @@ exports = module.exports = function (base, logverbose) {
   var doGet = common.doGet(base);
   var doPut = common.doPut(base);
   var doDelete = common.doDelete(base);
-  var $u = sri4node.utils;
+
 
   var entityStore = [];
 
@@ -88,7 +85,7 @@ exports = module.exports = function (base, logverbose) {
 
       after(function () {
         doDelete(testReferencePartyLink, anna.login, anna.password);
-      })
+      });
 
       it('should allow the creation of a party, if you have sufficient rights to do so.', function () {
         var testPartyPermaLink = common.hrefs.PARTIES + '/' + common.generateKey();
@@ -116,9 +113,9 @@ exports = module.exports = function (base, logverbose) {
         return doPut(testPartyPermaLink, generateRandomPerson(), anna.login, anna.password).then(function (response) {
           debug(response.body);
           assert.equal(response.statusCode, responseCodes.CREATED);
-          doPut(testPartyPermaLink2, generateRandomPerson(), anna.login, anna.password).then(function (response) {
-            debug(response.body);
-            assert.equal(response.statusCode, responseCodes.CREATED);
+          doPut(testPartyPermaLink2, generateRandomPerson(), anna.login, anna.password).then(function (resp) {
+            debug(resp.body);
+            assert.equal(resp.statusCode, responseCodes.CREATED);
           });
         });
       });

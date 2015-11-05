@@ -1,9 +1,11 @@
 /* Configuration for sri4node, used for our server.js, but also for mocha tests */
 var Q = require('q');
+//var bcrypt = require('bcrypt');
 var common = require('./common.js');
 var cl = common.cl;
 var knownIdentities = {};
 var knownPasswords = {};
+//var hashCache = {};
 
 exports = module.exports = function (sri4node, verbose) {
   'use strict';
