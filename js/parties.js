@@ -7,7 +7,7 @@ exports = module.exports = function (sri4node, extra) {
   var $u = sri4node.utils,
     $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
-    $q = sri4node.queryUtils
+    $q = sri4node.queryUtils;
 
   function addLinks(database, elements) { /* eslint-disable-line */
     elements.forEach(function (element) {
@@ -90,6 +90,40 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
+  function checkReadAccessOnResource(request,response,database,me,batch,deferred){
+    return deferred.resolve();
+  }
+
+  function checkCreateUpdateAccessOnResource(request,response,database,me,batch,deferred){
+    return deferred.resolve();
+  }
+
+  function checkDeleteAccessOnResource(request,response,database,me,batch,deferred){
+    return deferred.resolve();
+  }
+
+  function checkAccessOnResource(request, response, database, me, batch){
+    var deferred = Q.defer();
+    //evaluate request
+
+    switch  (request.method){
+      case 'GET':
+            checkReadAccessOnResource(request,response,database,me,batch,deferred);
+            break;
+      case 'PUT':
+            checkCreateUpdateAccessOnResource(request,response,database,me,batch,deferred);
+            break;
+      case 'DELETE':
+            checkDeleteAccessOnResource(request,response,database,me,batch,deferred);
+            break;
+      default:
+            deferred.reject('Unauthorized Method used!');
+    }
+    return deferred.promise;
+  }
+
+
+
   var ret = {
     // Base url, maps 1:1 with a table in postgres
     // Same name, except the '/' is removed
@@ -101,7 +135,7 @@ exports = module.exports = function (sri4node, extra) {
     // They receive a database object and
     // the security context of the current user.
     secure: [
-      //checkAccessOnResource,
+      //checkAccessOnResource
       //checkSomeMoreRules
     ],
     // Standard JSON Schema definition.
