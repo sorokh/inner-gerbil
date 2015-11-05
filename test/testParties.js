@@ -1,7 +1,9 @@
 var assert = require('assert');
 var common = require('./common.js');
+var bcrypt = require('bcrypt');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
+var chai = require('chai');
 var anna = common.accounts.ANNA;
 var responseCodes = common.responses;
 
