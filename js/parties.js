@@ -1,5 +1,6 @@
 var Q = require('q');
 var common = require('./common.js');
+var bcrypt = require('bcrypt');
 var cl = common.cl;
 
 exports = module.exports = function (sri4node, extra) {
@@ -72,17 +73,18 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and key in (select key from latlongcontactdetails) ');
   }
 
-  function validateUnicity(value,database){
+  function validateUnicity(value, database) {
     var deferred = Q.defer();
 
     var q = $u.prepareSQL('count-parties-by-login');
-    q.sql('select count("key") from "parties" where ("$$meta.deleted" = FALSE or "$$meta.deleted" IS NULL) and"login"=\''+value.login+'\'');
+    q.sql('select count("key") from "parties" where ("$$meta.deleted" = FALSE or "$$meta.deleted" IS NULL) and"login"=\''
+        + value.login + '\'');
     cl(q);
-    $u.executeSQL(database,q).then(function (result){
+    $u.executeSQL(database, q).then(function (result) {
       cl(result.rows);
-      if(result.rows.pop().count >0){
-        deferred.reject("Login already exists");
-      }else{
+      if (result.rows.pop().count > 0) {
+        deferred.reject('Login already exists');
+      }else {
         deferred.resolve();
       }
     });
@@ -90,38 +92,42 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function checkReadAccessOnResource(request,response,database,me,batch,deferred){
+  function checkReadAccessOnResource(request, response, database, me, batch, deferred) {
     return deferred.resolve();
   }
 
-  function checkCreateUpdateAccessOnResource(request,response,database,me,batch,deferred){
+  function checkCreateUpdateAccessOnResource(request, response, database, me, batch, deferred) {
     return deferred.resolve();
   }
 
-  function checkDeleteAccessOnResource(request,response,database,me,batch,deferred){
+  function checkDeleteAccessOnResource(request, response, database, me, batch, deferred) {
     return deferred.resolve();
   }
 
-  function checkAccessOnResource(request, response, database, me, batch){
+  function checkAccessOnResource(request, response, database, me, batch) {
     var deferred = Q.defer();
     //evaluate request
 
-    switch  (request.method){
-      case 'GET':
+    switch (request.method) {
+        case 'GET':
             checkReadAccessOnResource(request,response,database,me,batch,deferred);
             break;
-      case 'PUT':
+        case 'PUT':
             checkCreateUpdateAccessOnResource(request,response,database,me,batch,deferred);
             break;
-      case 'DELETE':
+        case 'DELETE':
             checkDeleteAccessOnResource(request,response,database,me,batch,deferred);
             break;
-      default:
+        default:
             deferred.reject('Unauthorized Method used!');
     }
     return deferred.promise;
   }
 
+  function hashPassword(key, e) {
+    var salt = bcrypt.genSaltSync(10);
+    e[key] = bcrypt.hashSync(e[key], salt);
+  }
 
 
   var ret = {
@@ -229,7 +235,9 @@ exports = module.exports = function (sri4node, extra) {
         onread: $m.removeifnull
       },
       password: {
-        onread: $m.remove
+        onread: $m.remove,
+        oninsert: hashPassword,
+        onwrite: hashPassword
       },
       secondsperunit: {
         onread: $m.removeifnull
