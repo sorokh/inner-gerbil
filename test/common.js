@@ -1,6 +1,5 @@
 var sriclient = require('sri4node-client');
-var uuid = require('node-uuid');
-
+var uuid = require('uuid');
 
 exports = module.exports = {
   createHrefArray: function (response) {
@@ -47,6 +46,11 @@ exports = module.exports = {
   cl: function (x) {
     'use strict';
     console.log(x); // eslint-disable-line
+  },
+
+  generateUUID: function () {
+    'use strict';
+    return uuid.v4();
   },
   
   accounts: {

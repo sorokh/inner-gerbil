@@ -27,10 +27,11 @@ describe('Sri4node testing', function () {
     });
   });
 
-
-  /*require('./testTransactions.js')(base, verbose);
-  require('./testContactdetails.js')(base, verbose);*/
-  require('./testParties.js')(base, sri4node, verbose);
-  /*require('./testMessages.js')(base, verbose);
-  require('./testPlugins.js')(base, verbose);*/
+  require('./testTransactions.js')(base, verbose);
+  require('./testContactdetails.js')(base, verbose);
+  require('./testParties.js')(base, verbose);
+  require('./testMessages.js')(base, verbose);
+  require('./testPlugins.js')(base, verbose);
+  require('./elas-import/testImportUsers.js')();
+  //require('./testIsolated.js')(base, verbose);
 });

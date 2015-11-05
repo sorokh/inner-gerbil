@@ -63,10 +63,8 @@ exports = module.exports = function (sri4node, extra) {
   }
 
   function ancestorsOfParties(value, select) {
-    var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
     common.ancestorsOfParties($u, value, select, 'ancestorsOfParties');
-    select.sql(' AND key IN (SELECT key FROM ancestorsOfParties) ');
-    select.sql(' AND key NOT IN (').array(keys).sql(') ');
+    select.sql(' and key in (SELECT key FROM ancestorsOfParties) ');
   }
 
   function inLatLong(value, select) {

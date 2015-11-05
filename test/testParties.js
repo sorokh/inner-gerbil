@@ -1,14 +1,14 @@
 var assert = require('assert');
-
+var sriclient = require('sri4node-client');
+var doGet = sriclient.get;
+var doPut = sriclient.put;
 var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
 var anna = common.accounts.ANNA;
 var responseCodes = common.responses;
 
-
-
-exports = module.exports = function (base, sri4node, logverbose) {
+exports = module.exports = function (base, logverbose) {
   'use strict';
 
   var doGet = common.doGet(base);
@@ -178,9 +178,7 @@ exports = module.exports = function (base, sri4node, logverbose) {
             if (response.body.count < 4) {
               assert.fail('Expected all parties');
             }
-            response.body.results.forEach(function (item) {
-              hrefs.push(item.href);
-            });
+            hrefs = common.createHrefArray(response);
 
             // LETS Dendermonde
             expect(hrefs).to.contain(common.hrefs.PARTY_LETSDENDERMONDE);
@@ -210,6 +208,16 @@ exports = module.exports = function (base, sri4node, logverbose) {
             expect(hrefs).to.contain(common.hrefs.PARTY_STEVEN);
             // Anna
             expect(hrefs).to.contain(common.hrefs.PARTY_ANNA);
+            // Eddy is inactive in LETS Lebbeke, so should not be found..
+            expect(hrefs).to.not.contain(common.hrefs.PARTY_EDDY);
+            expect(hrefs).to.contain(common.hrefs.PARTY_RUDI);
+
+            // TODO ! When using multiple roots, root A can be reachable from root B, and vice-versa...
+            // This does not work correclty now. It does work correctly for a single root.
+            // Steven is reachable from Anna !
+            //expect(hrefs).to.contain(common.hrefs.PARTY_STEVEN);
+            // Anna is reachable from Steven !
+            //expect(hrefs).to.contain(common.hrefs.PARTY_ANNA);
           });
       });
 
@@ -260,7 +268,7 @@ exports = module.exports = function (base, sri4node, logverbose) {
             // Steven Buytinck
             expect(hrefs).to.contain(common.hrefs.PARTY_STEVEN);
             // Anna
-            expect(hrefs).to.contain(common.hrefs.PARTY_ANNA);
+            expect(hrefs).to.contain('/parties/5df52f9f-e51f-4942-a810-1496c51e64db');
           });
       });
 
@@ -283,6 +291,45 @@ exports = module.exports = function (base, sri4node, logverbose) {
           expect(hrefs).to.contain(common.hrefs.PARTY_LETSDENDERMONDE);
           expect(hrefs).to.not.contain(common.hrefs.PARTY_LETSLEBBEKE);
           expect(hrefs).to.not.contain(common.hrefs.PARTY_LETSHAMME);
+        });
+      });
+    });
+    describe('PUT', function () {
+      it('should allow insertion of new party.', function () {
+        var body = {
+          type: 'person',
+          name: 'test user',
+          status: 'active'
+        };
+        var uuid = common.generateUUID();
+        debug('Generated UUID=' + uuid);
+        return doPut(base + '/parties/' + uuid, body, 'annadv', 'test').then(
+          function (response) {
+            assert.equal(response.statusCode, 200);
+            return doGet(base + '/parties/' + uuid, 'annadv', 'test').then(
+              function (response2) {
+                assert.equal(response2.statusCode, 200);
+                var party = response2.body;
+                assert.equal(party.type, 'person');
+                assert.equal(party.name, 'test user');
+                assert.equal(party.status, 'active');
+              });
+          });
+      });
+
+      it('should update party.', function () {
+        return doGet(base + common.hrefs.PARTY_ANNA, 'annadv', 'test').then(function (response) {
+          debug(response.body);
+          var p = response.body;
+          p.alias = 'myAlias';
+          return doPut(base + common.hrefs.PARTY_ANNA, p, 'annadv', 'test');
+        }).then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          return doGet(base + common.hrefs.PARTY_ANNA, 'annadv', 'test');
+        }).then(function (response) {
+          var party = response.body;
+          assert.equal(party.alias, 'myAlias');
         });
       });
     });

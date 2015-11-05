@@ -52,6 +52,7 @@ exports = module.exports = function (base, logverbose) {
                     'annadv', 'test')
           .then(function (response) {
           debug(response.body);
+          assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
           expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
           expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
@@ -70,6 +71,7 @@ exports = module.exports = function (base, logverbose) {
                     'annadv', 'test')
           .then(function (response) {
           debug(response.body);
+          assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
           expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
           expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
@@ -87,6 +89,7 @@ exports = module.exports = function (base, logverbose) {
                     'annadv', 'test')
           .then(function (response) {
           debug(response.body);
+          assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
           // No contactetails for Anna, as reachableFromParties excludes it's initial root (anna)
           expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
@@ -107,6 +110,7 @@ exports = module.exports = function (base, logverbose) {
                     'annadv', 'test')
           .then(function (response) {
           debug(response.body);
+          assert.equal(response.statusCode, 200);
           var hrefs = createHrefArray(response);
           // No contactetails for Anna, as reachableFromParties excludes it's initial root (anna)
           expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
@@ -119,6 +123,92 @@ exports = module.exports = function (base, logverbose) {
           expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
 
           // address for event. (non-party contactdetail)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
+        });
+      });
+
+      it('should support ?forParentsOfParties=x,y,z', function () {
+        return doGet(base + '/contactdetails?forParentsOfParties=' + common.hrefs.PARTY_ANNA,
+                    'annadv', 'test')
+          .then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          // No contactetails for Anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
+          // No contact details of the other members of LETS Dendermonde
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_STEVEN); // address for steven
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN); // email steven
+          // Rudi is a direct member of LETS Dendermonde
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_RUDI); // email rudi
+          // No contact details of parent-of-parent
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
+          // address for event. (non-party contactdetail)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
+        });
+      });
+
+      it('should support ?forParentsOfParties=x,y,z', function () {
+        return doGet(base + '/contactdetails?forParentsOfParties=' + common.hrefs.PARTY_LETSLEBBEKE,
+                    'annadv', 'test')
+          .then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          // No contactetails for Anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
+          // No contact details of the other members of LETS Dendermonde
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_STEVEN); // address for steven
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN); // email steven
+          // Rudi is a direct member of LETS Dendermonde.
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_RUDI); // email rudi
+          // SHould have address for LETS Dendermonde.
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
+          // address for event. (non-party contactdetail)
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
+        });
+      });
+
+      it('should support ?forChildrenOfParties=x,y,z', function () {
+        return doGet(base + '/contactdetails?forChildrenOfParties=' + common.hrefs.PARTY_LETSLEBBEKE,
+                    'annadv', 'test')
+          .then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          // All contactdetails for direct children : anna, steven & rudi.
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_ADDRESS_STEVEN); // address for steven
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN); // email steven
+          // Rudi is direct member of LETS Dendermonde
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_RUDI); // email rudi
+          // No parents, obviously
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
+          // No event contactdetails, obviously
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
+        });
+      });
+
+      it('should support ?forChildrenOfParties=x,y,z', function () {
+        return doGet(base + '/contactdetails?forChildrenOfParties=' + common.hrefs.PARTY_LETSDENDERMONDE,
+                    'annadv', 'test')
+          .then(function (response) {
+          debug(response.body);
+          assert.equal(response.statusCode, 200);
+          var hrefs = createHrefArray(response);
+          // No contactetails for indirect children of LETS Dendermonde
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_ANNA); // address for anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_ANNA); // email anna
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_STEVEN); // address for steven
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN); // email steven
+          // Rudi is a direct member of LETS Dendermonde, so expect his details.
+          expect(hrefs).to.contain(common.hrefs.CONTACTDETAIL_EMAIL_RUDI); // email rudi
+          // No contact details of LETS Dendermonde itself.
+          expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_LETSDENDERMONDE); // address LETS Dendermonde.
+          // No contact details of messages.
           expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
         });
       });
