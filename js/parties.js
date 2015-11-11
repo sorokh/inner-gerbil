@@ -74,33 +74,140 @@ exports = module.exports = function (sri4node, extra) {
   }
 
   function validateUnicity(value, database) {
+    var q;
     var deferred = Q.defer();
-
-    var q = $u.prepareSQL('count-parties-by-login');
-    q.sql('select count("key") from "parties" where ("$$meta.deleted" = FALSE or "$$meta.deleted" IS NULL) and"login"=\''
-        + value.login + '\'');
-    cl(q);
-    $u.executeSQL(database, q).then(function (result) {
-      cl(result.rows);
-      if (result.rows.pop().count > 0) {
-        deferred.reject('Login already exists');
-      }else {
-        deferred.resolve();
+    if(value.login) {
+      q = $u.prepareSQL('count-parties-by-login');
+      q.sql('select count("key") from "parties" where ("$$meta.deleted" <> true) and' +
+          ' "login"= ').param(value.login);
+      if (value.$$meta && value.$$meta.permalink) {
+        q.sql('and key <>').param(value.$$meta.permalink.split('/')[2]);
       }
-    });
-
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.pop().count > 0) {
+          deferred.reject('Login already exists');
+        } else {
+          deferred.resolve();
+        }
+      });
+    } else {
+      deferred.resolve();
+    }
     return deferred.promise;
   }
 
-  function checkReadAccessOnResource(request, response, database, me, batch, deferred) {
+  function checkReadAccessOnResource(request, response, database, me, batch) {
+    var deferred = Q.defer();
     return deferred.resolve();
   }
 
-  function checkCreateUpdateAccessOnResource(request, response, database, me, batch, deferred) {
-    return deferred.resolve();
+  function checkCreateUpdateAccessOnResource(request, response, database, me, batch) {
+    var deferred = Q.defer();
+    var q, qadmin;
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    // check if you are updating yourself?
+    if (me && (loggedInUser.permalink === '/parties/' + request.params.key)) { //updating myself
+      deferred.resolve(true);
+    }else {
+      // check if key exists to determine if its an update or not.
+      q = $u.prepareSQL('check-party-exists');
+      q.sql('select count("key") from parties where key= ')
+          .param(request.params.key);
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.pop().count > 0) {
+          //update
+          switch (request.body.type) {
+            case 'person':
+              if (request.url === me.permalink) {
+                deferred.resolve(true);
+              } else {
+                deferred.reject('Only owner is allowed to update his records!');
+              }
+              break;
+            case 'group':
+                //Only person who has admin role
+                qadmin = $u.prepareSQL('check-is-admin');
+                qadmin.sql('select from partyrelations where from=').param(loggedInUser.key)
+                    .sql('and to=').param(request.params.key)
+                    .sql('and type="admin"');
+                cl(qadmin);
+                $u.executeSQL(database,qadmin).then(function (result2){
+                  cl(result2.rows);
+                  if(result2.rows.count > 0){
+                    //has admin role on group.
+                    deferred.resolve(true);
+                  } else {
+                    deferred.reject('Only a group admin may update a group!');
+                  }
+                });
+                  break;
+            case 'subgroup':
+              //Only person who has admin role on subgroup or parent group(s)
+                qadmin = $u.prepareSQL('check-is-admin-of-subgroup');
+                qadmin.sql('select from partyrelations where from=').param(loggedInUser.key)
+                    .sql('and type="admin"');
+                common.ancestorsOfParties($u, request.params.key, qadmin, 'ancestorsOfParties');
+                qadmin.sql('and to in (SELECT key FROM ancestorsOfParties)');
+                cl(qadmin);
+                $u.executeSQL(database, qadmin).then(function (result2) {
+                  cl(result2.rows);
+                  if(result2.rows.count > 0){
+                    //had eligeable admin role
+                    deferred.resolve(true);
+                  } else {
+                    deferred.reject('Only a group admin mya update a subgroup!');
+                  }
+                });
+                  break;
+            case 'connector':
+                  break;
+            case 'organisation':
+                  break;
+            default:
+                deferred.reject('Unsupported party type access.');
+              break;
+          }
+        } else {
+          //create
+          switch (request.body.type) {
+            case 'person':
+              deferred.resolve(true);
+              break;
+            case 'group':
+              deferred.resolve(true);
+              break;
+            case 'subgroup':
+              deferred.resolve(true);
+              break;
+            case 'connector':
+              deferred.resolve(true);
+              break;
+            case 'organisation':
+              deferred.resolve(true);
+              break;
+            default:
+              deferred.reject('only person can be created');
+              break;
+          }
+        }
+      });
+      return deferred.promise;
+    }
+    //Must be admin or me to update a party.
+      // A person can always be created -> open subscription?
+      // A group can always be created, but must be logged in
+      // A subgroup can only be created if you have an admin relation. In the party relation there will be a check
+      // on the proper admin group, transactional integrity to be guaranteed outside core?
+    //return deferred.promise;
   }
 
-  function checkDeleteAccessOnResource(request, response, database, me, batch, deferred) {
+  function checkDeleteAccessOnResource(request, response, database, me, batch) {
+    var deferred = Q.defer();
     return deferred.resolve();
   }
 
@@ -110,23 +217,32 @@ exports = module.exports = function (sri4node, extra) {
 
     switch (request.method) {
         case 'GET':
-            checkReadAccessOnResource(request,response,database,me,batch,deferred);
-            break;
+            return checkReadAccessOnResource(request,response,database,me,batch);
         case 'PUT':
-            checkCreateUpdateAccessOnResource(request,response,database,me,batch,deferred);
-            break;
+            return checkCreateUpdateAccessOnResource(request,response,database,me,batch);
         case 'DELETE':
-            checkDeleteAccessOnResource(request,response,database,me,batch,deferred);
-            break;
+            return checkDeleteAccessOnResource(request,response,database,me,batch);
         default:
             deferred.reject('Unauthorized Method used!');
+            return deferred.promise;
     }
-    return deferred.promise;
+
   }
 
-  function hashPassword(key, e) {
-    var salt = bcrypt.genSaltSync(10);
-    e[key] = bcrypt.hashSync(e[key], salt);
+  function conditionLogin(key,e){
+    if (!e[key] || e.type !== 'person') {
+      $m.remove(key, e);
+    }
+  }
+
+  function conditionPassword(key, e) {
+    var salt;
+    if (e[key] && e.type === 'person') {
+      salt = bcrypt.genSaltSync(10);
+      e[key] = bcrypt.hashSync(e[key], salt);
+    } else {
+      $m.remove(key, e);
+    }
   }
 
 
@@ -141,7 +257,7 @@ exports = module.exports = function (sri4node, extra) {
     // They receive a database object and
     // the security context of the current user.
     secure: [
-      //checkAccessOnResource
+      checkAccessOnResource
       //checkSomeMoreRules
     ],
     // Standard JSON Schema definition.
@@ -189,6 +305,9 @@ exports = module.exports = function (sri4node, extra) {
       //validateAuthorVersusThemes
         validateUnicity
     ],
+    beforequery: [
+      //validateUnicity
+    ],
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
     query: {
@@ -232,12 +351,14 @@ exports = module.exports = function (sri4node, extra) {
         onread: $m.removeifnull
       },
       login: {
-        onread: $m.removeifnull
+        onread: $m.removeifnull,
+        oninsert: conditionLogin,
+        onwrite: conditionLogin
       },
       password: {
         onread: $m.remove,
-        oninsert: hashPassword,
-        onwrite: hashPassword
+        oninsert: conditionPassword,
+        onwrite: conditionPassword
       },
       secondsperunit: {
         onread: $m.removeifnull

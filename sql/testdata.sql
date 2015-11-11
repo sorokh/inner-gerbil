@@ -16,7 +16,8 @@ INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','S
 -- Rudi Rudolf is member of LETS Dendermonde
 INSERT INTO "parties" VALUES ('eb6e3ad7-066f-4357-a582-dfb31e173606','person','Rudi Rudolf',null,'1968-10-23 00:00:00',null,'rudir','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Eddy is not a member of any group/subgroup/...
-INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,'eddym','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
+INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,
+'eddym','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'inactive');
 -- Leen De Baere of LETS Hamme
 INSERT INTO "parties" VALUES ('abcb3c6e-721e-4f7c-ae4a-935e1980f15e','person','Leen De Baere',null,'1980-04-01',null,'leendb','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Emmanuella of LETS Hamme
