@@ -51,8 +51,15 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'A contact detail of one of the parties involves in a mutual credit system or knowledge bank. ' +
-        'It can be an address, e-mail, website, facebook, etc.. etc..',
+      title: 'A contact detail of one of the parties involves in a mutual credit system, time bank ' +
+        ' or knowledge bank. It can be an address, e-mail, website, facebook page, etc.. etc..' +
+        ' A contact detail can be marked public, which renders it visible inside of the current ' +
+        '<em>group</em> (or any of it\'s subgroups). Contactdetails are never exposed outside of ' +
+        'the group(s) to which a party belongs. A mechanism to contact a person in a different group ' +
+        'is available, without exposing details such as email, address, etc.. ' +
+        'This is achieved by posting a (private) reply to a message in a different group. ' +
+        '(This is possible only when said message was published to a connector group - making ' +
+        'it visible to parties outside of the group(s) where the author is a member.)',
       type: 'object',
       properties: {
         type: {

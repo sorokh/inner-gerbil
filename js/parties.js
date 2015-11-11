@@ -150,8 +150,11 @@ exports = module.exports = function (sri4node, extra) {
       descendantsOfParties: 'Only retrieve direct and indirect members of the given parties.',
       forMessages: 'Only retrieve parties where the given messages were posted.',
       inLatLong: 'Retrieve parties in a geographic box. The box must be expressed in terms of a ' +
-        'minimum and maximum latitude and longitude. The boundaries MUST have a single decimal digit. ' +
-        'They must be specified in the format minLat,maxLat,minLong,maxLong (comma separated).'
+        'minimum and maximum latitude and longitude. The boundaries MUST be expressed as degrees with ' +
+        'exactly one decimal digit. ' +
+        'They must be specified in the format minLat,maxLat,minLong,maxLong (comma separated).' +
+        '<p>Example : <code><a href="/parties?inLatLong=50.9,51.0,4.1,4.2">' +
+        'GET /parties?inLatLong=50.9,51.0,4.1,4.2</a></code></p>'
     },
     // All columns in the table that appear in the
     // resource should be declared.
