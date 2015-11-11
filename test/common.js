@@ -39,10 +39,6 @@ exports = module.exports = {
     }
   },
 
-  generateKey: function () {
-    return uuid.v4();
-  },
-
   cl: function (x) {
     'use strict';
     console.log(x); // eslint-disable-line
@@ -117,7 +113,11 @@ exports = module.exports = {
   responses: {
     OK: 200,
     CREATED: 201,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
     NOT_FOUND: 404,
-    CONFLICT: 409
+    CONFLICT: 409,
+    GONE: 410
   }
 };

@@ -99,7 +99,8 @@ exports = module.exports = function (sri4node, verbose) {
     var query;
 
     query = $u.prepareSQL('me');
-    query.sql('select * from parties where login = ').param(username);
+    query.sql('select * from parties where login = ').param(username)
+        .sql(' and "$$meta.deleted"<>true');
     $u.executeSQL(database, query).then(function (result) {
       row = result.rows[0];
       ret = {
