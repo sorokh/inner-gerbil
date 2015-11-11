@@ -210,7 +210,7 @@ exports = module.exports = function (base, logverbose) {
         debug('Generated UUID=' + uuid);
         return doPut(base + '/messages/' + uuid, body, 'annadv', 'test').then(
           function (response) {
-            assert.equal(response.statusCode, 200);
+            assert.equal(response.statusCode, 201);
             return doGet(base + '/messages/' + uuid, 'annadv', 'test').then(
               function (responseGet) {
                 assert.equal(responseGet.statusCode, 200);
