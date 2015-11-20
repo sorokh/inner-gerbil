@@ -20,6 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="elas-import\import.js" />
+    <Compile Include="elas-import\importMessages.js" />
     <Compile Include="elas-import\importUsers.js" />
     <Compile Include="Gruntfile.js" />
     <Compile Include="Jakefile.js" />
