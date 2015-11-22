@@ -15,16 +15,6 @@ if (c9hostname) {
   cl('https://' + c9hostname);
 }
 
-var typeToConfig = function (config) {
-  'use strict';
-  var i;
-  var ret = {};
-  for (i = 0; i < config.length; i++) {
-    ret[config[i].type] = config[i];
-  }
-  return ret;
-};
-
 function allowCrossDomain(req, res, next) {
   'use strict';
   var allowedMethods = 'GET,PUT,POST,DELETE,HEAD,OPTIONS';
@@ -46,7 +36,7 @@ function allowCrossDomain(req, res, next) {
   } else {
     next();
   }
-};
+}
 
 app.use(allowCrossDomain);
 app.set('port', process.env.PORT || 5000); // eslint-disable-line
