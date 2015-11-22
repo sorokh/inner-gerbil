@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha",
     "dev": "env $(cat .env) nodemon --debug --watch ./js js/server.js",
+    "debug" : "env $(cat .env) node --nocrankshaft --nolazy --debug-brk=15454 ./js/server.js",
     "lint": "eslint js test",
     "start": "node js/server.js",
     "createdb": "./create-database.sh"
