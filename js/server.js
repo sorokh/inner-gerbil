@@ -1,6 +1,5 @@
 /*eslint-env node */
 var express = require('express'),
-  compress = require('compression'),
   pg = require('pg');
 
 var sri4node = require('sri4node');
