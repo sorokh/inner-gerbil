@@ -50,7 +50,6 @@ function allowCrossDomain(req, res, next) {
 };
 
 app.use(allowCrossDomain);
-app.use(compress());
 app.set('port', process.env.PORT || 5000); // eslint-disable-line
 sri4node.configure(app, pg, mapping);
 
