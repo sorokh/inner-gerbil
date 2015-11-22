@@ -43,7 +43,7 @@ exports = module.exports = function (fileName) {
         //console.log(message);
         return doPut(base + '/messages/' + uuid, message, 'annadv', 'test').then(function (
           responsePut) {
-          if (responsePut.statusCode !== 200) {
+          if (responsePut.statusCode !== 200 && responsePut.statusCode != 201) {
             console.log('PUT failed, response = ' + JSON.stringify(responsePut));
           } else {
             console.log('PUT successful');

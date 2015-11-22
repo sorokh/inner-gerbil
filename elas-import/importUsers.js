@@ -51,11 +51,15 @@ exports = module.exports = function (fileName) {
     console.log(party);
     return doPut(base + '/parties/' + uuid, party, 'annadv', 'test').then(function (
       response) {
-      if (response.statusCode !== 200) {
+      if (response.statusCode !== 200 && response.statusCode !== 201) {
         console.log('PUT failed, response = ' + JSON.stringify(response));
       } else {
         console.log('PUT successful');
       }
+    }).catch(function(e) {
+      console.log('importUser failed');
+      console.log(e);
+      throw e;
     });
   };
 
@@ -77,6 +81,9 @@ exports = module.exports = function (fileName) {
     });
     return Q.all(promises).then(function () {
       deferred.resolve();
+    }).catch(function(e) {
+      console.log('Q.all failed !');
+      console.log(e);
     });
   });
 

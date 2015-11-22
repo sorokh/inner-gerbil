@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "dev": "env $(cat .env) nodemon --debug --watch ./js js/server.js",
+    "dev": "env $(cat .env) nodemon --debug=15454 --watch ./js js/server.js",
     "debug" : "env $(cat .env) node --nocrankshaft --nolazy --debug-brk=15454 ./js/server.js",
     "lint": "eslint js test",
     "start": "node js/server.js",
@@ -17,7 +17,7 @@
     "node-logentries": "0.1.4",
     "pg": "4.4.1",
     "q": "1.4.1",
-    "sri4node": "1.1.23",
+    "sri4node": "1.2.2",
     "sri4node-client": "1.0.1",
     "uuid": "2.0.x",
     "csvtojson": "0.4.3",
