@@ -65,6 +65,7 @@ CREATE TABLE "partyrelations" (
     "to" uuid references "parties"(key) not null,
     "type" text not null,
     "balance" integer,
+    "code" text,
     "status" text not null, /* active/inactive */
 
     "$$meta.deleted" boolean not null default false,

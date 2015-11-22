@@ -38,6 +38,11 @@ exports = module.exports = function (sri4node, extra) {
           'The balance (currency) of party A in his relationship with party B. Positive means party "from" has ' +
           'credit, negative means party "from" has debt.'
         ),
+        code: $s.string('A code or alias bound to the membership of a person in a group/subgroup. ' +
+          'On the person level we also register the full name and alias, but some groups want control ' +
+          'over how people are identified in the UI. Groups can select to show the name or alias chosen ' +
+          'by people, but they can also choose to show this group controlled code.'
+        ),
         status: {
           type: 'string',
           description: 'The status of this relation. Is it active / inactive ?',
