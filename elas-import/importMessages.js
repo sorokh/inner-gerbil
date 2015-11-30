@@ -11,7 +11,7 @@ var sriclient = require('sri4node-client');
 var doGet = sriclient.get;
 var doPut = sriclient.put;
 
-exports = module.exports = function (fileName) {
+exports = module.exports = function (fileName, partyUrl) {
   'use strict';
   var importMessage = function (msg) {
     var uuid = common.generateUUID();
@@ -39,16 +39,37 @@ exports = module.exports = function (fileName) {
           modified: moment(msg.cdate),
           expires: moment(msg.validity)
         };
-
-        //console.log(message);
-        return doPut(base + '/messages/' + uuid, message, 'annadv', 'test').then(function (
-          responsePut) {
-          if (responsePut.statusCode !== 200 && responsePut.statusCode != 201) {
-            console.log('PUT failed, response = ' + JSON.stringify(responsePut));
-          } else {
-            console.log('PUT successful');
+        var messageparty = {
+          message: {
+            href: '/messages/' + uuid
+          },
+          party: {
+            href: partyUrl
           }
-        });
+        };
+        var batchBody = [
+          {
+            href: '/messages/' + uuid,
+            verb: 'PUT',
+            body: message
+          },
+          {
+            href: '/messageparties/' + common.generateUUID(),
+            verb: 'PUT',
+            body: messageparty
+          }
+          ];
+
+        return doPut(base + '/batch', batchBody, 'annadv', 'test')
+          .then(function (responsePut) {
+            if (responsePut.statusCode !== 200 && responsePut.statusCode !== 201) {
+              throw Error('PUT failed, response = ' + JSON.stringify(responsePut));
+            }
+            console.log('PUT to messages and messageparties successful (batch)');
+          }, function (err) {
+            console.log('Batch PUT failed');
+            throw err;
+          });
       }
     });
   };
