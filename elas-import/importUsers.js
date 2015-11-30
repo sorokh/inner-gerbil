@@ -9,7 +9,7 @@ var base = 'http://localhost:' + port;
 var sriclient = require('sri4node-client');
 var doPut = sriclient.put;
 
-exports = module.exports = function (fileName) {
+exports = module.exports = function (fileName, partyUrl) {
   'use strict';
   var importUser = function (user) {
     var uuid = common.generateUUID();
@@ -19,7 +19,6 @@ exports = module.exports = function (fileName) {
       alias: user.letscode.toString(),
       status: 'inactive'
     };
-
     switch (user.status) {
     case 0: // inactief
       party.status = 'inactive';
@@ -49,14 +48,42 @@ exports = module.exports = function (fileName) {
       party.status = 'inactive';
     }
     console.log(party);
-    return doPut(base + '/parties/' + uuid, party, 'annadv', 'test').then(function (
+    var partyrelation = {
+      from: {
+        href: '/parties/' + uuid
+      },
+      to: {
+        href: partyUrl
+      },
+      type: 'member',
+      balance: 0,
+      code: user.letscode.toString(),
+      status: 'inactive'
+
+    };
+    console.log(partyrelation);
+    var batchBody = [
+      {
+        href: '/parties/' + uuid,
+        verb: 'PUT',
+        body: party
+          },
+      {
+        href: '/partyrelations/' + common.generateUUID(),
+        verb: 'PUT',
+        body: partyrelation
+          }
+    ];
+
+    //return doPut(base + '/parties/' + uuid, party, 'annadv', 'test').then(function (
+    return doPut(base + '/batch', batchBody, 'annadv', 'test').then(function (
       response) {
       if (response.statusCode !== 200 && response.statusCode !== 201) {
         console.log('PUT failed, response = ' + JSON.stringify(response));
       } else {
         console.log('PUT successful');
       }
-    }).catch(function(e) {
+    }).catch(function (e) {
       console.log('importUser failed');
       console.log(e);
       throw e;
@@ -81,7 +108,7 @@ exports = module.exports = function (fileName) {
     });
     return Q.all(promises).then(function () {
       deferred.resolve();
-    }).catch(function(e) {
+    }).catch(function (e) {
       console.log('Q.all failed !');
       console.log(e);
     });

@@ -23,7 +23,7 @@ exports = module.exports = function (base, logverbose) {
 
     describe('Import users', function () {
       it('should load users from CSV file', function () {
-        return usersImporter(path.join(__dirname, PATH_TO_USERS_FILE))
+        return usersImporter(path.join(__dirname, PATH_TO_USERS_FILE), common.hrefs.PARTY_LETSDENDERMONDE)
           .then(function () {
             // Get and validate imported user
             return doGet(base + '/parties?alias=100', 'annadv', 'test').then(function (response) {
