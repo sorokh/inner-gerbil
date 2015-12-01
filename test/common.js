@@ -96,7 +96,7 @@ exports = module.exports = {
       passwork: ''
       }
     },
-  
+
   hrefs: {
     PARTIES: '/parties',
     BATCH: '/batch',
