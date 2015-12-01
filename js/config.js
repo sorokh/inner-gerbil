@@ -10,6 +10,7 @@ var knownPasswords = {};
 
 exports = module.exports = function (sri4node, verbose) {
     'use strict';
+    var getMe;
     var $u = sri4node.utils;
     var dvAuthenticator = function (db, username, password) {
         var deferred = Q.defer();
@@ -134,33 +135,39 @@ exports = module.exports = function (sri4node, verbose) {
     return deferred.promise;
   };
 
-  var getMe = function (req, database) {
-    var deferred = Q.defer();
+    getMe = function (req, database) {
+        var deferred = Q.defer();
+        var username;
+        if (req.user) {
+            username = req.user;
+        } else if (req.headers.authorization) {
+            var basic = req.headers.authorization;
+            var encoded = basic.substr(6);
+            var decoded = new Buffer(encoded, 'base64').toString('utf-8');
+            var firstColonIndex = decoded.indexOf(':');
 
-    var basic = req.headers.authorization;
-    var encoded = basic.substr(6);
-    var decoded = new Buffer(encoded, 'base64').toString('utf-8');
-    var firstColonIndex = decoded.indexOf(':');
-    var username;
 
-    if (firstColonIndex !== -1) {
-      username = decoded.substr(0, firstColonIndex);
-      if (knownIdentities[username]) {
-        deferred.resolve(knownIdentities[username]);
-      } else {
-        identity(username, database).then(function (me) {
-          knownIdentities[username] = me;
-          deferred.resolve(me);
-        }).fail(function (err) {
-          cl('Retrieving of identity had errors. Removing pg client from pool. Error : ');
-          cl(err);
-          deferred.reject(err);
-        });
-      }
-    }
+            if (firstColonIndex !== -1) {
+                username = decoded.substr(0, firstColonIndex);
+            }
+        }
+            if (knownIdentities[username]) {
+                deferred.resolve(knownIdentities[username]);
+            } else {
+                identity(username, database).then(function (me) {
+                    knownIdentities[username] = me;
+                    deferred.resolve(me);
+                }).fail(function (err) {
+                    cl('Retrieving of identity had errors. Removing pg client from pool. Error : ');
+                    cl(err);
+                    deferred.reject(err);
+                });
+            }
 
-    return deferred.promise;
-  };
+
+
+        return deferred.promise;
+    };
 
 
   var extraResourceConfig = {

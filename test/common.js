@@ -12,18 +12,21 @@ exports = module.exports = {
   },
 
   doGet: function (base) {
+    'use strict';
     return function (path, user, password) {
       return sriclient.get(base + path, user, password);
     };
   },
 
   doPut: function (base) {
+    'use strict';
     return function (path, body, user, password){
       return sriclient.put(base + path, body , user, password);
     };
   },
 
   doDelete: function (base) {
+    'use strict';
     return function (path, user, password){
       return  sriclient.delete(base + path, user, password);
     };
@@ -49,6 +52,19 @@ exports = module.exports = {
     return uuid.v4();
   },
 
+  randomString: function (strLength, charSet) {
+    'use strict';
+    var result = [];
+
+    strLength = strLength || 5;
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789éèçàùëäüï$!?-&@';
+
+    while (--strLength) {
+      result.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
+    }
+
+    return result.join('');
+  },
 
   accounts: {
     ANNA: {
@@ -63,6 +79,18 @@ exports = module.exports = {
         login: 'eddym',
         password: 'test'
       },
+    WALTER: {
+      login: 'waltervh',
+      password: 'test'
+    },
+    RUDY: {
+      login: 'rudir',
+      password: 'test'
+    },
+    LEEN: {
+      login: 'leendb',
+      password: 'test'
+    },
     DUMMY: {
       login: 'fake',
       passwork: ''
@@ -71,6 +99,8 @@ exports = module.exports = {
   
   hrefs: {
     PARTIES: '/parties',
+    BATCH: '/batch',
+    PARTYRELATIONS: '/partyrelations',
 
     PARTY_LETSDENDERMONDE: '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849',
     PARTY_LETSLEBBEKE: '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5',
@@ -83,6 +113,7 @@ exports = module.exports = {
     PARTY_LEEN: '/parties/abcb3c6e-721e-4f7c-ae4a-935e1980f15e',
     PARTY_EMMANUELLA: '/parties/508f9ec9-df73-4a55-ad42-32839abd1760',
     PARTY_DUMMY: '/parties/00000000-0000-0000-0000-000000000000',
+    PARTY_WALTER: '/parties/80af7e3f-b549-4774-832d-6d6243ff348f',
 
     PLUGIN_MAIL: '/plugins/7bd68a4b-138e-4228-9826-a002468222de',
 

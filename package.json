@@ -22,7 +22,7 @@
     "sri4node-client": "1.0.1",
     "uuid": "2.0.x",
     "csvtojson": "0.4.3",
-    "moment": "2.10.x"
+    "moment": "2.10.x",
     "bcrypt": "^0.8.5"
   },
   "engines": {
@@ -47,7 +47,7 @@
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^2.2.5",
     "nodemon": "^1.7.0",
-    "async": "^1.5.0"
+    "async": "^1.5.0",
     "node-uuid": "~1.4.3"
   }
 }
