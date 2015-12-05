@@ -9,113 +9,81 @@ var base = 'http://localhost:' + port;
 var sriclient = require('sri4node-client');
 var doPut = sriclient.put;
 
-exports = module.exports = function (fileName, partyUrl) {
+exports = module.exports = function (user, partyUrl) {
   'use strict';
-  var importUser = function (user) {
-    var uuid = common.generateUUID();
-    var party = {
-      type: 'person',
-      name: user.name,
-      alias: user.letscode.toString(),
-      status: 'inactive'
-    };
-    switch (user.status) {
-    case 0: // inactief
-      party.status = 'inactive';
-      break;
-    case 1: // actieve letser
-      party.status = 'active';
-      break;
-    case 2: // uitstapper
-      party.status = 'active';
-      break;
-    case 3: // instapper
-      party.status = 'active';
-      break;
-    case 4: // secretariaat
-      party.status = 'active';
-      break;
-    case 5: // infopakket
-      party.status = 'inactive';
-      break;
-    case 6: // instap gevolgd
-      party.status = 'inactive';
-      break;
-    case 7: // extern
-      party.status = 'active';
-      break;
-    default:
-      party.status = 'inactive';
-    }
-    console.log(party);
-    var partyrelation = {
-      from: {
-        href: '/parties/' + uuid
-      },
-      to: {
-        href: partyUrl
-      },
-      type: 'member',
-      balance: 0,
-      code: user.letscode.toString(),
-      status: 'inactive'
+  var uuid = common.generateUUID();
+  var party = {
+    type: 'person',
+    name: user.name,
+    alias: user.letscode.toString(),
+    status: 'inactive'
+  };
+  switch (user.status) {
+  case 0: // inactief
+    party.status = 'inactive';
+    break;
+  case 1: // actieve letser
+    party.status = 'active';
+    break;
+  case 2: // uitstapper
+    party.status = 'active';
+    break;
+  case 3: // instapper
+    party.status = 'active';
+    break;
+  case 4: // secretariaat
+    party.status = 'active';
+    break;
+  case 5: // infopakket
+    party.status = 'inactive';
+    break;
+  case 6: // instap gevolgd
+    party.status = 'inactive';
+    break;
+  case 7: // extern
+    party.status = 'active';
+    break;
+  default:
+    party.status = 'inactive';
+  }
+  console.log(party);
+  var partyrelation = {
+    from: {
+      href: '/parties/' + uuid
+    },
+    to: {
+      href: partyUrl
+    },
+    type: 'member',
+    balance: 0,
+    code: user.letscode.toString(),
+    status: 'inactive'
 
-    };
-    console.log(partyrelation);
-    var batchBody = [
-      {
-        href: '/parties/' + uuid,
-        verb: 'PUT',
-        body: party
+  };
+  console.log(partyrelation);
+  var batchBody = [
+    {
+      href: '/parties/' + uuid,
+      verb: 'PUT',
+      body: party
           },
-      {
-        href: '/partyrelations/' + common.generateUUID(),
-        verb: 'PUT',
-        body: partyrelation
+    {
+      href: '/partyrelations/' + common.generateUUID(),
+      verb: 'PUT',
+      body: partyrelation
           }
     ];
 
-    //return doPut(base + '/parties/' + uuid, party, 'annadv', 'test').then(function (
-    return doPut(base + '/batch', batchBody, 'annadv', 'test').then(function (
-      response) {
-      if (response.statusCode !== 200 && response.statusCode !== 201) {
-        console.log('PUT failed, response = ' + JSON.stringify(response));
-      } else {
-        console.log('PUT successful');
-      }
-    }).catch(function (e) {
-      console.log('importUser failed');
-      console.log(e);
-      throw e;
-    });
-  };
-
-  //Converter Class
-  var Converter = require('csvtojson').Converter;
-  var converter = new Converter({});
-
-  //end_parsed will be emitted once parsing finished
-  converter.on('end_parsed', function (jsonArray) {
-    console.log(jsonArray); //here is your result jsonarray
-    var promises = [];
-    jsonArray.forEach(function (user) {
-      console.log('User=' + JSON.stringify(user));
-      console.log('Start import');
-      //promises.push(importUser(user));
-      promises.push(importUser(user).then(function () {
-        console.log('End import');
-      }));
-    });
-    return Q.all(promises).then(function () {
-      deferred.resolve();
-    }).catch(function (e) {
-      console.log('Q.all failed !');
-      console.log(e);
-    });
+  return doPut(base + '/batch', batchBody, 'annadv', 'test').then(function (
+    response) {
+    if (response.statusCode !== 200 && response.statusCode !== 201) {
+      console.log('PUT failed, response = ' + JSON.stringify(response));
+    } else {
+      console.log('PUT successful');
+    }
+  }).catch(function (e) {
+    console.log('importUser failed');
+    console.log(e);
+    throw e;
   });
-
-  //read from file
-  console.log('Reading file: ' + fileName);
-  require('fs').createReadStream(fileName).pipe(converter);
-  return deferred.promise;
 };
