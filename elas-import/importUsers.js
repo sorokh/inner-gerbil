@@ -1,7 +1,5 @@
 /*eslint-env node*/
 var common = require('../test/common.js');
-var Q = require('q');
-var deferred = Q.defer();
 
 var port = 5000;
 var base = 'http://localhost:' + port;
@@ -12,40 +10,43 @@ var doPut = sriclient.put;
 exports = module.exports = function (user, partyUrl) {
   'use strict';
   var uuid = common.generateUUID();
+  var convUserStatusToPartyStatus = function (status) {
+    switch (status) {
+    case 0: // inactief
+      return 'inactive';
+    case 1: // actieve letser
+      return 'active';
+    case 2: // uitstapper
+      return 'active';
+    case 3: // instapper
+      return 'active';
+    case 4: // secretariaat
+      return 'active';
+    case 5: // infopakket
+      return 'inactive';
+    case 6: // instap gevolgd
+      return 'inactive';
+    case 7: // extern
+      return 'active';
+    default:
+      return 'inactive';
+    }
+  };
+  var convElasAccountroleToPartyrelType = function (accountrole) {
+    if (accountrole === 'user') {
+      return 'member';
+    } else if (accountrole === 'admin') {
+      return 'administrator';
+    }
+  };
   var party = {
     type: 'person',
     name: user.name,
     alias: user.letscode.toString(),
-    status: 'inactive'
+    login: user.login,
+    password: user.password,
+    status: convUserStatusToPartyStatus(user.status)
   };
-  switch (user.status) {
-  case 0: // inactief
-    party.status = 'inactive';
-    break;
-  case 1: // actieve letser
-    party.status = 'active';
-    break;
-  case 2: // uitstapper
-    party.status = 'active';
-    break;
-  case 3: // instapper
-    party.status = 'active';
-    break;
-  case 4: // secretariaat
-    party.status = 'active';
-    break;
-  case 5: // infopakket
-    party.status = 'inactive';
-    break;
-  case 6: // instap gevolgd
-    party.status = 'inactive';
-    break;
-  case 7: // extern
-    party.status = 'active';
-    break;
-  default:
-    party.status = 'inactive';
-  }
   console.log(party);
   var partyrelation = {
     from: {
@@ -54,10 +55,10 @@ exports = module.exports = function (user, partyUrl) {
     to: {
       href: partyUrl
     },
-    type: 'member',
+    type: convElasAccountroleToPartyrelType(user.accountrole),
     balance: 0,
     code: user.letscode.toString(),
-    status: 'inactive'
+    status: convUserStatusToPartyStatus(user.status)
 
   };
   console.log(partyrelation);
