@@ -32,9 +32,9 @@ exports = module.exports = function (sri4node, extra) {
       plugin: $q.filterReferencedType('/plugins', 'plugin'),
       defaultFilter: $q.defaultFilter
     },
-    querydocs: {
+    queryDocs: {
       plugin: 'Limit the list to data for one plugin only. ' +
-        'You can filter on more than one plugin by comma-seperating multiple permalinks.',
+        'You can filter on more than one plugin by comma separating multiple permalinks.',
       resource: 'Limit the list to data for a specific resource. '
     },
     afterupdate: [],

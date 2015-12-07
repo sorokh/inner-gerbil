@@ -1,6 +1,7 @@
 /* Configuration for sri4node, used for our server.js, but also for mocha tests */
 var Q = require('q');
 var common = require('./common.js');
+var fs = require('fs');
 var cl = common.cl;
 var knownIdentities = {};
 var knownPasswords = {};
@@ -61,7 +62,7 @@ exports = module.exports = function (sri4node, verbose) {
         messages: {href: '/messages?postedByParties=/parties/' + row.key},
         transactions: {href: '/transactions?involvingParties=/parties/' + row.key},
         contactdetails: {href: '/contactdetails?forParties=/parties/' + row.key},
-        parents: {href: '/parties?parentsOf=/parties/' + row.key},
+        parents: {href: '/parties?ancestorsOfParties=/parties/' + row.key},
         partyrelations: {href: '/partyrelations?from=/parties/' + row.key}
       };
       if (ret.imageurl === null) {
@@ -117,6 +118,8 @@ exports = module.exports = function (sri4node, verbose) {
     }
   };
 
+  var description = fs.readFileSync(__dirname + '/api-description.html');
+
   return {
     authenticate: $u.basicAuthentication(myAuthenticator),
     identify: getMe,
@@ -125,23 +128,24 @@ exports = module.exports = function (sri4node, verbose) {
     logsql: verbose,
     logdebug: verbose,
     defaultdatabaseurl: 'postgres://gerbil:inner@localhost:5432/postgres',
+    description: description,
     resources: [
-      require('./contactdetails')(sri4node, extraResourceConfig),
       require('./parties')(sri4node, extraResourceConfig),
       require('./partyrelations')(sri4node, extraResourceConfig),
+      require('./contactdetails')(sri4node, extraResourceConfig),
       require('./partycontactdetails')(sri4node, extraResourceConfig),
-      require('./transactions')(sri4node, extraResourceConfig),
-      require('./transactionrelations')(sri4node, extraResourceConfig),
       require('./messages')(sri4node, extraResourceConfig),
       require('./messagecontactdetails')(sri4node, extraResourceConfig),
       require('./messageparties')(sri4node, extraResourceConfig),
       require('./messagetransactions')(sri4node, extraResourceConfig),
       require('./messagerelations')(sri4node, extraResourceConfig),
+      require('./transactions')(sri4node, extraResourceConfig),
+      require('./transactionrelations')(sri4node, extraResourceConfig),
 
       require('./plugins.js')(sri4node, extraResourceConfig),
       require('./pluginauthorisations.js')(sri4node, extraResourceConfig),
-      require('./plugindata.js')(sri4node, extraResourceConfig),
-      require('./pluginconfigurations.js')(sri4node, extraResourceConfig)
+      require('./pluginconfigurations.js')(sri4node, extraResourceConfig),
+      require('./plugindata.js')(sri4node, extraResourceConfig)
     ]
   };
 };

@@ -21,8 +21,14 @@ exports = module.exports = function (sri4node, extra) {
 
   function involvingDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'descendantsOfParties');
-    select.sql(' and "from" in (select key from descendantsOfParties)' +
-               ' or "to" in (select key from descendantsOfParties) ');
+    select.sql(' and ("from" in (select key from descendantsOfParties)' +
+               ' or "to" in (select key from descendantsOfParties)) ');
+  }
+
+  function involvingAncestorsOfParties(value, select) {
+    common.ancestorsOfParties($u, value, select, 'ancestorsOfParties');
+    select.sql(' and ("from" in (select key from ancestorsOfParties)' +
+               ' or "to" in (select key from ancestorsOfParties)) ');
   }
 
   function fromDescendantsOfParties(value, select) {
@@ -68,12 +74,38 @@ exports = module.exports = function (sri4node, extra) {
     query: {
       from: $q.filterReferencedType('/parties', 'from'),
       to: $q.filterReferencedType('/parties', 'to'),
-      forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
       involvingParties: involvingParties,
+
+      forMessages: common.filterRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message'),
+
+      involvingAncestorsOfParties: involvingAncestorsOfParties,
       involvingDescendantsOfParties: involvingDescendantsOfParties,
+
       fromDescendantsOfParties: fromDescendantsOfParties,
       toDescendantsOfParties: toDescendantsOfParties,
       defaultFilter: $q.defaultFilter
+    },
+    queryDocs: {
+      from: 'Returns transactions where the originator is one of a list of ' +
+        '(comma separated) parties.',
+      to: 'Returns transactions benefitting one of a list of ' +
+        '(comma separated) parties.',
+      involvingParties: 'Returns transactions where on of a (comma separated) ' +
+        'list of parties is involved (either as originator or as beneficiary).',
+
+      forMessages: 'Returns transactions that are associated with one of a list ' +
+        'of (comma separated) messages.',
+
+      involvingAncestorsOfParties: 'Returns transactions involving any ' +
+        'direct or indirect parents (via an "is member of" relation) of a ' +
+        'comma separated list of parties.',
+      involvingDescendantsOfParties: 'Returns transactions involving any ' +
+        'direct or indirect members of a comma separated list of parties.',
+
+      fromDescendantsOfParties: 'Returns transactions originating from any ' +
+        'direct or indirect member of a comma separated list of parties.',
+      toDescendantsOfParties: 'Returns transaction benefitting any ' +
+        'direct or indirect member of a comma separated list of parties.'
     },
     afterread: [
       common.addRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message',

@@ -11,27 +11,37 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'A relationship between two parties that are using a mutual credit system.' +
-        ' The type of relationship, together with the types of parties involved determines the semantics ' +
+      title: 'A relationship between two parties.' +
+        ' The type of relationship, together with the types of parties involved, determines the semantics ' +
         'of the relationship. For example : when a person is a member of a group, this has a different meaning ' +
-        'from a group being member of a connector. Connector groups are used to allow 2 communities of ' +
-        'mutual credit users to exchange currency.',
+        'from a group being member of a connector group. Connector groups are used to allow multiple communities ' +
+        'to exchange currency and/or messages. Besides being \'a member of\' another party, a party can also be ' +
+        '\'an administrator\' of another party. Mind you that these relations are directed - they have a clear ' +
+        '"from" and "to" side.',
       type: 'object',
       properties: {
         from: {
-          references: '/parties'
+          references: '/parties',
+          description: 'From what party does the relationship originate ?'
         },
         to: {
-          references: '/parties'
+          references: '/parties',
+          description: 'To what part does the relationship go ?'
         },
         type: {
           type: 'string',
-          description: 'The type of relationship. Currently "member" and "adminsitrator" are in use.',
+          description: 'The type of relationship. ' +
+            'Together with the type of party for "from" and "to", it determines the semantics of this relationship.',
           enum: ['member', 'administrator']
         },
         balance: $s.numeric(
           'The balance (currency) of party A in his relationship with party B. Positive means party "from" has ' +
           'credit, negative means party "from" has debt.'
+        ),
+        code: $s.string('A code or alias bound to the membership of a person in a group/subgroup. ' +
+          'On the person level we also register the full name and alias, but some groups want control ' +
+          'over how people are identified in the UI. Groups can select to show the name or alias chosen ' +
+          'by people, but they can also choose to show this group controlled code.'
         ),
         status: {
           type: 'string',
@@ -47,6 +57,10 @@ exports = module.exports = function (sri4node, extra) {
       to: $q.filterReferencedType('/parties', 'to'),
       defaultFilter: $q.defaultFilter
     },
+    queryDocs: {
+      from: 'Limit the the resource to relations originating in one of a comma separated list of parties.',
+      to: 'Limit the list resource to relations going to one of a comma separated list of parties.'
+    },
     map: {
       key: {},
       from: {
@@ -57,6 +71,7 @@ exports = module.exports = function (sri4node, extra) {
       },
       type: {},
       balance: {},
+      code: {},
       status: {}
     },
     afterupdate: [],

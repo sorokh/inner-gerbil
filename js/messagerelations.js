@@ -23,7 +23,9 @@ exports = module.exports = function (sri4node, extra) {
         },
         type: {
           type: 'string',
-          description: 'The type of relationship. Currently "response_private" and "response_public" are in use.',
+          description: 'The type of relationship. Currently messages can be private or public responses to a ' +
+            'top level message. For now reponses can not be given to other responses. This may be extended in the ' +
+            'future.',
           enum: ['response_private', 'response_public']
         }
       },
@@ -31,9 +33,11 @@ exports = module.exports = function (sri4node, extra) {
     },
     validate: [],
     query: {
-      from: $q.filterReferencedType('/messages', 'from'),
       to: $q.filterReferencedType('/messages', 'to'),
       defaultFilter: $q.defaultFilter
+    },
+    queryDocs: {
+      to: 'Returns all responses to a (comma separated) list of messages.'
     },
     map: {
       from: {

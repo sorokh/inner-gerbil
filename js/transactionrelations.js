@@ -11,8 +11,10 @@ exports = module.exports = function (sri4node, extra) {
     secure: [],
     schema: {
       $schema: 'http://json-schema.org/schema#',
-      title: 'A relation that was affected by a transaction. Its balance was altered by the mentioned transaction. ' +
-        'For every transaction in the system these resources provide a record of the details on how the transaction ' +
+      title: 'Expresses that a /partyrelation (which has a balance) was affected by a transaction. ' +
+        'Its balance was altered by the mentioned transaction. ' +
+        'For every transaction in the system these resources ' +
+        'provide a record of the details on how the transaction ' +
         'was routed over (possibly multiple) subgroups, groups, connector groups, etc..',
       type: 'object',
       properties: {
@@ -35,8 +37,14 @@ exports = module.exports = function (sri4node, extra) {
     validate: [],
     query: {
       transaction: $q.filterReferencedType('/transactions', 'transaction'),
-      relation: $q.filterReferencedType('/partyrelations', 'relation'),
+      partyrelation: $q.filterReferencedType('/partyrelations', 'relation'),
       defaultFilter: $q.defaultFilter
+    },
+    queryDocs: {
+      transaction: 'Returns /transactionrelations for a (comma separated) list' +
+        'of transactions.',
+      partyrelation: 'Returns /transactionrelations for a (comma separated) list ' +
+        'of /partyrelations (i.e.: a membership of party A in party B)'
     },
     afterupdate: [],
     afterinsert: [],

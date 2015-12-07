@@ -8,10 +8,22 @@ exports = module.exports = function (sri4node, extra) {
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
+  function postedInAncestorsOfParties(value, select) {
+    common.ancestorsOfParties($u, value, select, 'partiesAncestorsOfParties');
+    select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
+               '(select "key" from partiesAncestorsOfParties)) ');
+  }
+
   function postedInDescendantsOfParties(value, select) {
     common.descendantsOfParties($u, value, select, 'partiesDescendantsOfParties');
-    select.sql(' and key in (select message from messageparties where party in ' +
-               '(select key from partiesDescendantsOfParties)) ');
+    select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
+               '(select "key" from partiesDescendantsOfParties)) ');
+  }
+
+  function postedInPartiesReachableFromParties(value, select) {
+    common.reachableFromParties($u, value, select, 'partiesReachableFromParties');
+    select.sql(' and "key" in (select "message" from messageparties where "party" in ' +
+               '(select "key" from partiesReachableFromParties)) ');
   }
 
   function postedByDescendantsOfParties(value, select) {
@@ -22,6 +34,12 @@ exports = module.exports = function (sri4node, extra) {
   function descendantsOfMessages(value, select) {
     common.descendantsOfMessages($u, value, select, 'messagesDescendantsOfMessages');
     select.sql(' and key in (select key from messagesDescendantsOfMessages) ');
+  }
+
+  function postedByPartiesInLatLong(value, select) {
+    common.filterLatLong($u, value, select, 'parties', 'partiesforlatlongcontactdetails');
+    select.sql(' and "author" in ' +
+               '(select "key" from partiesforlatlongcontactdetails) ');
   }
 
   var ret = {
@@ -35,7 +53,7 @@ exports = module.exports = function (sri4node, extra) {
       properties: {
         author: $s.permalink('/parties', 'The person/organisation that posted this message.'),
         title: $s.string('Title of the message'),
-        description: $s.string('Message body, in HTML.'),
+        description: $s.string('Message body, in semantic HTML.'),
         eventdate: $s.timestamp('If the message has tag "evenement", it must supply an event date/time here.'),
         amount: $s.numeric('The amount of currency requested/offered for a certain activity.'),
         unit: $s.string('The unit the currency amount applies to. Like : per hour, per item, per person, etc..'),
@@ -92,9 +110,15 @@ exports = module.exports = function (sri4node, extra) {
     validate: [],
     query: {
       postedInParties: common.filterRelatedManyToMany($u, 'messageparties', 'message', 'party'),
-      postedByParties: $q.filterReferencedType('/parties', 'author'),
+      postedInAncestorsOfParties: postedInAncestorsOfParties,
       postedInDescendantsOfParties: postedInDescendantsOfParties,
+      postedInPartiesReachableFromParties: postedInPartiesReachableFromParties,
+
+      postedByParties: $q.filterReferencedType('/parties', 'author'),
       postedByDescendantsOfParties: postedByDescendantsOfParties,
+
+      postedByPartiesInLatLong: postedByPartiesInLatLong,
+
       descendantsOfMessages: descendantsOfMessages,
       defaultFilter: $q.defaultFilter
     },
