@@ -130,6 +130,148 @@ exports = module.exports = function (sri4node, extra) {
     var deferred = Q.defer();
     return deferred.resolve();
   }
+  
+  
+  function isModifySelf(loggedInUser,resource){
+    if (loggedInUser && (loggedInUser.permalink === resource.permalink)) {
+      return true;
+    }
+    return false;
+  }
+  
+  function rejectAccess(reason){
+    return Q.reject(reason);
+  }
+  
+  function approveAccess(){
+    var deferred = Q.defer();
+    deferred.resolve(true);
+    return deferred.promise;
+  }
+  
+  function hasPersonUpdateAccess(database,loggedInUser,resource){
+    if(isModifySelf(loggedInUser,resource)){
+      return approveAccess(); 
+    }else{
+      return rejectAccess('Only owner is allowed to update his records!');
+    }
+  }
+  
+  function hasGroupUpdateAccess(database, loggedInUser, resource){
+    var deferred = Q.defer();
+    var q;
+    //Only person who has admin role
+    if (loggedInUser.key) {
+      q = $u.prepareSQL('check-is-admin');
+      q.sql('select * from partyrelations where "from"=').param(loggedInUser.key)
+          .sql(' and "to"=').param(resource.key)
+          .sql(' and "type"=').param("admin");
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.length > 0) {
+          //has admin role on group.
+          cl("has admin role");
+          deferred.resolve(true);
+        } else {
+          cl("doesn't have admin role!")
+          deferred.reject('Only a group admin may update a group!');
+        }
+      }).catch(function(error){
+        deferred.reject('A failure occurred!')
+      });
+    }else {
+      deferred.reject('User context not correctly set up for resource access!');
+    }
+    return deferred.promise;
+  }
+  
+  function hasSubGroupUpdateAccess(database, loggedInUser, resource){
+    var deferred = Q.defer();
+    var q;
+    //Only person who has admin role on subgroup
+    if (loggedInUser.key) {
+      q = $u.prepareSQL('check-is-admin-of-subgroup');
+      q.sql('select * from partyrelations where "from"=').param(loggedInUser.key)
+          .sql(' and "to"=').param(resource.key)
+          .sql(' and "type"=').param("admin");
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.length > 0) {
+          //had eligeable admin role
+          deferred.resolve(true);
+        } else {
+          deferred.reject('Only a group admin may update a subgroup!');
+        }
+      }).catch(function(error){
+        deferred.reject('A failure occurred!')
+      });
+    }else {
+      deferred.reject('User context not correctly set up for resource access!');
+    }
+    return deferred.promise;
+  }
+  
+  function hasUpdateAccessOnResource(request, response, database, loggedInUser, resource){
+    var deferred = Q.defer();
+    var q;
+    var resolved = function(){deferred.resolve(true);};
+    var nonAuthorized = function(){deferred.reject("Non Authorized!");};
+    switch (resource.type) {
+            case 'person':
+              hasPersonUpdateAccess(database,loggedInUser,resource).then(resolved,nonAuthorized);
+              break;
+            case 'group':
+              hasGroupUpdateAccess(database,loggedInUser,resource).then(resolved,nonAuthorized);
+              break;
+            case 'subgroup':
+              hasSubGroupUpdateAccess(database,loggedInUser,resource).then(resolved,nonAuthorized);
+              break;
+            case 'connector':
+              rejectAccess('Unsupported party type access.').then(resolved,nonAuthorized);
+              break;
+            case 'organisation':
+              rejectAccess('Unsupported party type access.').then(resolved,nonAuthorized);
+              break;
+            default:
+              rejectAccess('Unsupported party type access.').then(resolved,nonAuthorized);
+              break;
+          }
+          
+    return deferred.promise;
+  }
+  
+  
+  
+  function hasCreateAccessOnResource(request, response, database, loggedInUser, resource){
+    var deferred = Q.defer();
+    var q, promise;
+    var resolved = function(){deferred.resolve(true);};
+    var nonAuthorized = function(){deferred.reject("Non Authorized!");};
+    switch (resource.type) {
+            case 'person':
+              approveAccess().then(resolved,nonAuthorized);
+              break;
+            case 'group':
+              approveAccess().then(resolved,nonAuthorized);
+              break;
+            case 'subgroup':
+              approveAccess().then(resolved,nonAuthorized);
+              break;
+            case 'connector':
+              approveAccess().then(resolved,nonAuthorized);
+              break;
+            case 'organisation':
+              approveAccess().then(resolved,nonAuthorized);
+              break;
+            default:
+              approveAccess().then(resolved,nonAuthorized);
+              break;
+          }
+          
+    return deferred.promise;
+  }
 
   /**
    * Internal generic access control function to verify access to parties.
@@ -149,105 +291,32 @@ exports = module.exports = function (sri4node, extra) {
   function validateCreateUpdateAccessOnResource (request, response, database, me, resource) {
     var deferred = Q.defer();
     var q, qadmin;
+    var resolved = function(){deferred.resolve(true);};
+    var nonAuthorized = function(){deferred.reject("Non Authorized!");};
     var loggedInUser = me;
     if(loggedInUser.permalink) {
       loggedInUser.key = loggedInUser.permalink.split('/')[2];
     }
     //check if you are updating yourself?
-    if (loggedInUser && (loggedInUser.permalink === resource.permalink)) {
+    if (isModifySelf(loggedInUser,resource)) {
       deferred.resolve(true);
     }else {
+      //resource exists?
       q = $u.prepareSQL('check-party-exists');
       q.sql('select count("key") from parties where key= ')
           .param(resource.key);
       cl(q);
       $u.executeSQL(database, q).then(function (result) {
         cl(result.rows);
+        //handle resource update
         if (result.rows.pop().count > 0) {
           //update
-          switch (resource.type) {
-            case 'person':
-                deferred.reject('Only owner is allowed to update his records!');
-              break;
-            case 'group':
-              //Only person who has admin role
-                if (loggedInUser.key) {
-                  qadmin = $u.prepareSQL('check-is-admin');
-                  qadmin.sql('select * from partyrelations where "from"=').param(loggedInUser.key)
-                      .sql(' and "to"=').param(resource.key)
-                      .sql(' and "type"=').param("admin");
-                  cl(qadmin);
-                  $u.executeSQL(database, qadmin).then(function (result2) {
-                    cl(result2.rows);
-                    if (result2.rows.length > 0) {
-                      //has admin role on group.
-                      deferred.resolve(true);
-                    } else {
-                      deferred.reject('Only a group admin may update a group!');
-                    }
-                  }).catch(function(error){
-                    deferred.reject('A failure occurred!')
-                  });
-                }else {
-                  deferred.reject('User context not correctly set up for resource access!');
-                }
-              break;
-            case 'subgroup':
-              //Only person who has admin role on subgroup
-              if (loggedInUser.key) {
-                qadmin = $u.prepareSQL('check-is-admin-of-subgroup');
-                qadmin.sql('select * from partyrelations where "from"=').param(loggedInUser.key)
-                    .sql(' and "to"=').param(resource.key)
-                    .sql(' and "type"=').param("admin");
-                cl(qadmin);
-                $u.executeSQL(database, qadmin).then(function (result2) {
-                  cl(result2.rows);
-                  if (result2.rows.length > 0) {
-                    //had eligeable admin role
-                    deferred.resolve(true);
-                  } else {
-                    deferred.reject('Only a group admin may update a subgroup!');
-                  }
-                }).catch(function(error){
-                  deferred.reject('A failure occurred!')
-                });;
-              }else {
-                deferred.reject('User context not correctly set up for resource access!');
-              }
-              break;
-            case 'connector':
-              break;
-            case 'organisation':
-              break;
-            default:
-              deferred.reject('Unsupported party type access.');
-              break;
+          hasUpdateAccessOnResource(request,response,database,loggedInUser,resource).then(resolved,nonAuthorized);
+        } else /*Resource Creation*/{
+          hasCreateAccessOnResource(request,response,database,loggedInUser,resource).then(resolved,nonAuthorized);
           }
-        } else {
-          //create
-          switch (resource.type) {
-            case 'person':
-              deferred.resolve(true);
-              break;
-            case 'group':
-              deferred.resolve(true);
-              break;
-            case 'subgroup':
-              deferred.resolve(true);
-              break;
-            case 'connector':
-              deferred.resolve(true);
-              break;
-            case 'organisation':
-              deferred.resolve(true);
-              break;
-            default:
-              deferred.reject('only person can be created');
-              break;
-          }
-        }
-      });
-    }
+        });
+      }
     return deferred.promise;
   }
 
@@ -398,11 +467,16 @@ exports = module.exports = function (sri4node, extra) {
     }
     return deferred.promise;
   }
-
+  
+  function isSuperUser(user){
+    if(user.systemadmin){
+      return true;
+    }
+    return false;
+  }
+  
   function checkAccessOnResource(request, response, database, me, batch) {
     var deferred = Q.defer();
-    //evaluate request
-
     switch (request.method) {
         case 'GET':
             return checkReadAccessOnResource(request, response, database, me, batch);
@@ -414,7 +488,7 @@ exports = module.exports = function (sri4node, extra) {
             deferred.reject('Unauthorized Method used!');
             return deferred.promise;
     }
-
+    
   }
 
   function conditionLogin(key,e){

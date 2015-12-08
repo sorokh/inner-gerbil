@@ -66,7 +66,7 @@ CREATE TABLE "partyrelations" (
     "type" text not null,
     "balance" integer,
     "code" text,
-    "status" text not null, /* active/inactive */
+    "status" text not null, /* active/inactive/pending */
 
     "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,

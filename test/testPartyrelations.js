@@ -16,6 +16,13 @@ exports = module.exports = function (base, logverbose) {
       cl(x); // eslint-disable-line
     }
   }
+  
+  describe('/partyrelations/{partyrelation_id}', function() {
+    describe('GET', function() {
+      it('should allow the retrieval of a relation');
+      it('should not be possible to retrieve the relations of a person unless self, group member');
+    })
+  })
 
   describe('/partyrelations', function () {
     describe('GET', function () {

@@ -12,41 +12,9 @@ exports = module.exports = function (sri4node, verbose) {
     'use strict';
     var getMe;
     var $u = sri4node.utils;
-    var dvAuthenticator = function (db, username, password) {
-        var deferred = Q.defer();
-        var q;
 
-        if (knownPasswords[username]) {
-            if (knownPasswords[username] === password) {
-                deferred.resolve(true);
-            } else {
-                deferred.resolve(false);
-            }
-        } else {
-            q = $u.prepareSQL('select-count-from-persons-where-email-and-password');
-            q.sql('select count(*) from parties where login = ')
-                .param(username).sql(' and password = ').param(password);
-            $u.executeSQL(db, q).then(function (result) {
-                var count = parseInt(result.rows[0].count, 10);
-                if (count === 1) {
-                    // Found matching record, add to cache for subsequent requests.
-                    knownPasswords[username] = password;
-                    deferred.resolve(true);
-                } else {
-                    deferred.resolve(false);
-                }
-            }).fail(function (err) {
-                cl('Error checking user on database : ');
-                cl(err);
-                deferred.reject(err);
-            });
-        }
-
-        return deferred.promise;
-    };
-
-    var prAuthenticator = function (db, username, password) {
-        var deferred = Q.defer();
+  var saltedPasswordAuthenticator = function (db, username, password) {
+      var deferred = Q.defer();
         var q;
         if (hashCache[username]) {
             if (bcrypt.compareSync(password, hashCache[username])) {
@@ -80,18 +48,7 @@ exports = module.exports = function (sri4node, verbose) {
                 deferred.reject(err);
             });
         }
-
         return deferred.promise;
-    };
-
-  var myAuthenticator = function (db, username, password) {
-      var deferred;
-      if (process.env.STAGE === 'DV') { // eslint-disable-line
-        deferred = dvAuthenticator(db, username, password);
-      } else {
-        deferred = prAuthenticator(db, username, password);
-      }
-      return deferred;
   };
 
   var identity = function (username, database) {
@@ -180,7 +137,7 @@ exports = module.exports = function (sri4node, verbose) {
   var description = fs.readFileSync(__dirname + '/api-description.html');
 
   return {
-    authenticate: $u.basicAuthentication(myAuthenticator),
+    authenticate: $u.basicAuthentication(saltedPasswordAuthenticator),
     identify: getMe,
 
     logrequests: true,
