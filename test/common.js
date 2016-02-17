@@ -1,3 +1,4 @@
+var sriclient = require('sri4node-client');
 var uuid = require('uuid');
 
 exports = module.exports = {
@@ -10,6 +11,27 @@ exports = module.exports = {
     return hrefs;
   },
 
+  doGet: function (base) {
+    'use strict';
+    return function (path, user, password) {
+      return sriclient.get(base + path, user, password);
+    };
+  },
+
+  doPut: function (base) {
+    'use strict';
+    return function (path, body, user, password) {
+      return sriclient.put(base + path, body, user, password);
+    };
+  },
+
+  doDelete: function (base) {
+    'use strict';
+    return function (path, user, password) {
+      return sriclient.delete(base + path, user, password);
+    };
+  },
+
   getResultForHref: function (response, href) {
     'use strict';
     var index;
@@ -18,6 +40,7 @@ exports = module.exports = {
         return response.body.results[index];
       }
     }
+    return null;
   },
 
   cl: function (x) {
@@ -30,7 +53,56 @@ exports = module.exports = {
     return uuid.v4();
   },
 
+  randomString: function (strLength, charSet) {
+    'use strict';
+    var result = [];
+
+    strLength = strLength || 5;
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789éèçàùëäüï$!?-&@';
+
+    while (--strLength) {
+      result.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
+    }
+
+    return result.join('');
+  },
+
+  accounts: {
+    ANNA: {
+      login: 'annadv',
+      password: 'test'
+    },
+    STEVEN: {
+      login: 'stevenb',
+      password: 'test'
+    },
+    EDDY: {
+      login: 'eddym',
+      password: 'test'
+    },
+    WALTER: {
+      login: 'waltervh',
+      password: 'test'
+    },
+    RUDY: {
+      login: 'rudir',
+      password: 'test'
+    },
+    LEEN: {
+      login: 'leendb',
+      password: 'test'
+    },
+    DUMMY: {
+      login: 'fake',
+      passwork: ''
+    }
+  },
+
   hrefs: {
+    PARTIES: '/parties',
+    BATCH: '/batch',
+    PARTYRELATIONS: '/partyrelations',
+
     PARTY_LETSDENDERMONDE: '/parties/8bf649b4-c50a-4ee9-9b02-877aa0a71849',
     PARTY_LETSLEBBEKE: '/parties/aca5e15d-9f4c-4c79-b906-f7e868b3abc5',
     PARTY_LETSHAMME: '/parties/0a98e68d-1fb9-4a31-a4e2-9289ee2dd301',
@@ -41,9 +113,12 @@ exports = module.exports = {
     PARTY_EDDY: '/parties/437d9b64-a3b4-467c-9abe-e9410332c1e5',
     PARTY_LEEN: '/parties/abcb3c6e-721e-4f7c-ae4a-935e1980f15e',
     PARTY_EMMANUELLA: '/parties/508f9ec9-df73-4a55-ad42-32839abd1760',
+    PARTY_DUMMY: '/parties/00000000-0000-0000-0000-000000000000',
+    PARTY_WALTER: '/parties/80af7e3f-b549-4774-832d-6d6243ff348f',
 
     PLUGIN_MAIL: '/plugins/7bd68a4b-138e-4228-9826-a002468222de',
 
+    CONTACTDETAILS: '/contactdetails',
     CONTACTDETAIL_ADDRESS_ANNA: '/contactdetails/843437b3-29dd-4704-afa8-6b06824b2e92',
     CONTACTDETAIL_EMAIL_ANNA: '/contactdetails/b059ef61-340c-45d8-be4f-02436bcc03d9',
     CONTACTDETAIL_ADDRESS_STEVEN: '/contactdetails/3266043e-c70d-4bb4-b0ee-6ff0ae42ce44',
@@ -67,5 +142,16 @@ exports = module.exports = {
 
     TRANSACTION_ANNA_STEVEN_20: '/transactions/e068c284-26f1-4d11-acf3-8942610b26e7',
     TRANSACTION_LEEN_EMMANUELLA_20: '/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78'
+  },
+
+  responses: {
+    OK: 200,
+    CREATED: 201,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    CONFLICT: 409,
+    GONE: 410
   }
 };

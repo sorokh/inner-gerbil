@@ -72,8 +72,345 @@ exports = module.exports = function (sri4node, extra) {
     common.filterLatLong($u, value, select, 'parties', 'latlongcontactdetails');
     select.sql(' and key in (select key from latlongcontactdetails) ');
   }
-  
-  function conditionLogin(key,e){
+
+  /**
+   *
+   *
+   */
+  function validateUnicity(value, database) {
+    var q;
+    var deferred = Q.defer();
+
+    switch (value.type) {
+    case 'group':
+    case 'subgroup':
+      if (value.name) {
+        q = $u.prepareSQL('count-groups-by-name');
+        q.sql('select count("key") from "parties" where ("$$meta.deleted" <> true) and' +
+            ' "name"= ').param(value.name)
+            .sql(' and type in (').array(['group', 'subgroup']).sql(')');
+        if (value.$$meta && value.$$meta.permalink) {
+          q.sql('and key <>').param(value.$$meta.permalink.split('/')[2]);
+        }
+        cl(q);
+        $u.executeSQL(database, q).then(function (result) {
+          cl(result.rows);
+          if (result.rows.pop().count > 0) {
+            deferred.reject('Group with same name already exists');
+          } else {
+            deferred.resolve();
+          }
+        });
+      } else {
+        deferred.resolve();
+      }
+      break;
+    default:
+      if (value.login) {
+        q = $u.prepareSQL('count-parties-by-login');
+        q.sql('select count("key") from "parties" where ("$$meta.deleted" <> true) and' +
+            ' "login"= ').param(value.login);
+        if (value.$$meta && value.$$meta.permalink) {
+          q.sql('and key <>').param(value.$$meta.permalink.split('/')[2]);
+        }
+        cl(q);
+        $u.executeSQL(database, q).then(function (result) {
+          cl(result.rows);
+          if (result.rows.pop().count > 0) {
+            deferred.reject('Login already exists');
+          } else {
+            deferred.resolve();
+          }
+        });
+      } else {
+        deferred.resolve();
+      }
+      break;
+    }
+    return deferred.promise;
+  }
+
+  function checkReadAccessOnResource(request, response, database, me, batch) {
+    var deferred = Q.defer();
+    return deferred.resolve();
+  }
+
+  function isModifySelf(loggedInUser, resource) {
+    if (loggedInUser && (loggedInUser.permalink === resource.permalink)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Syntactic sugar method to get a more functional interface in the context of
+   * security.
+   * Remark this method always returns a rejected promise with as value the passed
+   * reason string.
+  */
+  function rejectAccess(reason) {
+    return Q.reject(reason);
+  }
+
+  /**
+   * Syntactic sugar method to get a more functional interface in the context of
+   * security.
+   * Remark this method always returns a resolved promise with value 'true'
+  */
+  function approveAccess() {
+    var deferred = Q.defer();
+    deferred.resolve(true);
+    return deferred.promise;
+  }
+
+  function hasPersonUpdateAccess(database, loggedInUser, resource) {
+    var ret;
+    if (isModifySelf(loggedInUser, resource)) {
+      ret = approveAccess();
+    } else {
+      ret = rejectAccess('Only owner is allowed to update his records!');
+    }
+    return ret;
+  }
+
+  function hasGroupUpdateAccess(database, loggedInUser, resource) {
+    var deferred = Q.defer();
+    var q;
+    //Only person who has admin role
+    if (loggedInUser.key) {
+      q = $u.prepareSQL('check-is-admin');
+      q.sql('select * from partyrelations where "from"=').param(loggedInUser.key)
+          .sql(' and "to"=').param(resource.key)
+          .sql(' and "type"=').param('admin');
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.length > 0) {
+          //has admin role on group.
+          cl('has admin role');
+          deferred.resolve(true);
+        } else {
+          cl('doesn\'t have admin role!');
+          deferred.reject('Only a group admin may update a group!');
+        }
+      }).catch(function (error) {
+        deferred.reject('A failure occurred!');
+      });
+    }else {
+      deferred.reject('User context not correctly set up for resource access!');
+    }
+    return deferred.promise;
+  }
+
+  function hasSubGroupUpdateAccess(database, loggedInUser, resource) {
+    var deferred = Q.defer();
+    var q;
+    //Only person who has admin role on subgroup
+    if (loggedInUser.key) {
+      q = $u.prepareSQL('check-is-admin-of-subgroup');
+      q.sql('select * from partyrelations where "from"=').param(loggedInUser.key)
+          .sql(' and "to"=').param(resource.key)
+          .sql(' and "type"=').param('admin');
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.length > 0) {
+          //had eligeable admin role
+          deferred.resolve(true);
+        } else {
+          deferred.reject('Only a group admin may update a subgroup!');
+        }
+      }).catch(function (error) {
+        deferred.reject('A failure occurred!');
+      });
+    }else {
+      deferred.reject('User context not correctly set up for resource access!');
+    }
+    return deferred.promise;
+  }
+
+  function hasUpdateAccessOnResource(request, response, database, loggedInUser, resource) {
+    var deferred = Q.defer();
+    var q;
+    var resolved = function () {deferred.resolve(true);};
+    var nonAuthorized = function () {deferred.reject('Non Authorized!');};
+    switch (resource.type) {
+    case 'person':
+      hasPersonUpdateAccess(database, loggedInUser, resource).then(resolved, nonAuthorized);
+      break;
+    case 'group':
+      hasGroupUpdateAccess(database, loggedInUser, resource).then(resolved, nonAuthorized);
+      break;
+    case 'subgroup':
+      hasSubGroupUpdateAccess(database, loggedInUser, resource).then(resolved, nonAuthorized);
+      break;
+    case 'connector':
+      rejectAccess('Unsupported party type access.').then(resolved, nonAuthorized);
+      break;
+    case 'organisation':
+      rejectAccess('Unsupported party type access.').then(resolved, nonAuthorized);
+      break;
+    default:
+      rejectAccess('Unsupported party type access.').then(resolved, nonAuthorized);
+      break;
+    }
+
+    return deferred.promise;
+  }
+
+  /**
+   * Check if the logged in User has access to create a particular party resource.
+   * The following rules apply:
+   * person: Anyone can create a person only anonymous access needed.
+   * group: only a loggedIn User with system admin rights can create a group
+   * subgroup: only a loggegIn User with group admin right and/or system admin rights can create a subgroup
+   * organization: ?
+   * connector: any loggedIn User can create a c
+   */
+  function hasCreateAccessOnResource(request, response, database, loggedInUser, resource) {
+    var deferred = Q.defer();
+    var q, promise;
+    var resolved = function () {deferred.resolve(true);};
+    var nonAuthorized = function () {deferred.reject('Non Authorized!');};
+    switch (resource.type) {
+    case 'person':
+      approveAccess().then(resolved, nonAuthorized);
+      break;
+    case 'group':
+      approveAccess().then(resolved, nonAuthorized);
+      break;
+    case 'subgroup':
+      approveAccess().then(resolved, nonAuthorized);
+      break;
+    case 'connector':
+      approveAccess().then(resolved, nonAuthorized);
+      break;
+    case 'organisation':
+      approveAccess().then(resolved, nonAuthorized);
+      break;
+    default:
+      approveAccess().then(resolved, nonAuthorized);
+      break;
+    }
+
+    return deferred.promise;
+  }
+
+  /**
+   * Internal generic access control function to verify access to parties.
+   * This function works on a provided resource data object that makes abstraction of the
+   * fact the the initiation was direct of via a batch call.
+   * @param request
+   * @param response
+   * @param database
+   * @param me
+   * @param resource The resouce contains
+   *      {
+   *        key: "The UUID of the party",
+   *        permalink: "The resource reference of the party",
+   *        type: "The type of party"
+   *      }
+     */
+  function validateCreateUpdateAccessOnResource(request, response, database, me, resource) {
+    var deferred = Q.defer();
+    var q, qadmin;
+    var resolved = function () {deferred.resolve(true);};
+    var nonAuthorized = function () {deferred.reject('Non Authorized!');};
+    var loggedInUser = me;
+    if (loggedInUser.permalink) {
+      loggedInUser.key = common.uuidFromPermalink(loggedInUser.permalink);
+    }
+    //check if you are updating yourself?
+    if (isModifySelf(loggedInUser, resource)) {
+      if (request.body.adminrole && !common.isSuperUser(me)) {
+        deferred.reject('Non Authorized manipulation of admin rights!');
+      } else {
+        deferred.resolve(true);
+      }
+    }else {
+      //resource exists?
+      q = $u.prepareSQL('check-party-exists');
+      q.sql('select count("key") from parties where key= ')
+          .param(resource.key);
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        //handle resource update
+        if (result.rows.pop().count > 0) {
+          //update
+          cl('triggering update of: ' + resource);
+          hasUpdateAccessOnResource(request, response, database, loggedInUser, resource).then(resolved, nonAuthorized);
+        } else /*Resource Creation*/{
+          cl('triggering create of: ' + resource);
+          hasCreateAccessOnResource(request, response, database, loggedInUser, resource).then(resolved, nonAuthorized);
+        }
+      });
+    }
+    return deferred.promise;
+  }
+
+  function checkCreateUpdateAccessOnResource(request, response, database, me, batch) {
+    var resource = {};
+    if (batch) {
+      resource.key = common.uuidFromPermalink(batch.href);
+      resource.permalink = batch.href;
+      resource.type = batch.body.type;
+    } else {
+      resource.key = request.params.key;
+      resource.permalink = request.url;
+      resource.type = request.body.type;
+    }
+    cl(resource.key + ';' + resource.permalink + ';' + resource.type);
+    return validateCreateUpdateAccessOnResource(request, response, database, me, resource);
+  }
+
+  function checkDeleteAccessOnResource(request, response, database, me, batch) {
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    loggedInUser.key = common.uuidFromPermalink(me.permalink);
+    // check if you are updating yourself?
+    if (me && (loggedInUser.permalink === ret.type + '/' + request.params.key)) { //updating myself
+      deferred.resolve(true);
+    }else {
+      q = $u.prepareSQL('fetch-party');
+      q.sql('select * from parties where key=').param(request.params.key);
+      cl(q);
+      $u.executeSQL(database, q).then(function (result) {
+        cl(result.rows);
+        if (result.rows.length > 0) {
+          if (result.rows[0].type === 'person') {
+            deferred.reject('Delete not allowed!');
+          } else {
+            deferred.resolve(true);
+          }
+        } else {
+          deferred.resolve(true);
+        }
+      });
+
+    }
+    return deferred.promise;
+  }
+
+  /* TODO: migrate common access controll calls to a common security mechanism */
+
+  function checkAccessOnResource(request, response, database, me, batch) {
+    var deferred = Q.defer();
+    switch (request.method) {
+    case 'GET':
+      return checkReadAccessOnResource(request, response, database, me, batch);
+    case 'PUT':
+      return checkCreateUpdateAccessOnResource(request, response, database, me, batch);
+    case 'DELETE':
+      return checkDeleteAccessOnResource(request, response, database, me, batch);
+    default:
+      deferred.reject('Unauthorized Method used!');
+      return deferred.promise.then(function(){cl('Access Allowed')}, function(){cl('Access Denied')});;
+    }
+  }
+
+  function conditionLogin(key, e) {
     if (!e[key] || e.type !== 'person') {
       $m.remove(key, e);
     }
@@ -100,7 +437,7 @@ exports = module.exports = function (sri4node, extra) {
     // They receive a database object and
     // the security context of the current user.
     secure: [
-      //checkAccessOnResource,
+      checkAccessOnResource
       //checkSomeMoreRules
     ],
     // Standard JSON Schema definition.
@@ -138,6 +475,11 @@ exports = module.exports = function (sri4node, extra) {
           type: 'string',
           description: 'The status of this party.',
           enum: ['active', 'inactive']
+        },
+        adminrole: {
+          type: 'string',
+          description: 'The system security level assigned to this party',
+          enum: ['all', 'none']
         }
       },
       required: ['type', 'name', 'status']
@@ -146,6 +488,7 @@ exports = module.exports = function (sri4node, extra) {
     // when a PUT operation is executed.
     validate: [
       //validateAuthorVersusThemes
+      validateUnicity
     ],
     // Supported URL parameters are configured
     // this allows filtering on the list resource.
@@ -205,7 +548,8 @@ exports = module.exports = function (sri4node, extra) {
       currencyname: {
         onread: $m.removeifnull
       },
-      status: {}
+      status: {},
+      adminrole: {}
     },
     // After update, insert or delete
     // you can perform extra actions.

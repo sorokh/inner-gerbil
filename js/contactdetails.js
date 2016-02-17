@@ -1,4 +1,8 @@
+var Q = require('q');
 var common = require('./common.js');
+var security = require('./commonSecurity.js');
+var parties = require('./parties.js');
+var cl = common.cl;
 
 exports = module.exports = function (sri4node, extra) {
   'use strict';
@@ -6,6 +10,12 @@ exports = module.exports = function (sri4node, extra) {
     $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
+
+    /**
+     * GET: Should allow reading of public contact info
+     * Non public contact info is  readible for group members?
+     * Filtering of result set can be done with after read!
+     */
 
   function forDescendantsOfParties(value, select) {
     var keys = common.uuidsFromCommaSeparatedListOfPermalinks(value);
@@ -45,10 +55,218 @@ exports = module.exports = function (sri4node, extra) {
                '(select "from" from partyrelations where "to" in (').array(keys).sql(') and "type" = \'member\')) ');
   }
 
+  function isOwnContactDetail(partyId, contactdetailId, database) {
+    var deferred = Q.defer();
+    var q;
+    q = $u.prepareSQL('isOwnContactDetail');
+    q.sql('select * from parties p, partycontactdetails pc, contactdetails c where c.key = ').param(contactdetailId);
+    q.sql(' and p.key=').param(partyId);
+    q.sql(' and pc.party = p.key and pc.contactdetail = c.key');
+    cl(q);
+    $u.executeSQL(database, q).then(function (result) {
+      cl(result.rows);
+      if (result.rows.length > 0) {
+        deferred.resolve(true);
+      } else {
+        deferred.resolve(false);
+      }
+    }).catch(function (e) {
+      cl(e);
+      deferred.resolve(false);
+    });
+    return deferred.promise;
+  }
+
+  /**
+   * Security Section
+   **/
+  function checkReadAccessOnResource(request, response, database, me, resource) {
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    var contactdetailId = resource.key;
+    if (!contactdetailId) {
+      //List is requested so we rely on the filtering after read.
+      deferred.resolve(true);
+    } else {
+      loggedInUser.key = me.permalink.split('/')[2];
+      //You are allowed to read contact details if they are your contactdetails or if they
+      //have been defined as public
+      isOwnContactDetail(loggedInUser.key, contactdetailId, database).then(function (isOwn) {
+        if (isOwn) {
+          deferred.resolve(true);
+        } else {
+          q = $u.prepareSQL('isPublicContactDetail');
+          q.sql('select * from contactdetails c where c.key = ').param(contactdetailId);
+          q.sql(' and c.public=').param(true);
+          cl(q);
+          $u.executeSQL(database, q).then(function (result) {
+            cl(result.rows);
+            if (result.rows.length > 0) {
+              deferred.resolve(true);
+            } else {
+              deferred.resolve(false);
+            }
+          }).catch(function (e) {
+            cl(e);
+            deferred.resolve(false);
+          });
+        }
+      });
+    }
+    return deferred.promise;
+  }
+
+  function checkExists(database, me, resource) {
+    /*global Q*/
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    /* check if this is an update of a create */
+    q = $u.prepareSQL('check-contactdetail-exists');
+    q.sql('select count("key") from contactdetails where key= ')
+        .param(resource.key);
+    cl(q);
+    $u.executeSQL(database, q).then(function (result) {
+      cl(result.rows);
+      //handle resource update
+      if (result.rows[0].count > 0) {
+        //update
+        cl('triggering update of: ' + resource);
+        deferred.resolve(true);
+      } else /*Resource Creation*/{
+        cl('triggering create of: ' + resource);
+        deferred.resolve(false);
+      }
+    });
+    return deferred.promise;
+  }
+
+
+  function checkUpdateAccessOnResource(request, response, database, me, resource) {
+    /*global Q*/
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
+      if (isOwn) {
+        deferred.resolve(true);
+      } else {
+        deferred.reject('Update is not allowed!');
+      }
+    });
+    return deferred.promise;
+  }
+
+  function checkDeleteAccessOnResource(request, response, database, me, resource) {
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    //You are allowed to update contact details if they are you contactdetails or if you are a superadmin?
+    // First you need to fetch the contactdetails for me.
+    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
+      if (isOwn) {
+        deferred.resolve(true);
+      } else {
+        deferred.reject('Delete is not allowed!');
+      }
+    });
+    return deferred.promise;
+  }
+
+
+  function checkAccessOnResource(request, response, database, me, batch) {
+    return security.checkAccessOnResource($u, request, response, database, me, batch,
+      {
+        read: checkReadAccessOnResource,
+        update: checkUpdateAccessOnResource,
+        delete: checkDeleteAccessOnResource,
+        table: 'contactdetails'
+      }).then(function(){cl('Access Allowed')}, function(){cl('Access Denied')});
+  }
+
+  function filterAccessible() {
+    /*
+    Unless you are a superadmin or member of the same group
+    you should only have access to public contactdetails.
+    */
+    return function (database, elements, me) {
+      var contactRefs = [];
+      var deferred = Q.defer();
+      var nonrecursive, recursive, select;
+      var contactDetails = elements || [];
+      var keys = [];
+      var keyToElement = {};
+      contactDetails.forEach(function (e) {
+        keys.push(e.key);
+        keyToElement[e.key] = e;
+      });
+      if (common.isSuperUser(me)) {
+        deferred.resolve(contactDetails);
+      } else {
+        /* select the contact for which I'm not the owner and are not public and union with
+        select the owners for those that are public and for which I'm not the owner and for
+        which I don't have the owners in my reacheable party graph and remove them*/
+        contactRefs = [];
+        contactDetails.forEach(
+          function (contact) {
+            contactRefs.push(common.uuidFromPermalink(contact.permalink));
+          });
+        select = $u.prepareSQL();
+        nonrecursive = $u.prepareSQL();
+
+        nonrecursive.sql('select distinct c.key as key,p.key as owner from contactdetails c, ' +
+        'partycontactdetails pc, parties p where c.public = true and ' +
+        'pc.contactdetail=c.key and pc.party <>').param(me.key)
+        .sql('and c.key in (').array(keys).sql(')');
+
+        recursive = $u.prepareSQL();
+        recursive.sql('select s.key,r.to FROM partyrelations r, accesibleparties s ' +
+        'where r."from" = s.party and r.type = \'member\' and r.status=\'active\'');
+
+        select.with(nonrecursive, 'UNION', recursive, 'accesibleparties(key,party)');
+
+        select.sql('select distinct ac.key from accesibleparties ac')
+        .sql(' UNION ')
+        .sql('select distinct c.key from contactdetails c, partycontactdetails pc ' +
+        'where c.public = false and pc.contactdetail = c.key and pc.party <> ').param(me.key);
+
+        cl(select);
+        $u.executeSQL(database, select).then(function (result) {
+          cl(result.rows);
+          result.forEach(
+              function (row) {
+                delete keyToElement[row.key];
+              });
+          elements = elements.filter(
+            function (element) {
+              var value;
+              if (keyToElement[element.key]) {
+                value = true;
+              } else {
+                value = false;
+              }
+              return value;
+            }
+          );
+          deferred.resolve(elements);
+        }).catch(function (e) {
+          cl(e);
+          deferred.resolve(false);
+        });
+      }
+      return deferred.promise;
+    };
+  }
+
   var ret = {
     type: '/contactdetails',
     public: false,
-    secure: [],
+    secure: [
+      checkAccessOnResource
+    ],
     schema: {
       $schema: 'http://json-schema.org/schema#',
       title: 'A contact detail of one of the parties involves in a mutual credit system, time bank ' +
@@ -151,6 +369,7 @@ exports = module.exports = function (sri4node, extra) {
       forMessages: 'Returns contact details associated to a (comma separated) list of messages.'
     },
     afterread: [
+      filterAccessible(),
       common.addRelatedManyToMany($u, 'partycontactdetails', 'contactdetail', 'party', '/parties', '$$parties'),
       common.addRelatedManyToMany($u, 'messagecontactdetails', 'contactdetail', 'message', '/messages', '$$messages')
     ],

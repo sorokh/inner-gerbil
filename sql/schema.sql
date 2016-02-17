@@ -4,7 +4,7 @@ SET search_path TO innergerbil;
 
 -- Contactdetails
 CREATE TABLE "contactdetails" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     
     "type" text not null,   
     "label" text,
@@ -28,7 +28,7 @@ CREATE TABLE "contactdetails" (
 
 -- Parties and relations
 CREATE TABLE "parties" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "type" text not null,
     "name" text not null,
     "alias" text,
@@ -39,14 +39,15 @@ CREATE TABLE "parties" (
     "secondsperunit" integer,
     "currencyname" text,
     "status" text not null, /* active, inactive, ... */
-  
+    "adminrole" text not null default 'none', /* all, none */  
+    
     "$$meta.deleted" boolean not null default false,
     "$$meta.modified" timestamp with time zone not null default current_timestamp,
     "$$meta.created" timestamp with time zone not null default current_timestamp
 );
 
 CREATE TABLE "partycontactdetails" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "party" uuid references "parties"(key) not null,
     "contactdetail" uuid references "contactdetails"(key) not null,
 
@@ -60,7 +61,7 @@ CREATE INDEX "partycontactdetails-contactdetail" ON "partycontactdetails"("conta
 
 -- Relationships between parties.
 CREATE TABLE "partyrelations" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "from" uuid references "parties"(key) not null,
     "to" uuid references "parties"(key) not null,
     "type" text not null,
@@ -77,7 +78,7 @@ CREATE INDEX "partyrelations-to" ON "partyrelations"("to");
 
 -- Transactions
 CREATE TABLE "transactions" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "from" uuid references "parties"(key) not null,
     "to" uuid references "parties"(key) not null,
     "amount" integer not null,
@@ -91,7 +92,7 @@ CREATE INDEX "transactions-from" ON "transactions"("from");
 CREATE INDEX "transactions-to" ON "transactions"("to");
 
 CREATE TABLE "transactionrelations" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "transaction" uuid references "transactions"(key) not null,
     "partyrelation" uuid references "partyrelations"(key) not null,
     "amount" integer not null,
@@ -105,7 +106,7 @@ CREATE INDEX "transactionrelations-relation" ON "transactionrelations"("partyrel
 
 -- Messages
 CREATE TABLE "messages" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "author" uuid references "parties"(key) not null,
     "title" text,    -- not required for responses.
     "description" text,
@@ -131,7 +132,7 @@ CREATE INDEX "messages-author" ON "messages"("author");
 -- Example search : SELECT * FROM MESSAGES WHERE search @@ to_tsquery('dutch','schakel:*');
 
 CREATE TABLE "messagecontactdetails" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "message" uuid references "messages"(key) not null,
     "contactdetail" uuid references "contactdetails"(key) not null,
   
@@ -143,7 +144,7 @@ CREATE INDEX "messagecontactdetails-message" ON "messagecontactdetails"("message
 CREATE INDEX "messagecontactdetails-contactdetail" ON "messagecontactdetails"("contactdetail");
 
 CREATE TABLE "messageparties" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "message" uuid references "messages"(key) not null,
     "party" uuid references "parties"(key) not null,
   
@@ -155,7 +156,7 @@ CREATE INDEX "messageparties-message" ON "messageparties"("message");
 CREATE INDEX "messageparties-party" ON "messageparties"("party");
 
 CREATE TABLE "messagetransactions" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "message" uuid references "messages"(key),
     "transaction" uuid references "transactions"(key) not null,
   
@@ -167,7 +168,7 @@ CREATE INDEX "messagetransactions-party" ON "messagetransactions"("message");
 CREATE INDEX "messagetransactions-transaction" ON "messagetransactions"("transaction");
 
 CREATE TABLE "messagerelations" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "from" uuid references "messages"(key) not null,
     "to" uuid references "messages"(key) not null,
     "type" text not null,
@@ -181,7 +182,7 @@ CREATE INDEX "messagerelations-to" ON "messagerelations"("to");
 
 -- Plugin tables
 CREATE TABLE "plugins" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "name" text not null,
     "description" text not null,
     "apikey" uuid unique not null,
@@ -194,7 +195,7 @@ CREATE TABLE "plugins" (
 );
 
 CREATE TABLE "pluginauthorisations" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "plugin" uuid references "plugins"(key) not null,
     "party" uuid references "parties"(key) not null,
 
@@ -206,7 +207,7 @@ CREATE INDEX "pluginauthorisations-plugin" ON "pluginauthorisations"("plugin");
 CREATE INDEX "pluginauthorisations-party" ON "pluginauthorisations"("party");
 
 CREATE TABLE "plugindata" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "plugin" uuid references "plugins"(key) not null,
     "resource" text not null,
     "data" jsonb not null,
@@ -220,7 +221,7 @@ CREATE INDEX "plugindata-resource" ON "plugindata"("resource");
 CREATE INDEX "plugindata-plugin-resource" ON "plugindata"("plugin","resource");
 
 CREATE TABLE "pluginconfigurations" (
-    "key" uuid unique not null,
+    "key" uuid primary key,
     "plugin" uuid references "plugins"(key) not null,
     "party" uuid references "parties"(key) not null,
     "data" jsonb not null,

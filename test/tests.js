@@ -34,4 +34,5 @@ describe('Sri4node testing', function () {
   require('./testPlugins.js')(base, verbose);
   require('./elas-import/testImport.js')(base, verbose);
   //require('./testIsolated.js')(base, verbose);
+  require('./testCommonSecurity.js')(base, verbose);
 });

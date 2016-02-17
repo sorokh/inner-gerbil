@@ -77,13 +77,23 @@ exports = module.exports = {
     };
   },
 
+  uuidFromPermalink: function (value) {
+    'use strict';
+    var ret;
+    if (value) {
+      ret = value.split('/')[2];
+    } else {ret = '';}
+    return ret;
+  },
+
   uuidsFromCommaSeparatedListOfPermalinks: function (value) {
     'use strict';
     var permalinks = value.split(',');
     var keys = [];
+    var that = this;
 
     permalinks.forEach(function (permalink) {
-      var key = permalink.split('/')[2];
+      var key = that.uuidFromPermalink(permalink);
       keys.push(key);
     });
 
@@ -221,5 +231,26 @@ exports = module.exports = {
     recursive.sql('SELECT r."from" FROM messagerelations r, ' + virtualtablename + ' c ' +
                   'where r."to" = c.key');
     select.with(nonrecursive, 'UNION', recursive, virtualtablename + '(key)');
+  },
+
+  isSuperUser: function (user) {
+    'use strict';
+    switch (user.adminrole) {
+      case 'all':
+        return true;
+      case 'none':
+      default:
+        return false;
+    }
+  },
+  hasHRef: function (refArray, href) {
+    'use strict';
+    var index;
+    for (index = 0; index < refArray.length; ++index) {
+      if (refArray[index].href.valueOf() === href) {
+        return true;
+      }
+    }
+    return false;
   }
 };

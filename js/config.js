@@ -11,46 +11,46 @@ exports = module.exports = function (sri4node, verbose) {
   'use strict';
   var $u = sri4node.utils;
 
- var saltedPasswordAuthenticator = function (db, username, password) {
-      var deferred = Q.defer();
-        var q;
-        if (hashCache[username]) {
-            if (bcrypt.compareSync(password, hashCache[username])) {
-              cl('login succeed');
-                deferred.resolve(true);
-            } else {
-              cl('login fail');
-                deferred.resolve(false);
-            }
-        } else {
-            q = $u.prepareSQL('select-count-from-persons-where-email-and-password');
-            q.sql('select password from parties where login = ')
-             .param(username)
-             .sql(' and status = ')
-             .param('active')
-             .sql(' and "$$meta.deleted" <> true');
-            $u.executeSQL(db, q).then(function (result) {
-                var count = parseInt(result.rows.length, 10);
-                if (count === 1) {
-                    // Found matching record, add to cache for subsequent requests.
-                    hashCache[username] = result.rows[0].password;
-                    if (bcrypt.compareSync(password, hashCache[username])) {
-                      cl('login succeed');
-                        deferred.resolve(true);
-                    } else {
-                       cl('login fail');
-                        deferred.resolve(false);
-                    }
-                }else {
-                    deferred.resolve(false);
-                }
-            }).fail(function (err) {
-                cl('Error checking user on database : ');
-                cl(err);
-                deferred.reject(err);
-            });
+  var saltedPasswordAuthenticator = function (db, username, password) {
+    var deferred = Q.defer();
+    var q;
+    if (hashCache[username]) {
+      if (bcrypt.compareSync(password, hashCache[username])) {
+        cl('login succeed');
+        deferred.resolve(true);
+      } else {
+        cl('login fail');
+        deferred.resolve(false);
+      }
+    } else {
+      q = $u.prepareSQL('select-count-from-persons-where-email-and-password');
+      q.sql('select password from parties where login = ')
+         .param(username)
+         .sql(' and status = ')
+         .param('active')
+         .sql(' and "$$meta.deleted" <> true');
+      $u.executeSQL(db, q).then(function (result) {
+        var count = parseInt(result.rows.length, 10);
+        if (count === 1) {
+          // Found matching record, add to cache for subsequent requests.
+          hashCache[username] = result.rows[0].password;
+          if (bcrypt.compareSync(password, hashCache[username])) {
+            cl('login succeed');
+            deferred.resolve(true);
+          } else {
+            cl('login fail');
+            deferred.resolve(false);
+          }
+        }else {
+          deferred.resolve(false);
         }
-        return deferred.promise;
+      }).fail(function (err) {
+        cl('Error checking user on database : ');
+        cl(err);
+        deferred.reject(err);
+      });
+    }
+    return deferred.promise;
   };
 
   var identity = function (username, database) {
@@ -60,7 +60,9 @@ exports = module.exports = function (sri4node, verbose) {
     var query;
 
     query = $u.prepareSQL('me');
-    query.sql('select * from parties where login = ').param(username);
+    query.sql('select * from parties where login = ')
+        .param(username)
+        .sql(' and "$$meta.deleted"<>true');
     $u.executeSQL(database, query).then(function (result) {
       row = result.rows[0];
       ret = {
@@ -70,6 +72,7 @@ exports = module.exports = function (sri4node, verbose) {
         alias: row.alias,
         dateofbirth: row.dateofbirth,
         imageurl: row.imageurl,
+        adminrole: row.adminrole,
         messages: {href: '/messages?postedByParties=/parties/' + row.key},
         transactions: {href: '/transactions?involvingParties=/parties/' + row.key},
         contactdetails: {href: '/contactdetails?forParties=/parties/' + row.key},
@@ -95,27 +98,30 @@ exports = module.exports = function (sri4node, verbose) {
 
   var getMe = function (req, database) {
     var deferred = Q.defer();
-
-    var basic = req.headers.authorization;
-    var encoded = basic.substr(6);
-    var decoded = new Buffer(encoded, 'base64').toString('utf-8');
-    var firstColonIndex = decoded.indexOf(':');
-    var username;
-
-    if (firstColonIndex !== -1) {
-      username = decoded.substr(0, firstColonIndex);
-      if (knownIdentities[username]) {
-        deferred.resolve(knownIdentities[username]);
-      } else {
-        identity(username, database).then(function (me) {
-          knownIdentities[username] = me;
-          deferred.resolve(me);
-        }).fail(function (err) {
-          cl('Retrieving of identity had errors. Removing pg client from pool. Error : ');
-          cl(err);
-          deferred.reject(err);
-        });
+    var basic, encoded, decoded, firstColonIndex, username;
+    if (!req.user) {
+      basic = req.headers.authorization;
+      encoded = basic.substr(6);
+      decoded = new Buffer(encoded, 'base64').toString('utf-8');
+      firstColonIndex = decoded.indexOf(':');
+      if (firstColonIndex !== -1) {
+        username = decoded.substr(0, firstColonIndex);
       }
+    }else{
+      username = req.user;
+    }
+
+    if (knownIdentities[username]) {
+      deferred.resolve(knownIdentities[username]);
+    } else {
+      identity(username, database).then(function (me) {
+        knownIdentities[username] = me;
+        deferred.resolve(me);
+      }).fail(function (err) {
+        cl('Retrieving of identity had errors. Removing pg client from pool. Error : ');
+        cl(err);
+        deferred.reject(err);
+      });
     }
 
     return deferred.promise;
@@ -123,7 +129,7 @@ exports = module.exports = function (sri4node, verbose) {
 
 
   var extraResourceConfig = {
-    cacheconfig: {  
+    cacheconfig: {
       ttl: 60,
       type: 'local'
     }

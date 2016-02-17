@@ -208,19 +208,19 @@ exports = module.exports = function (base, logverbose) {
         };
         var uuid = common.generateUUID();
         debug('Generated UUID=' + uuid);
-        return doPut(base + '/messages/' + uuid, body, 'annadv', 'test').then(
+        return doPut(base + '/messages/' + uuid, body, common.accounts.ANNA.login, common.accounts.ANNA.password).then(
           function (response) {
-            assert.equal(response.statusCode, 201);
-            return doGet(base + '/messages/' + uuid, 'annadv', 'test').then(
+            assert.equal(response.statusCode, common.responses.CREATED);
+            return doGet(base + '/messages/' + uuid, common.accounts.ANNA.login, common.accounts.ANNA.password).then(
               function (responseGet) {
-                assert.equal(responseGet.statusCode, 200);
+                assert.equal(responseGet.statusCode, common.responses.OK);
                 var message = responseGet.body;
                 assert.equal(message.description, 'test message');
                 assert.equal(message.author.href, common.hrefs.PARTY_ANNA);
               });
           });
       });
-      it('should allow batch insertions of new message and its relation.', function () {
+      it('should allow batch insertions of new message and its relation.', function (done) {
         var uuid = common.generateUUID();
         debug('Generated UUID=' + uuid);
         var body = [
@@ -262,7 +262,8 @@ exports = module.exports = function (base, logverbose) {
                 var message = responseGet.body;
                 assert.equal(message.description, 'test message');
                 assert.equal(message.author.href, common.hrefs.PARTY_ANNA);
-              });
+                done();
+              }, done);
           });
       });
     });

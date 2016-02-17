@@ -104,15 +104,15 @@ exports = module.exports = function (base, logverbose) {
           });
       };
       var validateParty = function (user) {
-        return doGet(base + '/parties?alias=' + user.letscode, 'annadv', 'test').then(function (
+        return doGet(base + '/parties?alias=' + user.letscode, 'waltervh', 'test').then(function (
           responseParty) {
           if (responseParty.statusCode !== 200) {
             debug('Error in get parties: ' + responseParty.statusCode);
           }
           var parties = responseParty.body;
           if (parties.$$meta.count === 0) {
-            debug('No parties with alias 100 found !!');
-            throw Error('No parties with alias 100 found');
+            debug('No parties with alias '+ user.letscode +' found !!');
+            throw Error('No parties with alias '+ user.letscode +' found !!');
           }
           debug('parties=' + JSON.stringify(parties));
           var party = parties.results[0].$$expanded;

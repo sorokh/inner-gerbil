@@ -3,21 +3,26 @@ SET search_path TO innergerbil;
 -- Parties
 -- key, type, name, alias, dateofbirth, imageurl, login, password, secondsperunit, currencyname, status
 -- LETS Groups
-
+-- LETS Regio Dendermonde
 INSERT INTO "parties" VALUES ('8bf649b4-c50a-4ee9-9b02-877aa0a71849','group','LETS Regio Dendermonde',null,null,null,null,null,180,'duim','active');
+-- LETS Lebbeke is a subgroup of Lets Regio Dendermonde
 INSERT INTO "parties" VALUES ('aca5e15d-9f4c-4c79-b906-f7e868b3abc5','subgroup','LETS Lebbeke',null,null,null,null,null,180,'duim','active');
+-- LETS Hamme
 INSERT INTO "parties" VALUES ('0a98e68d-1fb9-4a31-a4e2-9289ee2dd301','group','LETS Hamme',null,null,null,null,null,180,'zaadje','active');
 
 -- People
--- Anna De Vlaming is member of LETS Lebbeke
-INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
+-- Walter Vanhoof is member and admin of LETS Dendermonde
+INSERT INTO "parties" VALUES ('80af7e3f-b549-4774-832d-6d6243ff348f','person','Walter Vanhoof',null,'1980-10-11 00:00:00',null,'waltervh','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
+-- Anna De Vlaming is member and admin of LETS Lebbeke
+INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active','all');
 -- Steven Butink is member of LETS Lebbeke
 INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','Steven Buytink',null,'1979-04-01 00:00:00',null,'stevenb','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
--- Rudi Rudolf is member of LETS Dendermonde
+-- Rudi Rudolf is member and admin of LETS Dendermonde
 INSERT INTO "parties" VALUES ('eb6e3ad7-066f-4357-a582-dfb31e173606','person','Rudi Rudolf',null,'1968-10-23 00:00:00',null,'rudir','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Eddy is not a member of any group/subgroup/...
-INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,'eddym','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
--- Leen De Baere of LETS Hamme
+INSERT INTO "parties" VALUES ('437d9b64-a3b4-467c-9abe-e9410332c1e5','person','Eddy Merckx',null,'1963-01-03',null,
+'eddym','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'inactive');
+-- Leen De Baere is member and admin of LETS Hamme
 INSERT INTO "parties" VALUES ('abcb3c6e-721e-4f7c-ae4a-935e1980f15e','person','Leen De Baere',null,'1980-04-01',null,'leendb','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Emmanuella of LETS Hamme
 INSERT INTO "parties" VALUES ('508f9ec9-df73-4a55-ad42-32839abd1760','person','Emmanuella',null,'1982-05-01',null,'emmanuella','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
@@ -25,10 +30,18 @@ INSERT INTO "parties" VALUES ('508f9ec9-df73-4a55-ad42-32839abd1760','person','E
 -- partyrelations -- key, from, to, type, balance, status
 -- LETS Lebbeke is a member of LETS Dendermonde
 INSERT INTO "partyrelations" VALUES('cddffa35-6a2f-46c4-aa39-5b9040b4f429','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,null,'active');
+-- Walter Vanhoof is a member of LETS Dendermonde
+INSERT INTO "partyrelations" VALUES('ab450bba-68bd-4183-8196-6c0bd03ab589','80af7e3f-b549-4774-832d-6d6243ff348f','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,null,'active');
+-- Walter Vanhoof is an admin of LETS Dendermonde
+INSERT INTO "partyrelations" VALUES('ad44242d-78e4-4270-983a-5d5b50d3a6a2','80af7e3f-b549-4774-832d-6d6243ff348f','8bf649b4-c50a-4ee9-9b02-877aa0a71849','admin',0,null,'active');
 -- Rudi Rudolf is a member of LETS Dendermonde
 INSERT INTO "partyrelations" VALUES('c67139c2-779f-4d5c-9183-bbb9252574de','eb6e3ad7-066f-4357-a582-dfb31e173606','8bf649b4-c50a-4ee9-9b02-877aa0a71849','member',0,null,'active');
+-- Rudi Rudolf was an admin of LETS Dendermonde
+INSERT INTO "partyrelations" VALUES('1747a3e7-bfb8-41c1-b744-55813c3b61b4','eb6e3ad7-066f-4357-a582-dfb31e173606','8bf649b4-c50a-4ee9-9b02-877aa0a71849','admin',0,null,'inactive');
 -- Anna in LETS Lebbeke
 INSERT INTO "partyrelations" VALUES('419e6446-9b3e-4e7d-9381-0c38af0b316a','5df52f9f-e51f-4942-a810-1496c51e64db','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',-20,null,'active');
+-- Anna is admin of LETS Lebbeke
+INSERT INTO "partyrelations" VALUES('950a32e2-d3b0-4387-a3cb-783e086c4f93','5df52f9f-e51f-4942-a810-1496c51e64db','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','admin',0,null,'active');
 -- Steven in LETS Lebbeke
 INSERT INTO "partyrelations" VALUES('db41c12a-a521-443a-97f1-f0e14658fb78','fa17e7f5-ade9-49d4-abf3-dc3722711504','aca5e15d-9f4c-4c79-b906-f7e868b3abc5','member',20,null,'active');
 -- Eddy USED to be member of LETS Lebbeke, but is not any longer.

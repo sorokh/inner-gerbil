@@ -75,10 +75,11 @@ exports = module.exports = function (user, partyUrl) {
           }
     ];
 
-  return doPut(base + '/batch', batchBody, 'annadv', 'test').then(function (
+  return doPut(base + '/batch', batchBody, 'waltervh', 'test').then(function (
     response) {
     if (response.statusCode !== 200 && response.statusCode !== 201) {
-      console.log('PUT failed, response = ' + JSON.stringify(response));
+      //console.log('PUT failed, response = ' + JSON.stringify(response));
+      console.log('PUT failed, response= '+ response.statusCode);
     } else {
       console.log('PUT successful');
     }
