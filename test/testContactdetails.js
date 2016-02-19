@@ -248,30 +248,98 @@ exports = module.exports = function (base, logverbose) {
         ];
         doPut(common.hrefs.BATCH, body, steven.login, steven.password).then(
           function (response) {
-            //debug(response);
             assert.equal(response.statusCode, common.responses.CREATED);
-            /*return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, steven.login, steven.password).then(
+            return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, steven.login, steven.password).then(
               function (responseGet) {
-                //debug(responseGet);
                 assert.equal(responseGet.statusCode, common.responses.OK);
                 var contactdetail = responseGet.body;
                 assert.equal(contactdetail.type, 'email');
                 assert.equal(contactdetail.value, 'test@tester.com');
                 assert.equal(contactdetail.$$parties[0].href, common.hrefs.PARTY_STEVEN);
                 done();
-              }, done).done();*/
-            done();
+              }, done).done();
           });
       });
 
-      it('should allow creating a contactdetail for other with appropriate admin rights');
-      it('should disallow creating a contactdetail for other without appropriate admin rights');
-      it('should allow creating orphaned contactdetail with appropriate admin rights');
-      it('should disallow creating orphaned contactdetail without appropriate admin rights');
-      it('should allow updating a contactactdetail for self', function () {
-      });
+      it('should allow creating a contactdetail for other with appropriate admin rights',
+        function (done) {
+          var uuid = common.generateUUID();
+          common.cl(uuid);
+          debug('Generated UUID=' + uuid);
+          var body = [
+            {
+              href: '/contactdetails/' + uuid,
+              verb: 'PUT',
+              body: {
+                type: 'email',
+                value: 'test@tester.com',
+                public: true
+              }
+            },
+            {
+              href: '/partycontactdetails/' + common.generateUUID(),
+              verb: 'PUT',
+              body: {
+                party: {
+                  href: common.hrefs.PARTY_STEVEN
+                },
+                contactdetail: {
+                  href: '/contactdetails/' + uuid
+                }
+              }
+            }
+          ];
+          doPut(common.hrefs.BATCH, body, anna.login, anna.password).then(
+            function (response) {
+              assert.equal(response.statusCode, common.responses.CREATED);
+              return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+                function (responseGet) {
+                  assert.equal(responseGet.statusCode, common.responses.OK);
+                  var contactdetail = responseGet.body;
+                  assert.equal(contactdetail.type, 'email');
+                  assert.equal(contactdetail.value, 'test@tester.com');
+                  assert.equal(contactdetail.$$parties[0].href, common.hrefs.PARTY_STEVEN);
+                  done();
+                }, done).done();
+            });
+        });
+      it('should disallow creating a contactdetail for other without appropriate admin rights',
+        function (done) {
+          var uuid = common.generateUUID();
+          common.cl(uuid);
+          debug('Generated UUID=' + uuid);
+          var body = [
+            {
+              href: '/contactdetails/' + uuid,
+              verb: 'PUT',
+              body: {
+                type: 'email',
+                value: 'test@tester.com',
+                public: true
+              }
+            },
+            {
+              href: '/partycontactdetails/' + common.generateUUID(),
+              verb: 'PUT',
+              body: {
+                party: {
+                  href: common.hrefs.PARTY_STEVEN
+                },
+                contactdetail: {
+                  href: '/contactdetails/' + uuid
+                }
+              }
+            }
+          ];
+          doPut(common.hrefs.BATCH, body, leen.login, leen.password).then(
+            function (response) {
+              assert.equal(response.statusCode, common.responses.FORBIDDEN);
+              done();
+            }).done();
+        });
+      it('should allow updating a contactactdetail for self');
       it('should allow updating a contactdetail for other with appropriate admin rights');
-      it('should disallow updateing a contactdetail for other without appropriate admin rights');
+      it('should disallow updating a contactdetail for other without appropriate admin rights');
       it('should allow updating orphaned contactdetail with appropriate admin rights');
       it('should disallow updating orphaned contactdetail without appropriate admin rights');
     });

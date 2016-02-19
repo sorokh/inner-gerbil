@@ -86,7 +86,7 @@ exports = module.exports = function (sri4node, extra) {
         if (isOwn) {
           deferred.resolve(true);
         } else {
-          q = $u.prepareSQL('isPublicContactDetail');
+          q = $u.prepareSQL('isAccessibleMessage');
           q.sql('select * from contactdetails c where c.key = ').param(messageId);
           q.sql(' and c.public=').param(true);
           cl(q);
@@ -145,6 +145,79 @@ exports = module.exports = function (sri4node, extra) {
         delete: checkDeleteAccessOnResource,
         table: 'messages'
       });
+  }
+  
+  function filterAccessible() {
+    /*
+    Unless you are a superadmin or member of the same group
+    you should only have access to public contactdetails.
+    */
+    return function (database, elements, me) {
+      var messageRefs = [];
+      var deferred = Q.defer();
+      var nonrecursive, recursive, select;
+      var messages = elements || [];
+      var keys = [];
+      var keyToElement = {};
+      messages.forEach(function (e) {
+        keys.push(e.key);
+        keyToElement[e.key] = e;
+      });
+      if (common.isSuperUser(me)) {
+        deferred.resolve(messages);
+      } else {
+        /* select the messages for which I'm not the author and for
+        which I don't have the publishedToParty in my reacheable party graph and remove them*/
+        messageRefs = [];
+        messages.forEach(
+          function (message) {
+            messageRefs.push(common.uuidFromPermalink(message.permalink));
+          });
+        select = $u.prepareSQL();
+        nonrecursive = $u.prepareSQL();
+//TODO: create correct filtering statement
+        nonrecursive.sql('select distinct c.key as key,p.key as owner from contactdetails c, ' +
+        'partycontactdetails pc, parties p where c.public = true and ' +
+        'pc.contactdetail=c.key and pc.party <>').param(me.key)
+        .sql('and c.key in (').array(keys).sql(')');
+
+        recursive = $u.prepareSQL();
+        recursive.sql('select s.key,r.to FROM partyrelations r, accesibleparties s ' +
+        'where r."from" = s.party and r.type = \'member\' and r.status=\'active\'');
+
+        select.with(nonrecursive, 'UNION', recursive, 'accesibleparties(key,party)');
+
+        select.sql('select distinct ac.key from accesibleparties ac')
+        .sql(' UNION ')
+        .sql('select distinct c.key from contactdetails c, partycontactdetails pc ' +
+        'where c.public = false and pc.contactdetail = c.key and pc.party <> ').param(me.key);
+
+        cl(select);
+        $u.executeSQL(database, select).then(function (result) {
+          cl(result.rows);
+          result.forEach(
+              function (row) {
+                delete keyToElement[row.key];
+              });
+          elements = elements.filter(
+            function (element) {
+              var value;
+              if (keyToElement[element.key]) {
+                value = true;
+              } else {
+                value = false;
+              }
+              return value;
+            }
+          );
+          deferred.resolve(elements);
+        }).catch(function (e) {
+          cl(e);
+          deferred.resolve(false);
+        });
+      }
+      return deferred.promise;
+    };
   }
 
   var ret = {

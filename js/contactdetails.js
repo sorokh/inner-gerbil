@@ -184,7 +184,7 @@ exports = module.exports = function (sri4node, extra) {
         update: checkUpdateAccessOnResource,
         delete: checkDeleteAccessOnResource,
         table: 'contactdetails'
-      }).then(function(){cl('Access Allowed')}, function(){cl('Access Denied')});
+      });
   }
 
   function filterAccessible() {

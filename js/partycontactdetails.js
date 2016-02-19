@@ -62,13 +62,17 @@ exports = module.exports = function (sri4node, extra) {
     var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
-    isLinkableContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Update is not allowed!');
-      }
-    });
+    if (request.body.body.party.href !== me.permalink) {
+      deferred.reject('Not linking with self not allowed!');
+    } else {
+      isLinkableContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
+        if (isOwn) {
+          deferred.resolve(true);
+        } else {
+          deferred.reject('Create is not allowed!');
+        }
+      });
+    }
     return deferred.promise;
   }
 
@@ -113,7 +117,7 @@ exports = module.exports = function (sri4node, extra) {
         update: checkUpdateAccessOnResource,
         delete: checkDeleteAccessOnResource,
         table: 'partycontactdetails'
-      }).then(function () {cl('Access Allowed')}, function () {cl('Access Denied')});
+      });
   }
 
   var ret = {
