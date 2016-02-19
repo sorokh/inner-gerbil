@@ -10,18 +10,18 @@ exports = module.exports = function (sri4node, extra) {
     $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
-
-  /**
+    
+    /**
   * Check if the referred message is under the specified users ownership.
   * This is direct ownership or ownership via group admin rights.
   **/
-  function isOwnMessage(partyId, messageId, database) {
+  function isOwnMessage(partyId, messagepartyId, database) {
     var deferred = Q.defer();
     var q;
-    q = $u.prepareSQL('isOwnMessage');
-    q.sql('select * from messages m where m.key = ').param(messageId);
+    q = $u.prepareSQL('isOwnMessageForMessageParty');
+    q.sql('select * from messages m, messageparties mp where mp.key = ').param(messagepartyId);
+    q.sql('and mp.message = m.key');
     q.sql(' and m.author=').param(partyId);
-
     cl(q);
     $u.executeSQL(database, q).then(function (result) {
       cl(result.rows);
@@ -33,6 +33,38 @@ exports = module.exports = function (sri4node, extra) {
     }).catch(function (e) {
       cl(e);
       deferred.resolve(false);
+    });
+    return deferred.promise;
+  }
+  
+  function checkCreateAccessOnResource(request, response, database, me, resource) {
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    //You are allowed to create a message party relation if you own the message or if you are a superadmin?
+    isOwnMessage(loggedInUser.key, resource.key, database).then(function (isOwn) {
+      if (isOwn) {
+        deferred.resolve(true);
+      } else {
+        deferred.reject('Sharing of message is not allowed!');
+      }
+    });
+    return deferred.promise;
+  }
+  
+  function checkUpdateAccessOnResource(request, response, database, me, resource) {
+    var deferred = Q.defer();
+    var q;
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    //You are allowed to update a message party relation if you own the message or if you are a superadmin?
+    isOwnMessage(loggedInUser.key, resource.key, database).then(function (isOwn) {
+      if (isOwn) {
+        deferred.resolve(true);
+      } else {
+        deferred.reject('Update is not allowed!');
+      }
     });
     return deferred.promise;
   }

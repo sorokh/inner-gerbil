@@ -337,9 +337,38 @@ exports = module.exports = function (base, logverbose) {
               done();
             }).done();
         });
-      it('should allow updating a contactactdetail for self');
+      it('should allow updating a contactactdetail for self',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body =
+          {
+            type: 'email',
+            value: 'test@tester.com',
+            public: true
+          };
+        doPut(common.hrefs.CONTACTDETAIL_EMAIL_ANNA, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.OK);
+            done();
+          }).done();
+      });
       it('should allow updating a contactdetail for other with appropriate admin rights');
-      it('should disallow updating a contactdetail for other without appropriate admin rights');
+      it('should disallow updating a contactdetail for other without appropriate admin rights',
+      function (done) {
+        var body =
+          {
+            type: 'email',
+            value: 'test@tester.com',
+            public: true
+          };
+        doPut(common.hrefs.CONTACTDETAIL_EMAIL_ANNA, body, leen.login, leen.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.FORBIDDEN);
+            done();
+          }).done();
+      });
       it('should allow updating orphaned contactdetail with appropriate admin rights');
       it('should disallow updating orphaned contactdetail without appropriate admin rights');
     });

@@ -128,14 +128,10 @@ exports = module.exports = {
             if (exists) {
               cl('UPDATE');
               (config.update || defaultConfig.update)(request, response, database, me, resource)
-                .then(
-                  resolved(),
-                  nonAuthorized())
-                .catch(
-                  function (error) {
-                    cl('Error Occurred: ' + error);
-                    nonAuthorized();
-                  });
+                .then(function(){resolved()},
+                  function (error){
+                    cl('E0: Error Occurred: ' + error);
+                    nonAuthorized()});
             } else {
               cl('CREATE');
               (config.create || defaultConfig.create)(request, response, database, me, resource)
