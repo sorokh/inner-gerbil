@@ -81,6 +81,44 @@ exports = module.exports = {
     return def.promise;
   },
 
+  isOwn: function (database, me, resource) {
+    'use strict';
+    return exports.approveAccess();
+  },
+
+  checkUpdateAccessOnResource: function (request, response, database, me, resource, config) {
+    'use strict';
+    var deferred = Q.defer();
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    (config.isOwn || defaultConfig.isOwn)(database, me, resource).then(function (isOwn) {
+      if (isOwn) {
+        deferred.resolve(true);
+      } else {
+        deferred.reject('Update is not allowed!');
+      }
+    });
+    return deferred.promise;
+  },
+
+  checkDeleteAccessOnResource: function (request, response, database, me, resource, config) {
+    'use strict';
+    var deferred = Q.defer();
+    var loggedInUser = me;
+    loggedInUser.key = me.permalink.split('/')[2];
+    //You are allowed to update contact details if they are you contactdetails or if you are a superadmin?
+    // First you need to fetch the contactdetails for me.
+    (config.isOwn || defaultConfig.isOwn)(database, me, resource).then(function (isOwn) {
+      if (isOwn) {
+        deferred.resolve(true);
+      } else {
+        deferred.reject('Delete is not allowed!');
+      }
+    });
+
+    return deferred.promise;
+  },
+
   checkAccessOnResource: function ($u, request, response, database, me, batch, config) {
     'use strict';
     var deferred = Q.defer();
@@ -124,7 +162,7 @@ exports = module.exports = {
           function (exists) {
             if (exists) {
               cl('UPDATE');
-              (config.update || defaultConfig.update)(request, response, database, me, resource)
+              (config.update || defaultConfig.update)(request, response, database, me, resource, config)
                 .then(function () {resolved(); },
                   function (error) {
                     cl('E0: Error Occurred: ' + error);
@@ -148,7 +186,7 @@ exports = module.exports = {
       break;
     case 'DELETE':
       cl('DELETE');
-      (config.delete || defaultConfig.delete)(request, response, database, me, resource)
+      (config.delete || defaultConfig.delete)(request, response, database, me, resource, config)
         .then(function () {resolved(); }, function () {nonAuthorized(); });
       break;
     default:
@@ -163,7 +201,8 @@ exports = module.exports = {
 defaultConfig = {
   create: exports.approveAccess,
   read: exports.approveAccess,
-  update: exports.approveAccess,
-  delete: exports.approveAccess,
+  update: exports.checkUpdateAccessOnResource,
+  delete: exports.checkDeleteAccessOnResource,
+  isOwn: exports.isOwn,
   exists: checkExists
 };

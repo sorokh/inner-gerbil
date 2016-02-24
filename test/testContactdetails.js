@@ -455,7 +455,7 @@ exports = module.exports = function (base, logverbose) {
       );
     });
     describe('DELETE', function () {
-      it.only('should allow deleting own contactdetail',
+      it('should allow deleting own contactdetail',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -494,6 +494,7 @@ exports = module.exports = function (base, logverbose) {
           });
       }
       );
+      it('should logically cascade upond delete of contactdetail');
       it('should allow deleting other contactdetail with appropriate admin rights',
       function (done) {
         var uuid = common.generateUUID();
