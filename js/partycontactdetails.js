@@ -6,7 +6,6 @@ var cl = common.cl;
 exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $u = sri4node.utils,
-    $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
 
@@ -57,9 +56,7 @@ exports = module.exports = function (sri4node, extra) {
   }
 
   function checkCreateAccessOnResource(request, response, database, me, resource) {
-    /*global Q*/
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     if (request.body.body.party.href !== me.permalink) {
@@ -77,9 +74,7 @@ exports = module.exports = function (sri4node, extra) {
   }
 
   function checkUpdateAccessOnResource(request, response, database, me, resource) {
-    /*global Q*/
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     isOwnPartyContactDetail(loggedInUser.key, resource.key).then(function (isOwn) {
@@ -94,7 +89,6 @@ exports = module.exports = function (sri4node, extra) {
 
   function checkDeleteAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     //You are allowed to update contact details if they are you contactdetails or if you are a superadmin?

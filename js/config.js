@@ -107,7 +107,7 @@ exports = module.exports = function (sri4node, verbose) {
       if (firstColonIndex !== -1) {
         username = decoded.substr(0, firstColonIndex);
       }
-    }else{
+    } else {
       username = req.user;
     }
 

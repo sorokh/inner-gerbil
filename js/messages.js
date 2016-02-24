@@ -108,9 +108,7 @@ exports = module.exports = function (sri4node, extra) {
   }
 
   function checkUpdateAccessOnResource(request, response, database, me, resource) {
-    /*global Q*/
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     isOwnMessage(loggedInUser.key, resource.key, database).then(function (isOwn) {
@@ -125,7 +123,6 @@ exports = module.exports = function (sri4node, extra) {
 
   function checkDeleteAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     isOwnMessage(loggedInUser.key, resource.key, database).then(function (isOwn) {
@@ -146,7 +143,7 @@ exports = module.exports = function (sri4node, extra) {
         table: 'messages'
       });
   }
-  
+
   function filterAccessible() {
     /*
     Unless you are a superadmin or member of the same group
@@ -225,7 +222,7 @@ exports = module.exports = function (sri4node, extra) {
     public: false,
     secure: [
       checkAccessOnResource
-      ],
+    ],
     schema: {
       $schema: 'http://json-schema.org/schema#',
       title: 'A message posted by a person/organisation.',

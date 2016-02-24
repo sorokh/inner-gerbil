@@ -7,11 +7,10 @@ var cl = common.cl;
 exports = module.exports = function (sri4node, extra) {
   'use strict';
   var $u = sri4node.utils,
-    $m = sri4node.mapUtils,
     $s = sri4node.schemaUtils,
     $q = sri4node.queryUtils;
-    
-    /**
+
+  /**
   * Check if the referred message is under the specified users ownership.
   * This is direct ownership or ownership via group admin rights.
   **/
@@ -36,10 +35,9 @@ exports = module.exports = function (sri4node, extra) {
     });
     return deferred.promise;
   }
-  
+
   function checkCreateAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     //You are allowed to create a message party relation if you own the message or if you are a superadmin?
@@ -52,10 +50,9 @@ exports = module.exports = function (sri4node, extra) {
     });
     return deferred.promise;
   }
-  
+
   function checkUpdateAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     //You are allowed to update a message party relation if you own the message or if you are a superadmin?
@@ -68,10 +65,9 @@ exports = module.exports = function (sri4node, extra) {
     });
     return deferred.promise;
   }
-    
+
   function checkDeleteAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     //You are allowed to delete a message party relation if you own the message or if you are a superadmin?
@@ -89,7 +85,6 @@ exports = module.exports = function (sri4node, extra) {
   function checkAccessOnResource(request, response, database, me, batch) {
     return security.checkAccessOnResource($u, request, response, database, me, batch,
       {
-        read: checkReadAccessOnResource,
         create: checkCreateAccessOnResource,
         update: checkUpdateAccessOnResource,
         delete: checkDeleteAccessOnResource,
@@ -100,7 +95,9 @@ exports = module.exports = function (sri4node, extra) {
   var ret = {
     type: '/messageparties',
     public: false,
-    secure: [],
+    secure: [
+      checkAccessOnResource
+    ],
     schema: {
       $schema: 'http://json-schema.org/schema#',
       title: 'Messages can be posted to one or more people/groups/subgroups/connector groups.' +

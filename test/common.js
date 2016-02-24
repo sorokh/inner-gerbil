@@ -127,6 +127,7 @@ exports = module.exports = {
     CONTACTDETAIL_ADDRESS_LETSDENDERMONDE: '/contactdetails/96de9531-d777-4dca-9997-7a774d2d7595',
     CONTACTDETAIL_ADDRESS_MESSAGE: '/contactdetails/3362d325-cf19-4730-8490-583da50e114e',
 
+    MESSAGES: '/messages',
     // LETS Dendermonde
     MESSAGE_RUDI_WEBSITE: '/messages/11f2229f-1dea-4c5a-8abe-2980b2812cc4',
     // LETS Lebbeke

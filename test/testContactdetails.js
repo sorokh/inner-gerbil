@@ -216,6 +216,10 @@ exports = module.exports = function (base, logverbose) {
             expect(hrefs).to.not.contain(common.hrefs.CONTACTDETAIL_ADDRESS_MESSAGE);
           });
       });
+
+      it('should allow reading of deleted contactdetails with appropriate admin rights');
+
+      it('should not allow reading of deleted contactdetails without appropriate admin rights');
     });
 
     describe('PUT', function () {
@@ -302,7 +306,8 @@ exports = module.exports = function (base, logverbose) {
                   done();
                 }, done).done();
             });
-        });
+        }
+      );
       it('should disallow creating a contactdetail for other without appropriate admin rights',
         function (done) {
           var uuid = common.generateUUID();
@@ -336,7 +341,8 @@ exports = module.exports = function (base, logverbose) {
               assert.equal(response.statusCode, common.responses.FORBIDDEN);
               done();
             }).done();
-        });
+        }
+      );
       it('should allow updating a contactactdetail for self',
       function (done) {
         var uuid = common.generateUUID();
@@ -348,13 +354,31 @@ exports = module.exports = function (base, logverbose) {
             value: 'test@tester.com',
             public: true
           };
-        doPut(common.hrefs.CONTACTDETAIL_EMAIL_ANNA, body, anna.login, anna.password).then(
+        doPut(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN, body, steven.login, steven.password).then(
           function (response) {
             assert.equal(response.statusCode, common.responses.OK);
             done();
           }).done();
-      });
-      it('should allow updating a contactdetail for other with appropriate admin rights');
+      }
+      );
+      it('should allow updating a contactdetail for other with appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body =
+          {
+            type: 'email',
+            value: 'test@tester.com',
+            public: true
+          };
+        doPut(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.OK);
+            done();
+          }).done();
+      }
+      );
       it('should disallow updating a contactdetail for other without appropriate admin rights',
       function (done) {
         var body =
@@ -368,14 +392,238 @@ exports = module.exports = function (base, logverbose) {
             assert.equal(response.statusCode, common.responses.FORBIDDEN);
             done();
           }).done();
-      });
-      it('should allow updating orphaned contactdetail with appropriate admin rights');
-      it('should disallow updating orphaned contactdetail without appropriate admin rights');
+      }
+      );
+      it('should allow updating orphaned contactdetail with appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = {
+          type: 'email',
+          value: 'test@tester.com',
+          public: true
+        };
+        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            body = {
+              type: 'email',
+              value: 'test2@tester.com',
+              public: true
+            };
+            doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+              function (responseUpdate) {
+                assert.equal(responseUpdate.statusCode, common.responses.OK);
+                return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+                  function (responseGet) {
+                    assert.equal(responseGet.statusCode, common.responses.OK);
+                    var contactdetail = responseGet.body;
+                    assert.equal(contactdetail.type, 'email');
+                    assert.equal(contactdetail.value, 'test2@tester.com');
+                    done();
+                  }, done).done();
+              });
+          });
+      }
+      );
+      it('should disallow updating orphaned contactdetail without appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = {
+          type: 'email',
+          value: 'test@tester.com',
+          public: true
+        };
+        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            body = {
+              type: 'email',
+              value: 'test2@tester.com',
+              public: true
+            };
+            doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, steven.login, steven.password).then(
+              function (responseUpdate) {
+                assert.equal(responseUpdate.statusCode, common.responses.FORBIDDEN);
+                done();
+              }, done).done();
+          });
+      }
+      );
     });
     describe('DELETE', function () {
-      it('should allow deleting own contactdetail');
-      it('should allow deleting other contactdetail with appropriate admin rights');
-      it('should disallow deleting other contactdetail without appropriate admin rights');
+      it.only('should allow deleting own contactdetail',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = [
+          {
+            href: '/contactdetails/' + uuid,
+            verb: 'PUT',
+            body: {
+              type: 'email',
+              value: 'test@tester.com',
+              public: true
+            }
+          },
+          {
+            href: '/partycontactdetails/' + common.generateUUID(),
+            verb: 'PUT',
+            body: {
+              party: {
+                href: common.hrefs.PARTY_STEVEN
+              },
+              contactdetail: {
+                href: '/contactdetails/' + uuid
+              }
+            }
+          }
+        ];
+        doPut(common.hrefs.BATCH, body, steven.login, steven.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            return doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, steven.login, steven.password).then(
+              function (responseDelete) {
+                assert.equal(responseDelete.statusCode, common.responses.OK);
+                done();
+              }, done).done();
+          });
+      }
+      );
+      it('should allow deleting other contactdetail with appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = [
+          {
+            href: '/contactdetails/' + uuid,
+            verb: 'PUT',
+            body: {
+              type: 'email',
+              value: 'test@tester.com',
+              public: true
+            }
+          },
+          {
+            href: '/partycontactdetails/' + common.generateUUID(),
+            verb: 'PUT',
+            body: {
+              party: {
+                href: common.hrefs.PARTY_STEVEN
+              },
+              contactdetail: {
+                href: '/contactdetails/' + uuid
+              }
+            }
+          }
+        ];
+        doPut(common.hrefs.BATCH, body, steven.login, steven.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            return doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+              function (responseDelete) {
+                assert.equal(responseDelete.statusCode, common.responses.OK);
+                done();
+              }, done).done();
+          });
+      }
+      );
+      it('should disallow deleting other contactdetail without appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = [
+          {
+            href: '/contactdetails/' + uuid,
+            verb: 'PUT',
+            body: {
+              type: 'email',
+              value: 'test@tester.com',
+              public: true
+            }
+          },
+          {
+            href: '/partycontactdetails/' + common.generateUUID(),
+            verb: 'PUT',
+            body: {
+              party: {
+                href: common.hrefs.PARTY_ANNA
+              },
+              contactdetail: {
+                href: '/contactdetails/' + uuid
+              }
+            }
+          }
+        ];
+        doPut(common.hrefs.BATCH, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            return doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, steven.login, steven.password).then(
+              function (responseDelete) {
+                assert.equal(responseDelete.statusCode, common.responses.FORBIDDEN);
+                done();
+              }, done).done();
+          });
+      }
+      );
+      it('should allow deleting an orphaned contactdetail with appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = {
+          type: 'email',
+          value: 'test@tester.com',
+          public: true
+        };
+        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            body = {
+              type: 'email',
+              value: 'test2@tester.com',
+              public: true
+            };
+            doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+              function (responseUpdate) {
+                assert.equal(responseUpdate.statusCode, common.responses.OK);
+                done();
+              }, done).done();
+          });
+      }
+      );
+      it('should disallow deleting an orphaned contactdetail without appropriate admin rights',
+      function (done) {
+        var uuid = common.generateUUID();
+        common.cl(uuid);
+        debug('Generated UUID=' + uuid);
+        var body = {
+          type: 'email',
+          value: 'test@tester.com',
+          public: true
+        };
+        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+          function (response) {
+            assert.equal(response.statusCode, common.responses.CREATED);
+            body = {
+              type: 'email',
+              value: 'test2@tester.com',
+              public: true
+            };
+            doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, steven.login, steven.password).then(
+              function (responseUpdate) {
+                assert.equal(responseUpdate.statusCode, common.responses.FORBIDDEN);
+                done();
+              }, done).done();
+          });
+      }
+      );
     });
   });
 };

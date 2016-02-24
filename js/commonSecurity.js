@@ -15,14 +15,11 @@ var doesExist = function () {
 var checkExists = function ($u, database, me, resource, table) {
   'use strict';
   var deferred = Q.defer();
-  var promise;
   var q;
-  var loggedInUser = me;
   if (!resource || !table) {
     doesExist().then(
-      function () {deferred.resolve(true)}, function () {deferred.resolve(false)});
+      function () {deferred.resolve(true); }, function () {deferred.resolve(false); });
   } else {
-    /*global Q*/
     /* check if this is an update of a create */
     q = $u.prepareSQL('check-' + table + '-exists');
     q.sql('select count("key") from "' + table + '" where key= ')
@@ -116,8 +113,8 @@ exports = module.exports = {
     case 'GET':
       cl('GET');
       (config.read || defaultConfig.read)(request, response, database, me, resource)
-        .then(function(){resolved()},
-          function(){nonAuthorized()}
+        .then(function () {resolved(); },
+          function () {nonAuthorized(); }
         );
       break;
     case 'PUT':
@@ -128,15 +125,16 @@ exports = module.exports = {
             if (exists) {
               cl('UPDATE');
               (config.update || defaultConfig.update)(request, response, database, me, resource)
-                .then(function(){resolved()},
-                  function (error){
+                .then(function () {resolved(); },
+                  function (error) {
                     cl('E0: Error Occurred: ' + error);
-                    nonAuthorized()});
+                    nonAuthorized();
+                  });
             } else {
               cl('CREATE');
               (config.create || defaultConfig.create)(request, response, database, me, resource)
                 .then(
-                  function(){resolved()},
+                  function () {resolved(); },
                   function (error) {
                     cl('E1: Error Occurred: ' + error);
                     nonAuthorized();
@@ -151,7 +149,7 @@ exports = module.exports = {
     case 'DELETE':
       cl('DELETE');
       (config.delete || defaultConfig.delete)(request, response, database, me, resource)
-        .then(function(){resolved()}, function(){nonAuthorized()});
+        .then(function () {resolved(); }, function () {nonAuthorized(); });
       break;
     default:
       cl('UNSUPPORTED METHOD');

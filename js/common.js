@@ -82,7 +82,7 @@ exports = module.exports = {
     var ret;
     if (value) {
       ret = value.split('/')[2];
-    } else {ret = '';}
+    } else {ret = ''; }
     return ret;
   },
 
@@ -90,10 +90,9 @@ exports = module.exports = {
     'use strict';
     var permalinks = value.split(',');
     var keys = [];
-    var that = this;
 
     permalinks.forEach(function (permalink) {
-      var key = that.uuidFromPermalink(permalink);
+      var key = exports.uuidFromPermalink(permalink);
       keys.push(key);
     });
 
@@ -236,11 +235,11 @@ exports = module.exports = {
   isSuperUser: function (user) {
     'use strict';
     switch (user.adminrole) {
-      case 'all':
-        return true;
-      case 'none':
-      default:
-        return false;
+    case 'all':
+      return true;
+    case 'none':
+    default:
+      return false;
     }
   },
   hasHRef: function (refArray, href) {

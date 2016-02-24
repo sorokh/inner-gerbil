@@ -1,6 +1,5 @@
 var Q = require('q');
 var assert = require('assert');
-var chai = require('chai');
 var security = require('../js/commonSecurity.js');
 
 

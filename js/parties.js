@@ -231,8 +231,7 @@ exports = module.exports = function (sri4node, extra) {
 
   function hasUpdateAccessOnResource(request, response, database, loggedInUser, resource) {
     var deferred = Q.defer();
-    var q;
-    var resolved = function () {deferred.resolve(true);};
+    var resolved = function () {deferred.resolve(true); };
     var nonAuthorized = function () {deferred.reject('Non Authorized!');};
     switch (resource.type) {
     case 'person':
@@ -269,9 +268,8 @@ exports = module.exports = function (sri4node, extra) {
    */
   function hasCreateAccessOnResource(request, response, database, loggedInUser, resource) {
     var deferred = Q.defer();
-    var q, promise;
-    var resolved = function () {deferred.resolve(true);};
-    var nonAuthorized = function () {deferred.reject('Non Authorized!');};
+    var resolved = function () {deferred.resolve(true); };
+    var nonAuthorized = function () {deferred.reject('Non Authorized!'); };
     switch (resource.type) {
     case 'person':
       approveAccess().then(resolved, nonAuthorized);
@@ -313,9 +311,9 @@ exports = module.exports = function (sri4node, extra) {
      */
   function validateCreateUpdateAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q, qadmin;
-    var resolved = function () {deferred.resolve(true);};
-    var nonAuthorized = function () {deferred.reject('Non Authorized!');};
+    var q;
+    var resolved = function () {deferred.resolve(true); };
+    var nonAuthorized = function () {deferred.reject('Non Authorized!'); };
     var loggedInUser = me;
     if (loggedInUser.permalink) {
       loggedInUser.key = common.uuidFromPermalink(loggedInUser.permalink);
@@ -406,7 +404,7 @@ exports = module.exports = function (sri4node, extra) {
       return checkDeleteAccessOnResource(request, response, database, me, batch);
     default:
       deferred.reject('Unauthorized Method used!');
-      return deferred.promise.then(function(){cl('Access Allowed')}, function(){cl('Access Denied')});;
+      return deferred.promise.then(function () {cl('Access Allowed'); }, function () {cl('Access Denied'); });
     }
   }
 

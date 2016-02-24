@@ -1,7 +1,6 @@
 var Q = require('q');
 var common = require('./common.js');
 var security = require('./commonSecurity.js');
-var parties = require('./parties.js');
 var cl = common.cl;
 
 exports = module.exports = function (sri4node, extra) {
@@ -117,36 +116,8 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function checkExists(database, me, resource) {
-    /*global Q*/
-    var deferred = Q.defer();
-    var q;
-    var loggedInUser = me;
-    /* check if this is an update of a create */
-    q = $u.prepareSQL('check-contactdetail-exists');
-    q.sql('select count("key") from contactdetails where key= ')
-        .param(resource.key);
-    cl(q);
-    $u.executeSQL(database, q).then(function (result) {
-      cl(result.rows);
-      //handle resource update
-      if (result.rows[0].count > 0) {
-        //update
-        cl('triggering update of: ' + resource);
-        deferred.resolve(true);
-      } else /*Resource Creation*/{
-        cl('triggering create of: ' + resource);
-        deferred.resolve(false);
-      }
-    });
-    return deferred.promise;
-  }
-
-
   function checkUpdateAccessOnResource(request, response, database, me, resource) {
-    /*global Q*/
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
@@ -161,7 +132,6 @@ exports = module.exports = function (sri4node, extra) {
 
   function checkDeleteAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
-    var q;
     var loggedInUser = me;
     loggedInUser.key = me.permalink.split('/')[2];
     //You are allowed to update contact details if they are you contactdetails or if you are a superadmin?
@@ -257,6 +227,45 @@ exports = module.exports = function (sri4node, extra) {
           deferred.resolve(false);
         });
       }
+      return deferred.promise;
+    };
+  }
+
+  function cleanupRelations($$u) {
+    return function (database, elements) {
+      var deferred = Q.defer();
+      var selectMC, selectPC;
+      var contactDetails = elements || [];
+      var keys = [];
+      if (contactDetails.length) {
+        contactDetails.forEach(function (e) {
+          keys.push(common.uuidFromPermalink(e.path));
+        });
+      } else {
+        keys.push(common.uuidFromPermalink(contactDetails.path));
+      }
+      selectMC = $$u.prepareSQL();
+      selectMC.sql('update messagecontactdetails set "$$meta.deleted"=true ');
+      selectMC.sql(', "$$meta.modified" = current_timestamp ');
+      selectMC.sql('where contactdetail in(').array(keys).sql(')');
+      selectPC = $$u.prepareSQL();
+      selectPC.sql('update partycontactdetails set "$$meta.deleted"=true ');
+      selectPC.sql(', "$$meta.modified" = current_timestamp ');
+      selectPC.sql('where contactdetail in(').array(keys).sql(')');
+      
+      cl(selectMC);
+      cl(selectPC);
+      $$u.executeSQL(database, selectMC).then(function (result) {
+        $$u.executeSQL(database, selectPC).then(function (result2) {
+          deferred.resolve(elements);
+        }).catch(function (e) {
+        cl(e);
+        deferred.reject(false);
+      });
+      }).catch(function (e) {
+        cl(e);
+        deferred.reject(false);
+      });
       return deferred.promise;
     };
   }
@@ -375,7 +384,9 @@ exports = module.exports = function (sri4node, extra) {
     ],
     afterupdate: [],
     afterinsert: [],
-    afterdelete: []
+    afterdelete: [
+      cleanupRelations($u)
+    ]
   };
 
   common.objectMerge(ret, extra);
