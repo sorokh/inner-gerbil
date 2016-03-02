@@ -80,6 +80,10 @@ exports = module.exports = {
       login: 'eddym',
       password: 'test'
     },
+    EMMANUELLA: {
+      login: 'emmanuella',
+      password: 'test'
+    },
     WALTER: {
       login: 'waltervh',
       password: 'test'
@@ -140,6 +144,9 @@ exports = module.exports = {
     MESSAGE_STEVEN_REPLY_TO_ASPERGES: '/messages/e8a73a40-bfcd-4f5a-9f8a-9355cc956af0',
     // LETS Hamme
     MESSAGE_LEEN_PLANTS: '/messages/e24528a5-b12f-417a-a489-913d5879b895',
+    
+    MESSAGE_RELATIONS: '/messagerelations',
+    MESSAGE_RELATION_ASPERGES: '/messagerelations/cc03a9d4-1aef-4c8f-9b05-7b39be514a67',
 
     TRANSACTION_ANNA_STEVEN_20: '/transactions/e068c284-26f1-4d11-acf3-8942610b26e7',
     TRANSACTION_LEEN_EMMANUELLA_20: '/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78'

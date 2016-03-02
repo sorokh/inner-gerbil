@@ -4,6 +4,7 @@ var doGet = sriclient.get;
 var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
+var anna = common.accounts.ANNA;
 
 exports = module.exports = function (base, logverbose) {
   'use strict';
@@ -20,7 +21,7 @@ exports = module.exports = function (base, logverbose) {
       it('should support retrieving reachable parties for multiple start nodes', function () {
         return doGet(base + '/parties?reachableFromParties=' +
             common.hrefs.PARTY_ANNA + ',' +
-            common.hrefs.PARTY_STEVEN, 'annadv', 'test').then(function (response) {
+            common.hrefs.PARTY_STEVEN, anna.login, anna.password).then(function (response) {
           debug(response);
           var hrefs = [];
           assert.equal(response.statusCode, 200);
@@ -31,10 +32,10 @@ exports = module.exports = function (base, logverbose) {
           // Eddy is inactive in LETS Lebbeke, so should not be found..
           expect(hrefs).to.not.contain(common.hrefs.PARTY_EDDY);
           expect(hrefs).to.contain(common.hrefs.PARTY_RUDI);
-          // Steven is reachable from Anna !
-          expect(hrefs).to.contain(common.hrefs.PARTY_STEVEN);
-          // Anna is reachable from Steven !
-          expect(hrefs).to.contain(common.hrefs.PARTY_ANNA);
+          // Steven is reachable from Anna ! but is in original request and hence filtered
+          expect(hrefs).to.not.contain(common.hrefs.PARTY_STEVEN);
+          // Anna is reachable from Steven ! but is in original request and hence filtered
+          expect(hrefs).to.not.contain(common.hrefs.PARTY_ANNA);
         });
       });
     });

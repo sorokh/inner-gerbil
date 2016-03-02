@@ -62,11 +62,12 @@ exports = module.exports = {
    * Remark this method always returns a rejected promise with as value the passed
    * reason string.
   */
-  rejectAccess: function (reason) {
+  rejectAccess: function (reason, deferred) {
     'use strict';
-    var def = Q.defer();
+    var def = deferred || Q.defer();
+    cl('rejected: ' + reason);
     def.reject(reason);
-    return def.promise;
+    return deferred || def.promise;
   },
 
   /**
@@ -85,38 +86,31 @@ exports = module.exports = {
     'use strict';
     return exports.approveAccess();
   },
-
-  checkUpdateAccessOnResource: function (request, response, database, me, resource, config) {
-    'use strict';
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    (config.isOwn || defaultConfig.isOwn)(database, me, resource).then(function (isOwn) {
-      if (isOwn) {
+  
+  ownerBasedAccessOnResource: function (message,errormessage){
+    return function (request, response, database, me, resource, config) {
+      'use strict';
+      var deferred = Q.defer();
+      var resolved = function () {
+        cl('resolved');
         deferred.resolve(true);
-      } else {
-        deferred.reject('Update is not allowed!');
-      }
-    });
-    return deferred.promise;
-  },
-
-  checkDeleteAccessOnResource: function (request, response, database, me, resource, config) {
-    'use strict';
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    //You are allowed to update contact details if they are you contactdetails or if you are a superadmin?
-    // First you need to fetch the contactdetails for me.
-    (config.isOwn || defaultConfig.isOwn)(database, me, resource).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Delete is not allowed!');
-      }
-    });
-
-    return deferred.promise;
+      };
+      var nonAuthorized = function () {
+        cl('rejected');
+        deferred.reject(message);
+      };
+      (config.isOwn || defaultConfig.isOwn)(database, me, resource).then(function (isOwn) {
+        if (isOwn) {
+          resolved();
+        } else {
+          exports.rejectAccess(message, deferred);
+        }
+      }, function (error) {
+        cl(errormessage + ' ' + error);
+        nonAuthorized();
+      });
+      return deferred.promise;
+    }
   },
 
   checkAccessOnResource: function ($u, request, response, database, me, batch, config) {
@@ -198,11 +192,17 @@ exports = module.exports = {
   }
 };
 
+/**
+ * Default access policy :
+ *  Allow read for all
+ *  Allow create by all
+ *  Allow update/delete by superuser and owners.
+ */
 defaultConfig = {
   create: exports.approveAccess,
   read: exports.approveAccess,
-  update: exports.checkUpdateAccessOnResource,
-  delete: exports.checkDeleteAccessOnResource,
+  update: exports.ownerBasedAccessOnResource('Update is not allowed!', 'CSU1: Error Occurred:'),
+  delete: exports.ownerBasedAccessOnResource('Delete is not allowed!', 'CSD1: Error Occurred: '),
   isOwn: exports.isOwn,
   exists: checkExists
 };

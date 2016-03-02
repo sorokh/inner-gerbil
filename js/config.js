@@ -67,6 +67,7 @@ exports = module.exports = function (sri4node, verbose) {
       row = result.rows[0];
       ret = {
         permalink: '/parties/' + row.key,
+        key: row.key,
         login: row.login,
         name: row.name,
         alias: row.alias,

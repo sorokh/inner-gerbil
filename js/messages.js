@@ -48,7 +48,9 @@ exports = module.exports = function (sri4node, extra) {
   * Check if the referred message is under the specified users ownership.
   * This is direct ownership or ownership via group admin rights.
   **/
-  function isOwnMessage(partyId, messageId, database) {
+  function isOwnMessage(database, me, resource) {
+    var messageId = resource.key;
+    var partyId = me.key;
     var deferred = Q.defer();
     var q;
     q = $u.prepareSQL('isOwnMessage');
@@ -79,10 +81,9 @@ exports = module.exports = function (sri4node, extra) {
       //List is requested so we rely on the filtering after read.
       deferred.resolve(true);
     } else {
-      loggedInUser.key = me.permalink.split('/')[2];
       //You are allowed to read contact details if they are your contactdetails or if they
       //have been defined as public
-      isOwnMessage(loggedInUser.key, messageId, database).then(function (isOwn) {
+      isOwnMessage(database, loggedInUser, resource ).then(function (isOwn) {
         if (isOwn) {
           deferred.resolve(true);
         } else {
@@ -107,39 +108,13 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function checkUpdateAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    isOwnMessage(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Update is not allowed!');
-      }
-    });
-    return deferred.promise;
-  }
-
-  function checkDeleteAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    isOwnMessage(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Delete is not allowed!');
-      }
-    });
-  }
+  
 
   function checkAccessOnResource(request, response, database, me, batch) {
     return security.checkAccessOnResource($u, request, response, database, me, batch,
       {
         read: checkReadAccessOnResource,
-        update: checkUpdateAccessOnResource,
-        delete: checkDeleteAccessOnResource,
+        isOwn: isOwnMessage,
         table: 'messages'
       });
   }
@@ -168,7 +143,7 @@ exports = module.exports = function (sri4node, extra) {
         messageRefs = [];
         messages.forEach(
           function (message) {
-            messageRefs.push(common.uuidFromPermalink(message.permalink));
+            messageRefs.push(message.key);
           });
         select = $u.prepareSQL();
         nonrecursive = $u.prepareSQL();

@@ -54,7 +54,9 @@ exports = module.exports = function (sri4node, extra) {
                '(select "from" from partyrelations where "to" in (').array(keys).sql(') and "type" = \'member\')) ');
   }
 
-  function isOwnContactDetail(partyId, contactdetailId, database) {
+  function isOwnContactDetail(database, me, resource) {
+    var contactdetailId = resource.key;
+    var partyId = me.key;
     var deferred = Q.defer();
     var q;
     q = $u.prepareSQL('isOwnContactDetail');
@@ -82,16 +84,14 @@ exports = module.exports = function (sri4node, extra) {
   function checkReadAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
     var q;
-    var loggedInUser = me;
     var contactdetailId = resource.key;
     if (!contactdetailId) {
       //List is requested so we rely on the filtering after read.
       deferred.resolve(true);
     } else {
-      loggedInUser.key = me.permalink.split('/')[2];
       //You are allowed to read contact details if they are your contactdetails or if they
       //have been defined as public
-      isOwnContactDetail(loggedInUser.key, contactdetailId, database).then(function (isOwn) {
+      isOwnContactDetail(database, me , resource).then(function (isOwn) {
         if (isOwn) {
           deferred.resolve(true);
         } else {
@@ -116,43 +116,12 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function checkUpdateAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Update is not allowed!');
-      }
-    });
-    return deferred.promise;
-  }
-
-  function checkDeleteAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    //You are allowed to update contact details if they are you contactdetails or if you are a superadmin?
-    // First you need to fetch the contactdetails for me.
-    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Delete is not allowed!');
-      }
-    });
-    return deferred.promise;
-  }
-
 
   function checkAccessOnResource(request, response, database, me, batch) {
     return security.checkAccessOnResource($u, request, response, database, me, batch,
       {
         read: checkReadAccessOnResource,
-        update: checkUpdateAccessOnResource,
-        delete: checkDeleteAccessOnResource,
+        isOwn: isOwnContactDetail,
         table: 'contactdetails'
       });
   }

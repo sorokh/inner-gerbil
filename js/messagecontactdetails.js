@@ -14,7 +14,9 @@ exports = module.exports = function (sri4node, extra) {
   * Check if the referred message is under the specified users ownership.
   * This is direct ownership or ownership via group admin rights.
   **/
-  function isOwnContactDetail(partyId, messagecontactdetailId, database) {
+  function isOwnContactDetail(database, me, resource) {
+    var messagecontactdetailId = resource.key;
+    var partyId = me.key;
     var deferred = Q.defer();
     var q;
     q = $u.prepareSQL('isOwnContactDetailForMessageContactDetail');
@@ -41,61 +43,11 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function checkCreateAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    //You are allowed to create a message contactdetail relation if you own the message
-    //and the contadetail or if you are a superadmin?
-    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Sharing of contactdetail is not allowed!');
-      }
-    });
-    return deferred.promise;
-  }
-
-  function checkUpdateAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var q;
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    //You are allowed to update a message party relation if you own the message or if you are a superadmin?
-    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Update is not allowed!');
-      }
-    });
-    return deferred.promise;
-  }
-
-  function checkDeleteAccessOnResource(request, response, database, me, resource) {
-    var deferred = Q.defer();
-    var loggedInUser = me;
-    loggedInUser.key = me.permalink.split('/')[2];
-    //You are allowed to delete a message party relation if you own the message or if you are a superadmin?
-    // First you need to fetch the contactdetails for me.
-    isOwnContactDetail(loggedInUser.key, resource.key, database).then(function (isOwn) {
-      if (isOwn) {
-        deferred.resolve(true);
-      } else {
-        deferred.reject('Delete is not allowed!');
-      }
-    });
-    return deferred.promise;
-  }
-
-
   function checkAccessOnResource(request, response, database, me, batch) {
     return security.checkAccessOnResource($u, request, response, database, me, batch,
       {
-        create: checkCreateAccessOnResource,
-        update: checkUpdateAccessOnResource,
-        delete: checkDeleteAccessOnResource,
+        create: security.ownerBasedAccessOnResource('Sharing of contactdetail is not allowed!', 'MCC1: Error in sharing of contadetail:'),
+        isOwn: isOwnContactDetail,
         table: 'messagecontactdetails'
       });
   }
