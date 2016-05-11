@@ -12,7 +12,7 @@ var expect = require('chai').expect;
 
 exports = module.exports = function (base, logverbose) {
   'use strict';
- 
+
   var doGet = common.doGet(base);
   var doPut = common.doPut(base);
   var doDelete = common.doDelete(base);
@@ -23,7 +23,7 @@ exports = module.exports = function (base, logverbose) {
       console.log(x); // eslint-disable-line
     }
   }
-  
+
   describe.only('/messagerelations', function () {
     describe('GET', function () {
       it('should allow full list retrieval of accessible relations', function () {
@@ -49,16 +49,16 @@ exports = module.exports = function (base, logverbose) {
         });
       });
     });
-    describe('PUT', function() {
+    describe('PUT', function () {
       it('should allow creating a new relation from a message you own');
       it('should not allow creating a new relation from a message you do not own');
       it('should allow a superadmin to create a new relation from a message you do not own');
       it('should not allow creating a new relation to a message that is not accessible.');
     });
-    describe('DELETE', function() {
+    describe('DELETE', function () {
       it('should allow deleting a relation from a message you own');
       it('should not allow deleting a relation from a message you don not own');
       it('should allow a superadmin to delete a relation from a message you do not own');
     });
   });
-}
+};

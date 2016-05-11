@@ -42,10 +42,6 @@ var checkExists = function ($u, database, me, resource, table) {
 };
 
 exports = module.exports = {
-  hasRole: function (me, role, object) {
-    'use strict';
-  },
-
   isSuperUser: function (me) {
     'use strict';
     switch (me.adminrole) {
@@ -82,14 +78,14 @@ exports = module.exports = {
     return def.promise;
   },
 
-  isOwn: function (database, me, resource) {
+  isOwn: function (/* database, me, resourc */) {
     'use strict';
     return exports.approveAccess();
   },
-  
-  ownerBasedAccessOnResource: function (message,errormessage){
+
+  ownerBasedAccessOnResource: function (message, errormessage) {
+    'use strict';
     return function (request, response, database, me, resource, config) {
-      'use strict';
       var deferred = Q.defer();
       var resolved = function () {
         cl('resolved');
@@ -110,7 +106,7 @@ exports = module.exports = {
         nonAuthorized();
       });
       return deferred.promise;
-    }
+    };
   },
 
   checkAccessOnResource: function ($u, request, response, database, me, batch, config) {

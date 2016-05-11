@@ -1,4 +1,7 @@
+var Q = require('q');
 var common = require('./common.js');
+var security = require('./commonSecurity.js');
+var cl = common.cl;
 
 exports = module.exports = function (sri4node, extra) {
   'use strict';
@@ -41,10 +44,98 @@ exports = module.exports = function (sri4node, extra) {
     select.sql(' and "to" in (select key from descendantsOfParties) ');
   }
 
+  function isOwnTransaction(database, me, resource) {
+    var transactionId = resource.key;
+    var partyId = me.key;
+    var deferred = Q.defer();
+    var q;
+    q = $u.prepareSQL('isOwnTransaction');
+    q.sql('select t.key as key from transactions t where t.key = ').param(transactionId);
+    q.sql(' and t.from=').param(partyId);
+
+    cl(q);
+    $u.executeSQL(database, q).then(function (result) {
+      cl(result.rows);
+      if (result.rows.length > 0) {
+        deferred.resolve(true);
+      } else {
+        deferred.resolve(false);
+      }
+    }).catch(function (e) {
+      cl(e);
+      deferred.resolve(false);
+    });
+    return deferred.promise;
+  }
+
+  function checkReadAccessOnResource(request, response, database, me, resource) {
+    var deferred = Q.defer();
+    var q, recursive, nonrecursive;
+    var loggedInUser = me;
+    var transactionId = resource.key;
+    if (!transactionId) {
+      //List is requested so we rely on the filtering after read.
+      deferred.resolve(true);
+    } else {
+      //You are allowed to read a transaction if you contribute in the transaction
+      // or if you are a superadmin
+      // or if you are a member of the group wherein the transaction was done
+      
+      isOwnTransaction(database, loggedInUser, resource).then(function (isOwn) {
+        if (isOwn) {
+          deferred.resolve(true);
+        } else {
+          nonrecursive = $u.prepareSQL();
+          nonrecursive.sql('select distinct pr.from, pr.to, p.type from transactionrelations tr, ');
+          nonrecursive.sql('parties p, partyrelations pr where tr.partyrelation = pr.key ');
+          nonrecursive.sql('and pr.from  p.key and t."$$meta.deleted" <> true and pr.type=');
+          nonrecursive.param('member');
+          nonrecursive.sql('and tr.transaction = ').param(transactionId);
+          recursive = $u.prepareSQL();
+          recursive.sql('select distinct p.key, p.key, p.type from parties p, partyrelations pr, ');
+          recursive.sql('accesiblepartiesForTransaction a where   a.party = pr.to and ');
+          recursive.sql('a.type <> ').param('person');
+          recursive.sql('and a.type <> ').param('organisation');
+          recursive.sql('and pr.type = ').param('member');
+          recursive.sql('and pr.from = p.key');
+          recursive.sql('and pr.status = ').party('active');
+          q = $u.prepareSQL();
+          q.with(nonrecursive, 'UNION', recursive, 'accesiblepartiesForTransaction(key, party, type)');
+          q.sql('select distinct a.key from accesiblepartiesForTransaction a');
+          q.sql(' where a.key = ').param(me.key);
+          cl(q);
+          $u.executeSQL(database, q).then(function (result) {
+            cl(result.rows);
+            if (result.rows.length > 0) {
+              deferred.resolve(true);
+            } else {
+              deferred.resolve(false);
+            }
+          }).catch(function (e) {
+            cl(e);
+            deferred.resolve(false);
+          });
+        }
+      });
+    }
+    return deferred.promise;
+  }
+
+  function checkAccessOnResource(request, response, database, me, batch) {
+    return security.checkAccessOnResource($u, request, response, database, me, batch,
+      {
+        read: checkReadAccessOnResource,
+        isOwn: isOwnTransaction,
+        table: 'messages'
+      });
+  }
+
   var ret = {
     type: '/transactions',
     public: false,
-    secure: [],
+    secure: [
+      checkAccessOnResource
+    ],
     schema: {
       $schema: 'http://json-schema.org/schema#',
       title: 'A transaction between two parties in a mutual credit system.',

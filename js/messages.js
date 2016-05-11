@@ -83,7 +83,7 @@ exports = module.exports = function (sri4node, extra) {
     } else {
       //You are allowed to read contact details if they are your contactdetails or if they
       //have been defined as public
-      isOwnMessage(database, loggedInUser, resource ).then(function (isOwn) {
+      isOwnMessage(database, loggedInUser, resource).then(function (isOwn) {
         if (isOwn) {
           deferred.resolve(true);
         } else {
@@ -107,8 +107,6 @@ exports = module.exports = function (sri4node, extra) {
     }
     return deferred.promise;
   }
-
-  
 
   function checkAccessOnResource(request, response, database, me, batch) {
     return security.checkAccessOnResource($u, request, response, database, me, batch,
@@ -147,6 +145,9 @@ exports = module.exports = function (sri4node, extra) {
           });
         select = $u.prepareSQL();
         nonrecursive = $u.prepareSQL();
+        nonrecursive.sql('select distinct m.key as key, m.author as owner from messages m, ' +
+        'parties p, messageparties mp'
+        );
 //TODO: create correct filtering statement
         nonrecursive.sql('select distinct c.key as key,p.key as owner from contactdetails c, ' +
         'partycontactdetails pc, parties p where c.public = true and ' +

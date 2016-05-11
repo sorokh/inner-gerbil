@@ -8,7 +8,7 @@ exports = module.exports = function (sri4node, extra) {
   var $s = sri4node.schemaUtils,
     $u = sri4node.utils,
     $q = sri4node.queryUtils;
-    
+
     /**
   * Check if the referred message is under the specified users ownership.
   * This is direct ownership or ownership via group admin rights.
@@ -36,7 +36,7 @@ exports = module.exports = function (sri4node, extra) {
     });
     return deferred.promise;
   }
-  
+
   /**
    * Allow a user to link a transaction to a message if the message owner is participating in the transaction?
    *

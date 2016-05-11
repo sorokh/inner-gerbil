@@ -30,6 +30,41 @@ exports = module.exports = function (sri4node, extra) {
     });
     return deferred.promise;
   }
+  
+  function isAccessibleMessage(database, me, messageRelation) {
+    'use strict';
+    var messageRelationId = messageRelation.key
+    var deferred = Q.defer();
+    var q;
+    var virtualtablename = 'messagedParties';
+    q = $u.prepareSQL('isAccessibleMessageForRelation');    
+    
+    var nonrecursive = $u.prepareSQL(),
+      recursive = $u.prepareSQL(),
+      excluderoots = $u.prepareSQL();
+    
+    nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagesrelations where mp.message = mr.to and mr.key =');
+    nonrecursive.value(messageRelationId);
+    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + 'withroots c ' +
+                  'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+    q.with(nonrecursive, 'UNION', recursive, virtualtablename + 'withroots(key)');
+    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
+    q.with(excluderoots, virtualtablename);
+    q.sql('SELECT p.key from parties p where p.key in (SELECT key FROM ' + virtualtablename + ')');
+    q.sql(' and p.key = ').param(me.key);
+    cl(q);
+    $u.executeSQL(database, q).then(function (result) {
+      if (result.rows.length > 0) {
+        deferred.resolve(true);
+      } else {
+        deferred.resolve(false);
+      }
+    }).catch(function (e) {
+      cl(e);
+      deferred.resolve(false);
+    });
+    return deferred.promise;
+  }
 
   function isLinkableMessage(me, messageRelation, database) {
     var deferred = Q.defer();
@@ -121,6 +156,17 @@ exports = module.exports = function (sri4node, extra) {
         select = $u.prepareSQL();
         nonrecursive = $u.prepareSQL();
 //TODO: create correct filtering statement
+nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagesrelations where mp.message = mr.to and mr.key =');
+    nonrecursive.value(messageRelationId);
+    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + 'withroots c ' +
+                  'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+    q.with(nonrecursive, 'UNION', recursive, virtualtablename + 'withroots(key)');
+    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
+    q.with(excluderoots, virtualtablename);
+    q.sql('SELECT p.key from parties p where p.key in (SELECT key FROM ' + virtualtablename + ')');
+    q.sql(' and p.key = ').param(me.key);
+        nonrecursive.sql('SELECT mp.message, mp."party" FROM messageparties mp, messagesrelations where mp.message = mr.to and mr.key in(');
+        nonrecursive.array(keys).s
         nonrecursive.sql('select distinct c.key as key,p.key as owner from contactdetails c, ' +
         'partycontactdetails pc, parties p where c.public = true and ' +
         'pc.contactdetail=c.key and pc.party <>').param(me.key)

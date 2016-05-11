@@ -163,22 +163,23 @@ exports = module.exports = function (base, logverbose) {
       it('should support ?postedInAncestorsOfParties=ANNA', function () {
         return doGet(common.hrefs.MESSAGES + '?postedInAncestorsOfParties=' +
           common.hrefs.PARTY_ANNA, anna.login, anna.password).then(function (response) {
-          debug(response.body);
-          assert.equal(response.statusCode, common.responses.OK);
-          var hrefs = createHrefArray(response);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
-          expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
-          expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
-        });
+            debug(response.body);
+            assert.equal(response.statusCode, common.responses.OK);
+            var hrefs = createHrefArray(response);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_ASPERGES);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_CHUTNEY);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_VEGGIE_KOOKLES);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_ANNA_WINDOWS);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_INDISCH);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_STEVEN_SWITCH);
+            expect(hrefs).to.contain(common.hrefs.MESSAGE_RUDI_WEBSITE);
+            expect(hrefs).to.not.contain(common.hrefs.MESSAGE_LEEN_PLANTS);
+          });
       });
 
       it('should support ?postedByPartiesInLatLong=...', function () {
-        return doGet(common.hrefs.MESSAGES + '?postedByPartiesInLatLong=50.9,51.0,4.1,4.2', anna.login, anna.password).then(
+        return doGet(common.hrefs.MESSAGES + '?postedByPartiesInLatLong=50.9,51.0,4.1,4.2',
+          anna.login, anna.password).then(
           function (
             // Anna and LETS Dendermonde are in this geo area.
             response) {
@@ -210,10 +211,12 @@ exports = module.exports = function (base, logverbose) {
         };
         var uuid = common.generateUUID();
         debug('Generated UUID=' + uuid);
-        return doPut(common.hrefs.MESSAGES + '/' + uuid, body, common.accounts.ANNA.login, common.accounts.ANNA.password).then(
+        return doPut(common.hrefs.MESSAGES + '/' + uuid, body,
+          common.accounts.ANNA.login, common.accounts.ANNA.password).then(
           function (response) {
             assert.equal(response.statusCode, common.responses.CREATED);
-            return doGet(common.hrefs.MESSAGES + '/' + uuid, common.accounts.ANNA.login, common.accounts.ANNA.password).then(
+            return doGet(common.hrefs.MESSAGES + '/' + uuid, common.accounts.ANNA.login,
+              common.accounts.ANNA.password).then(
               function (responseGet) {
                 assert.equal(responseGet.statusCode, common.responses.OK);
                 var message = responseGet.body;
