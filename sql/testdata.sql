@@ -11,10 +11,12 @@ INSERT INTO "parties" VALUES ('aca5e15d-9f4c-4c79-b906-f7e868b3abc5','subgroup',
 INSERT INTO "parties" VALUES ('0a98e68d-1fb9-4a31-a4e2-9289ee2dd301','group','LETS Hamme',null,null,null,null,null,180,'zaadje','active');
 
 -- People
+-- Ruud Meister is sytem admin
+INSERT INTO "parties" VALUES ('d9ccede0-5b4e-4688-8a5e-b80c3163a0d3','person','Ruud Meister',null,'1980-10-11 00:00:00',null,'ruudme','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active','all');
 -- Walter Vanhoof is member and admin of LETS Dendermonde
 INSERT INTO "parties" VALUES ('80af7e3f-b549-4774-832d-6d6243ff348f','person','Walter Vanhoof',null,'1980-10-11 00:00:00',null,'waltervh','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Anna De Vlaming is member and admin of LETS Lebbeke
-INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active','all');
+INSERT INTO "parties" VALUES ('5df52f9f-e51f-4942-a810-1496c51e64db','person','Anna De Vlaming',null,'1980-10-11 00:00:00',null,'annadv','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Steven Butink is member of LETS Lebbeke
 INSERT INTO "parties" VALUES ('fa17e7f5-ade9-49d4-abf3-dc3722711504','person','Steven Buytink',null,'1979-04-01 00:00:00',null,'stevenb','$2a$10$opK7EbDDgHsyClvsh5lun.VISomjnv/RXifFpWAlasVL7pxPnlY4y',null,null,'active');
 -- Rudi Rudolf is member and admin of LETS Dendermonde

@@ -204,16 +204,28 @@ exports = module.exports = function (base, sri4node, logverbose) {
               );
         }
       );
-      it('should disallow the changing of the adminrole, if you\'re not an admin yourself',
+      it('should not change the adminrole, if you\'re not an admin yourself',
         function (done) {
-          var testPartyUpdate = {};
-          testPartyUpdate.adminrole = 'all';
-          return doPut(testReferencePartyLink, testPartyUpdate, testReferenceParty.login, testReferenceParty.password)
-            .then(
-                function (resp) {
-                  assert.equal(resp.statusCode, responseCodes.FORBIDDEN);
-                  done();
-                }, done);
+          var testPartyUpdate;
+          return doGet(testReferencePartyLink, testReferenceParty.login, testReferenceParty.password)
+                      .then(
+                          function (resp) {
+                            assert.equal(resp.statusCode, responseCodes.OK);
+                            testPartyUpdate = resp.body;
+                            testPartyUpdate.adminrole = 'all';
+                            doPut(testReferencePartyLink, testPartyUpdate, testReferenceParty.login, testReferenceParty.password)
+                            .then(
+                                function (resp2) {
+                                  assert.equal(resp2.statusCode, responseCodes.OK);
+                                   doGet(testReferencePartyLink, testReferenceParty.login, testReferenceParty.password)
+                                      .then(
+                                          function (resp3) {
+                                            assert.equal(resp3.statusCode, responseCodes.OK);
+                                            assert.notEqual(resp3.body.adminrole, 'all');
+                                            done();
+                                          }, done).done();
+                                }, done);
+                            }, done).done();
         }
       );
     });

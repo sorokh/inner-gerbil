@@ -66,8 +66,43 @@ exports = module.exports = {
 
     return result.join('');
   },
+  
+  randomHTMLString: function (strLength, elementSet){
+   var returnValue = '';
+    elementSet = elementSet || { 
+      allowedTags: [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
+                     'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div',
+                     'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre' ],
+      allowedAttributes: {
+          a: [ 'href', 'name', 'target' ],
+          img: [ 'src' ]
+      },
+      // Lots of these won't come up by default because we don't allow them
+      selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
+      // URL schemes we permit
+      allowedSchemes: [ 'http', 'https', 'ftp', 'mailto' ],
+      allowedSchemesByTag: {}
+    };
+    if(strLength <7){
+      returnValue = randomString(strLength);
+    } else {
+      if(strLength<9){
+        returnValue = '<p>'+randomString(strLength-6)+'</p>';
+      }else if (strLength<16){
+        returnValue = '<h1>'+randomString(strLength-8)+'</h1>';
+      } else {
+        var headerlength = Math.round((strLength-16)/2);
+        returnValue = '<h1>'+ this.randomString(headerlength) + '</h1><p>' + this.randomString(strLength-16 -headerlength) + '</p>';
+      }
+    }
+    return returnValue;
+  },
 
   accounts: {
+    RUUD: {
+      login: 'ruudme',
+      password: 'test'
+    },
     ANNA: {
       login: 'annadv',
       password: 'test'
@@ -147,7 +182,10 @@ exports = module.exports = {
     
     MESSAGE_RELATIONS: '/messagerelations',
     MESSAGE_RELATION_ASPERGES: '/messagerelations/cc03a9d4-1aef-4c8f-9b05-7b39be514a67',
-
+    
+    MESSAGE_PARTIES: '/messageparties',
+    
+    TRANSACTIONS: '/transactions',
     TRANSACTION_ANNA_STEVEN_20: '/transactions/e068c284-26f1-4d11-acf3-8942610b26e7',
     TRANSACTION_LEEN_EMMANUELLA_20: '/transactions/1ffc9267-b51f-4970-91a2-ae20f4487f78'
   },

@@ -89,9 +89,12 @@ exports = module.exports = function (sri4node, extra) {
         q.sql('select count("key") from "parties" where ("$$meta.deleted" <> true) and' +
             ' "name"= ').param(value.name)
             .sql(' and type in (').array(['group', 'subgroup']).sql(')');
-        if (value.$$meta && value.$$meta.permalink) {
-          q.sql('and key <>').param(value.$$meta.permalink.split('/')[2]);
-        }
+        if (value.key){
+          q.sql(' and key <> ').param(value.key);
+        } else 
+          if (value.$$meta && value.$$meta.permalink) {
+            q.sql('and key <>').param(value.$$meta.permalink.split('/')[2]);
+          }
         cl(q);
         $u.executeSQL(database, q).then(function (result) {
           cl(result.rows);
@@ -110,9 +113,12 @@ exports = module.exports = function (sri4node, extra) {
         q = $u.prepareSQL('count-parties-by-login');
         q.sql('select count("key") from "parties" where ("$$meta.deleted" <> true) and' +
             ' "login"= ').param(value.login);
-        if (value.$$meta && value.$$meta.permalink) {
-          q.sql('and key <>').param(value.$$meta.permalink.split('/')[2]);
-        }
+        if (value.key){
+          q.sql(' and key <> ').param(value.key);
+        } else 
+          if (value.$$meta && value.$$meta.permalink) {
+            q.sql('and key <>').param(common.uuidFromPermalink(value.$$meta.permalink));
+          }
         cl(q);
         $u.executeSQL(database, q).then(function (result) {
           cl(result.rows);
@@ -321,10 +327,10 @@ exports = module.exports = function (sri4node, extra) {
     //check if you are updating yourself?
     if (isModifySelf(loggedInUser, resource)) {
       if (request.body.adminrole && !common.isSuperUser(me)) {
-        deferred.reject('Non Authorized manipulation of admin rights!');
-      } else {
-        deferred.resolve(true);
+        //Ok to modify self, but should not reset adminrole!
+        delete request.body.adminrole;
       }
+      deferred.resolve(true);
     }else {
       //resource exists?
       q = $u.prepareSQL('check-party-exists');
@@ -334,7 +340,7 @@ exports = module.exports = function (sri4node, extra) {
       $u.executeSQL(database, q).then(function (result) {
         cl(result.rows);
         //handle resource update
-        if (result.rows.pop().count > 0) {
+        if (result.rowCount > 0 && (result.rows[0].count > 0)) {
           //update
           cl('triggering update of: ' + resource);
           hasUpdateAccessOnResource(request, response, database, loggedInUser, resource).then(resolved, nonAuthorized);

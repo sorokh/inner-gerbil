@@ -10,6 +10,10 @@ exports = module.exports = function (base, logverbose) {
   var doGet = common.doGet(base);
   var doPut = common.doPut(base);
   var doDelete = common.doDelete(base);
+  
+  /*
+  TODO add test to check safe HTML filtering of description field!!
+  */
 
 
   function debug(x) {
@@ -18,7 +22,7 @@ exports = module.exports = function (base, logverbose) {
     }
   }
 
-  describe('/messages', function () {
+  describe.only('/messages', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
         return doGet(common.hrefs.MESSAGES, anna.login, anna.password).then(function (response) {

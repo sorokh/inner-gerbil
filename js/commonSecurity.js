@@ -127,7 +127,7 @@ exports = module.exports = {
     if (batch) {
       resource.key = common.uuidFromPermalink(batch.href);
       resource.permalink = batch.href;
-      resource.type = batch.body.type;
+      resource.type = batch.body.type || '/' + resource.permalink.split('/')[1];;
     } else {
       resource.key = request.params.key;
       resource.permalink = request.url;
@@ -136,7 +136,7 @@ exports = module.exports = {
     if (exports.isSuperUser(me)) {
       cl('Super User Access');
       resolved();
-    }
+    } else {
     switch (request.method) {
     case 'GET':
       cl('GET');
@@ -183,6 +183,7 @@ exports = module.exports = {
       cl('UNSUPPORTED METHOD');
       nonAuthorized();
       break;
+    }
     }
     return deferred.promise;
   }

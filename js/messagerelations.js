@@ -14,7 +14,7 @@ exports = module.exports = function (sri4node, extra) {
     var deferred = Q.defer();
     var q;
     q = $u.prepareSQL('isOwnMessageRelation');
-    q.sql('select * from messagesrelations mr, messages m where mr.key = ').param(messageRelationId);
+    q.sql('select * from messagerelations mr, messages m where mr.key = ').param(messageRelationId);
     q.sql(' and mr.from = m.key and  m.author=').param(partyId);
     cl(q);
     $u.executeSQL(database, q).then(function (result) {
@@ -31,27 +31,47 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
   
-  function isAccessibleMessage(database, me, messageRelation) {
+  
+  function isAccessibleMessage(database, me, messageRelation,filterprivate) {
     'use strict';
-    var messageRelationId = messageRelation.key
+    var filter = filterprivate || false;
+    var messageRelationId = messageRelation.key;
     var deferred = Q.defer();
     var q;
     var virtualtablename = 'messagedParties';
-    q = $u.prepareSQL('isAccessibleMessageForRelation');    
-    
     var nonrecursive = $u.prepareSQL(),
-      recursive = $u.prepareSQL(),
-      excluderoots = $u.prepareSQL();
+        recursive = $u.prepareSQL(),
+        recursive2 = $u.prepareSQL(),
+        nonrecursive2 = $u.prepareSQL();
     
-    nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagesrelations where mp.message = mr.to and mr.key =');
-    nonrecursive.value(messageRelationId);
-    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + 'withroots c ' +
-                  'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
-    q.with(nonrecursive, 'UNION', recursive, virtualtablename + 'withroots(key)');
-    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
-    q.with(excluderoots, virtualtablename);
-    q.sql('SELECT p.key from parties p where p.key in (SELECT key FROM ' + virtualtablename + ')');
-    q.sql(' and p.key = ').param(me.key);
+    q = $u.prepareSQL('isAccessibleMessageForRelation');    
+    if (filter){
+      nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagerelations mr, messages m where mp.message = mr.to and m.key = mr.from and mr.type = "response_private" and mr.key =');
+      nonrecursive.param(messageRelationId);
+      nonrecursive.sql(' and m.author=');
+      nonrecursive.param(me.key);
+      recursive.sql('SELECT r."from" FROM partyrelations r, messagedPartiesPrivate c ' +
+                    'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+      q.with(nonrecursive, 'UNION', recursive, 'messagedPartiesPrivate(key)');
+      nonrecursive2.sql('SELECT mp."party" FROM messageparties mp, messagerelations mr, messages m where mp.message = mr.to and m.key = mr.from and mr.type <> "response_private" and mr.key =');
+      nonrecursive2.param(messageRelationId);
+      recursive2.sql('SELECT r."from" FROM partyrelations r, messagedPartiesPublic c ' +
+                    'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+      q.with(nonrecursive2, 'UNION', recursive2, 'messagedPartiesPublic(key)');
+      q.sql('SELECT key FROM messagedPartiesPrivate');
+      q.sql(' where key = ').param(me.key);
+      q.sql('UNION SELECT key from messagedPartiesPublic');
+      q.sql(' where key = ').param(me.key);
+    } else {
+      nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagerelations mr where mp.message = mr.to and mr.key =');
+      nonrecursive.param(messageRelationId);
+      recursive.sql('SELECT r."from" FROM partyrelations r, messagedParties c ' +
+                    'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+      q.with(nonrecursive, 'UNION', recursive, 'messagedParties(key)');
+      
+      q.sql('SELECT key FROM messagedParties');
+      q.sql(' where key = ').param(me.key);
+    }
     cl(q);
     $u.executeSQL(database, q).then(function (result) {
       if (result.rows.length > 0) {
@@ -66,33 +86,49 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
-  function isLinkableMessage(me, messageRelation, database) {
+  function isLinkableMessage(me, messageId, targetMessageId, database) {
     var deferred = Q.defer();
     var q;
+    var partyId = me.key;
     /*
     check if relation is already available and if it is linked to self!
     */
-    q = $u.prepareSQL('isLinkableMessage');
-    q.sql('select m.key from messages m, messagesrelations mr where mr.key = ').param(messageRelation);
-    q.sql(' and mr.');
-    //TODO: define correct query
-    // Select all messagerelation for message where to and from is the same -> must be 0
-    // I must be owner of the from message
-    /*q.sql('select * from parties p, partycontactdetails pc, contactdetails c where c.key = ').param(contactdetailId);
-    q.sql(' and p.key<>').param(partyId);
-    q.sql(' and pc.party = p.key and pc.contactdetail = c.key');
+   
+    q = $u.prepareSQL('isOwnMessage4Relation');
+    q.sql('select * from messages m where m.key = ').param(messageId);
+    q.sql(' and  m.author=').param(partyId);
     cl(q);
     $u.executeSQL(database, q).then(function (result) {
       cl(result.rows);
       if (result.rows.length > 0) {
+        var nonrecursive = $u.prepareSQL(),
+            recursive = $u.prepareSQL(),
+            recursive2 = $u.prepareSQL(),
+            nonrecursive2 = $u.prepareSQL();
+        q = $u.prepareSQL('isAccessibleMessageForRelation'); 
+        nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagerelations mr where mp.message =');
+        nonrecursive.param(targetMessageId);
+        recursive.sql('SELECT r."from" FROM partyrelations r, messagedParties c ' +
+                      'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
+        q.with(nonrecursive, 'UNION', recursive, 'messagedParties(key)');
+        
+        q.sql('SELECT key FROM messagedParties');
+        q.sql(' where key = ').param(me.key);
+        cl(q);
+        $u.executeSQL(database, q).then(function (result) {
+          cl(result.rows);
+          if (result.rowCount > 0) {
+            deferred.resolve(true);
+          } else {
+            deferred.resolve(false);
+          }
+        }).catch(function (e) {
+          deferred.resolve(false);
+        });
+      } else {
         deferred.resolve(false);
-      } else {*/
-        deferred.resolve(true);
-    /*  }
-    }).catch(function (e) {
-      cl(e);
-      deferred.resolve(false);
-    });*/
+      }
+      });
     return deferred.promise;
   }
 
@@ -103,26 +139,56 @@ exports = module.exports = function (sri4node, extra) {
     As a superadmin I'm allowed to create a relation between any message.
     */
     var deferred = Q.defer();
-    if (request.body.body.party.href !== me.permalink) {
-      deferred.reject('Not linking with self not allowed!');
-    } else {
-      isLinkableMessage(me, resource, database).then(function (isOwn) {
-        if (isOwn) {
+    var sourceId = common.uuidFromPermalink(request.body.from.href);
+    var targetId = common.uuidFromPermalink(request.body.to.href);
+    
+    isLinkableMessage(me,sourceId, targetId ,database).then(function (isLinkable) {
+      
+      if (isLinkable) {
           deferred.resolve(true);
-        } else {
-          deferred.reject('Create is not allowed!');
-        }
-      });
-    }
+      } else {
+         deferred.reject('Message not Linkeable!');
+      };
+    }).catch(function (e) {
+      cl(e);
+       deferred.reject('Not linking with self not allowed!');
+    });
     return deferred.promise;
+  }
+  
+  function checkReadAccessOnResource(request, response, database, me, resource) {
+      var deferred = Q.defer();
+      
+      if (resource.key){
+        isOwnMessageRelation(database,me,resource).then(function(isOwn){
+          if(isOwn){
+            //You should be able to read you own relations
+            deferred.resolve(true);
+          } else {
+            //If its not your own relation you should only be able to read public replies to messages that you have access to.
+            isAccessibleMessage(database, me, resource).then(function(isAccessible){
+            if(isAccessible){
+                deferred.resolve(true);
+            } else {
+              deferred.reject('Read is not allowed!');
+            }
+          });
+          }
+        });
+      } else {
+          //list resource!
+          deferred.resolve(true);
+      }
+      return deferred.promise;
   }
 
   function checkAccessOnResource(request, response, database, me, batch) {
     return security.checkAccessOnResource($u, request, response, database, me, batch,
       {
+        read: checkReadAccessOnResource,
         create: checkCreateAccessOnResource,
         isOwn: isOwnMessageRelation,
-        table: 'messagesrelations'
+        table: 'messagerelations'
       });
   }
   
@@ -133,78 +199,64 @@ exports = module.exports = function (sri4node, extra) {
     or public responses to messages that are accessible to you
     */
     return function (database, elements, me) {
-      var messageRelationRefs = [];
       var deferred = Q.defer();
       var nonrecursive, recursive, select;
       var messageRelations = elements || [];
       var keys = [];
       var keyToElement = {};
-      messageRelations.forEach(function (e) {
-        keys.push(e.key);
-        keyToElement[e.key] = e;
-      });
+      messageRelations.forEach(
+        function (e) {
+            keys.push(common.uuidFromPermalink(e.$$meta.permalink));
+            keyToElement[common.uuidFromPermalink(e.$$meta.permalink)] = { element: e, keep: false};
+        }
+      );
+      cl(messageRelations);
       if (common.isSuperUser(me)) {
         deferred.resolve(messageRelations);
       } else {
         /* select the messages for which I'm not the author and for
         which I don't have the publishedToParty in my reacheable party graph and remove them*/
-        messageRelationRefs = [];
-        messageRelations.forEach(
-          function (messageRelation) {
-            messageRelationRefs.push(me.key);
-          });
+    
         select = $u.prepareSQL();
         nonrecursive = $u.prepareSQL();
-//TODO: create correct filtering statement
-nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagesrelations where mp.message = mr.to and mr.key =');
-    nonrecursive.value(messageRelationId);
-    recursive.sql('SELECT r."from" FROM partyrelations r, ' + virtualtablename + 'withroots c ' +
-                  'where r."to" = c.key and r.type = \'member\' and r.status=\'active\' ');
-    q.with(nonrecursive, 'UNION', recursive, virtualtablename + 'withroots(key)');
-    excluderoots.sql('select key from ' + virtualtablename + 'withroots where key not in (').array(keys).sql(')');
-    q.with(excluderoots, virtualtablename);
-    q.sql('SELECT p.key from parties p where p.key in (SELECT key FROM ' + virtualtablename + ')');
-    q.sql(' and p.key = ').param(me.key);
-        nonrecursive.sql('SELECT mp.message, mp."party" FROM messageparties mp, messagesrelations where mp.message = mr.to and mr.key in(');
-        nonrecursive.array(keys).s
-        nonrecursive.sql('select distinct c.key as key,p.key as owner from contactdetails c, ' +
-        'partycontactdetails pc, parties p where c.public = true and ' +
-        'pc.contactdetail=c.key and pc.party <>').param(me.key)
-        .sql('and c.key in (').array(keys).sql(')');
-
+    
+        nonrecursive.sql('SELECT mr.key as key, mp."party" as target FROM messageparties mp, messagerelations mr where mp.message = mr.to and mr.key in(');
+        nonrecursive.array(keys).sql(')');
+        
         recursive = $u.prepareSQL();
-        recursive.sql('select s.key,r.to FROM partyrelations r, accesibleparties s ' +
-        'where r."from" = s.party and r.type = \'member\' and r.status=\'active\'');
+        recursive.sql('select s.key, r."from" from partyrelations r, accesibleparties s '+
+                      'where r."to" = s.target and r.type = \'member\' and r.status = \'active\' ');
+                      
+        select.with(nonrecursive, 'UNION', recursive, 'accesibleparties(key, target)');
 
-        select.with(nonrecursive, 'UNION', recursive, 'accesibleparties(key,party)');
-
-        select.sql('select distinct ac.key from accesibleparties ac')
-        .sql(' UNION ')
-        .sql('select distinct c.key from contactdetails c, partycontactdetails pc ' +
-        'where c.public = false and pc.contactdetail = c.key and pc.party <> ').param(me.key);
-
+        select.sql('select distinct ac.key from accesibleparties ac where ac.target =').param(me.key)
+        
+        cl(keys);
         cl(select);
         $u.executeSQL(database, select).then(function (result) {
           cl(result.rows);
-          result.forEach(
+          cl(keyToElement);
+          if(result.rowCount >0){
+          result.rows.forEach(
               function (row) {
-                delete keyToElement[row.key];
+               keyToElement[row.key].keep = true;
               });
+          }
           elements = elements.filter(
             function (element) {
-              var value;
-              if (keyToElement[element.key]) {
-                value = true;
-              } else {
-                value = false;
-              }
-              return value;
+                if(!keyToElement[common.uuidFromPermalink(element.$$meta.permalink)].keep){
+                    for (var prop in element) { if (element.hasOwnProperty(prop)) { delete element[prop]; } }
+                    return false;
+                
+                }
+              return true;
             }
           );
+          cl(elements);
           deferred.resolve(elements);
         }).catch(function (e) {
           cl(e);
-          deferred.resolve(false);
+          deferred.reject(false);
         });
       }
       return deferred.promise;
@@ -257,6 +309,9 @@ nonrecursive.sql('SELECT mp."party" FROM messageparties mp, messagesrelations wh
       },
       type: {}
     },
+    afterread: [
+        filterAccessible()
+    ],
     afterupdate: [],
     afterinsert: [],
     afterdelete: []

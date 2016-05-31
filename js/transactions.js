@@ -74,7 +74,6 @@ exports = module.exports = function (sri4node, extra) {
     var loggedInUser = me;
     var transactionId = resource.key;
     if (!transactionId) {
-      //List is requested so we rely on the filtering after read.
       deferred.resolve(true);
     } else {
       //You are allowed to read a transaction if you contribute in the transaction
@@ -129,6 +128,68 @@ exports = module.exports = function (sri4node, extra) {
         table: 'messages'
       });
   }
+  
+  function filterAccessible() {
+    /*
+    Unless you are a superadmin
+    you should only have access to the transactions of people that you have access to.
+    */
+    return function (database, elements, me) {
+      var deferred = Q.defer();
+      var nonrecursive, recursive, select;
+      var transactions = elements || [];
+      var keys = [];
+      var keyToElement = {};
+      transactions.forEach(
+        function (e) {
+            keys.push(common.uuidFromPermalink(e.$$meta.permalink));
+            keyToElement[common.uuidFromPermalink(e.$$meta.permalink)] = { element: e, keep: false};
+        }
+      );
+      cl(transactions);
+      if (common.isSuperUser(me)) {
+        deferred.resolve(transactions);
+      } else {
+        /* select the transactions for which I'm not the initiator nor receiver 
+        and for which the initiator or receiver side are not part of my accessible parties 
+        and remove them */
+    
+        select = $u.prepareSQL();
+        common.reachableFromParties($u, me.permalink, select, 'childrenof');
+        select.sql('SELECT distinct t.key from transactions t where t.from not in(select key from childrenof) and t.to not in(select key from childrenof)');
+        select.sql(' and t.key in (').array(keys).sql(')');
+        
+        cl(keys);
+        cl(select);
+        $u.executeSQL(database, select).then(function (result) {
+          cl(result.rows);
+          cl(keyToElement);
+          if(result.rowCount >0){
+          result.rows.forEach(
+              function (row) {
+               keyToElement[row.key].keep = false;
+              });
+          }
+          elements = elements.filter(
+            function (element) {
+                if(!keyToElement[common.uuidFromPermalink(element.$$meta.permalink)].keep){
+                    for (var prop in element) { if (element.hasOwnProperty(prop)) { delete element[prop]; } }
+                    return false;
+                
+                }
+              return true;
+            }
+          );
+          cl(elements);
+          deferred.resolve(elements);
+        }).catch(function (e) {
+          cl(e);
+          deferred.reject(false);
+        });
+      }
+      return deferred.promise;
+    };
+    }
 
   var ret = {
     type: '/transactions',
@@ -199,6 +260,7 @@ exports = module.exports = function (sri4node, extra) {
         'direct or indirect member of a comma separated list of parties.'
     },
     afterread: [
+      filterAccessible(),
       common.addRelatedManyToMany($u, 'messagetransactions', 'transaction', 'message',
                                   '/messages', '$$messages')
     ],

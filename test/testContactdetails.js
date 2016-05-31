@@ -4,6 +4,7 @@ var sriclient = require('sri4node-client');
 var common = require('./common.js');
 var createHrefArray = common.createHrefArray;
 var expect = require('chai').expect;
+var ruud = common.accounts.RUUD;
 var anna = common.accounts.ANNA;
 var walter = common.accounts.WALTER;
 var rudi = common.accounts.RUDY;
@@ -265,7 +266,7 @@ exports = module.exports = function (base, logverbose) {
           });
       });
 
-      it('should allow creating a contactdetail for other with appropriate admin rights',
+      it('should allow creating a contactdetail for other with super admin rights',
         function (done) {
           var uuid = common.generateUUID();
           common.cl(uuid);
@@ -293,10 +294,10 @@ exports = module.exports = function (base, logverbose) {
               }
             }
           ];
-          doPut(common.hrefs.BATCH, body, anna.login, anna.password).then(
+          doPut(common.hrefs.BATCH, body, ruud.login, ruud.password).then(
             function (response) {
               assert.equal(response.statusCode, common.responses.CREATED);
-              return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+              return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, ruud.login, ruud.password).then(
                 function (responseGet) {
                   assert.equal(responseGet.statusCode, common.responses.OK);
                   var contactdetail = responseGet.body;
@@ -308,7 +309,7 @@ exports = module.exports = function (base, logverbose) {
             });
         }
       );
-      it('should disallow creating a contactdetail for other without appropriate admin rights',
+      it('should disallow creating a contactdetail for other without appropriate super admin rights',
         function (done) {
           var uuid = common.generateUUID();
           common.cl(uuid);
@@ -361,7 +362,7 @@ exports = module.exports = function (base, logverbose) {
           }).done();
       }
       );
-      it('should allow updating a contactdetail for other with appropriate admin rights',
+      it('should allow updating a contactdetail for other with appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -372,7 +373,7 @@ exports = module.exports = function (base, logverbose) {
             value: 'test@tester.com',
             public: true
           };
-        doPut(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN, body, anna.login, anna.password).then(
+        doPut(common.hrefs.CONTACTDETAIL_EMAIL_STEVEN, body, ruud.login, ruud.password).then(
           function (response) {
             assert.equal(response.statusCode, common.responses.OK);
             done();
@@ -394,7 +395,7 @@ exports = module.exports = function (base, logverbose) {
           }).done();
       }
       );
-      it('should allow updating orphaned contactdetail with appropriate admin rights',
+      it('should allow updating orphaned contactdetail with appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -404,7 +405,7 @@ exports = module.exports = function (base, logverbose) {
           value: 'test@tester.com',
           public: true
         };
-        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, ruud.login, ruud.password).then(
           function (response) {
             assert.equal(response.statusCode, common.responses.CREATED);
             body = {
@@ -412,10 +413,10 @@ exports = module.exports = function (base, logverbose) {
               value: 'test2@tester.com',
               public: true
             };
-            doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+            doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, ruud.login, ruud.password).then(
               function (responseUpdate) {
                 assert.equal(responseUpdate.statusCode, common.responses.OK);
-                return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+                return doGet(common.hrefs.CONTACTDETAILS + '/' + uuid, ruud.login, ruud.password).then(
                   function (responseGet) {
                     assert.equal(responseGet.statusCode, common.responses.OK);
                     var contactdetail = responseGet.body;
@@ -427,7 +428,7 @@ exports = module.exports = function (base, logverbose) {
           });
       }
       );
-      it('should disallow updating orphaned contactdetail without appropriate admin rights',
+      it('should disallow updating orphaned contactdetail without appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -495,7 +496,7 @@ exports = module.exports = function (base, logverbose) {
       }
       );
       it('should logically cascade upond delete of contactdetail');
-      it('should allow deleting other contactdetail with appropriate admin rights',
+      it('should allow deleting other contactdetail with appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -526,7 +527,7 @@ exports = module.exports = function (base, logverbose) {
         doPut(common.hrefs.BATCH, body, steven.login, steven.password).then(
           function (response) {
             assert.equal(response.statusCode, common.responses.CREATED);
-            return doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+            return doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, ruud.login, ruud.password).then(
               function (responseDelete) {
                 assert.equal(responseDelete.statusCode, common.responses.OK);
                 done();
@@ -534,7 +535,7 @@ exports = module.exports = function (base, logverbose) {
           });
       }
       );
-      it('should disallow deleting other contactdetail without appropriate admin rights',
+      it('should disallow deleting other contactdetail without appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -573,7 +574,7 @@ exports = module.exports = function (base, logverbose) {
           });
       }
       );
-      it('should allow deleting an orphaned contactdetail with appropriate admin rights',
+      it('should allow deleting an orphaned contactdetail with appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);
@@ -583,7 +584,7 @@ exports = module.exports = function (base, logverbose) {
           value: 'test@tester.com',
           public: true
         };
-        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, anna.login, anna.password).then(
+        doPut(common.hrefs.CONTACTDETAILS + '/' + uuid, body, ruud.login, ruud.password).then(
           function (response) {
             assert.equal(response.statusCode, common.responses.CREATED);
             body = {
@@ -591,7 +592,7 @@ exports = module.exports = function (base, logverbose) {
               value: 'test2@tester.com',
               public: true
             };
-            doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, anna.login, anna.password).then(
+            doDelete(common.hrefs.CONTACTDETAILS + '/' + uuid, ruud.login, ruud.password).then(
               function (responseUpdate) {
                 assert.equal(responseUpdate.statusCode, common.responses.OK);
                 done();
@@ -599,7 +600,7 @@ exports = module.exports = function (base, logverbose) {
           });
       }
       );
-      it('should disallow deleting an orphaned contactdetail without appropriate admin rights',
+      it('should disallow deleting an orphaned contactdetail without appropriate super admin rights',
       function (done) {
         var uuid = common.generateUUID();
         common.cl(uuid);

@@ -78,11 +78,23 @@ exports = module.exports = function (sri4node, extra) {
     var loggedInUser = me;
     var messageId = resource.key;
     if (!messageId) {
-      //List is requested so we rely on the filtering after read.
-      deferred.resolve(true);
+      if(common.isSuperUser(me)){
+         deferred.resolve(true);
+      } else {
+        //TODO: check if it is not better to define new filter to get all messages that are accessible by the current logged on party.
+       if((request.query.postedInPartiesReachableFromParties 
+          && request.query.postedInPartiesReachableFromParties == me.permalink)
+          || (request.query.postedByParties 
+          && request.query.postedByParties == me.permalink)){
+          deferred.resolve(true);
+        } else {
+          deferred.reject('Only Sysadmin can access unlimted list resource!');
+        }
+        
+      }
+     
     } else {
-      //You are allowed to read contact details if they are your contactdetails or if they
-      //have been defined as public
+      //You are allowed to read a message if you are the owner or if you belong to the list of parties to which the message has been posted.
       isOwnMessage(database, loggedInUser, resource).then(function (isOwn) {
         if (isOwn) {
           deferred.resolve(true);
@@ -96,7 +108,7 @@ exports = module.exports = function (sri4node, extra) {
             if (result.rows.length > 0) {
               deferred.resolve(true);
             } else {
-              deferred.resolve(false);
+              deferred.reject(false);
             }
           }).catch(function (e) {
             cl(e);
@@ -138,55 +150,51 @@ exports = module.exports = function (sri4node, extra) {
       } else {
         /* select the messages for which I'm not the author and for
         which I don't have the publishedToParty in my reacheable party graph and remove them*/
-        messageRefs = [];
-        messages.forEach(
-          function (message) {
-            messageRefs.push(message.key);
-          });
+        
         select = $u.prepareSQL();
         nonrecursive = $u.prepareSQL();
-        nonrecursive.sql('select distinct m.key as key, m.author as owner from messages m, ' +
-        'parties p, messageparties mp'
-        );
-//TODO: create correct filtering statement
-        nonrecursive.sql('select distinct c.key as key,p.key as owner from contactdetails c, ' +
-        'partycontactdetails pc, parties p where c.public = true and ' +
-        'pc.contactdetail=c.key and pc.party <>').param(me.key)
-        .sql('and c.key in (').array(keys).sql(')');
-
+    
+        nonrecursive.sql('SELECT m.key as key, mp."party" as target FROM messageparties mp, messagerelations mr, messages m where mp.message = m.key and m.key in(');
+        nonrecursive.array(keys).sql(')');
+        nonrecursive.sql(' and m.author <> ')
+        nonrecursive.param(me.key);
+        
         recursive = $u.prepareSQL();
-        recursive.sql('select s.key,r.to FROM partyrelations r, accesibleparties s ' +
-        'where r."from" = s.party and r.type = \'member\' and r.status=\'active\'');
+        recursive.sql('select s.key, r."from" from partyrelations r, accesibleparties s '+
+                      'where r."to" = s.target and r.type = \'member\' and r.status = \'active\' ');
+                      
+        select.with(nonrecursive, 'UNION', recursive, 'accesibleparties(key, target)');
 
-        select.with(nonrecursive, 'UNION', recursive, 'accesibleparties(key,party)');
-
-        select.sql('select distinct ac.key from accesibleparties ac')
-        .sql(' UNION ')
-        .sql('select distinct c.key from contactdetails c, partycontactdetails pc ' +
-        'where c.public = false and pc.contactdetail = c.key and pc.party <> ').param(me.key);
-
+        select.sql('select distinct ac.key from accesibleparties ac where ac.target =').param(me.key);
+        select.sql(' UNION select distinct key from messages m where m.author = ').param(me.key)
+        select.sql('and m.key in (').array(keys).sql(')');
+                
+        cl(keys);
         cl(select);
         $u.executeSQL(database, select).then(function (result) {
           cl(result.rows);
-          result.forEach(
+          cl(keyToElement);
+          if(result.rowCount >0){
+          result.rows.forEach(
               function (row) {
-                delete keyToElement[row.key];
+               keyToElement[row.key].keep = true;
               });
+          }
           elements = elements.filter(
             function (element) {
-              var value;
-              if (keyToElement[element.key]) {
-                value = true;
-              } else {
-                value = false;
-              }
-              return value;
+                if(!keyToElement[common.uuidFromPermalink(element.$$meta.permalink)].keep){
+                    for (var prop in element) { if (element.hasOwnProperty(prop)) { delete element[prop]; } }
+                    return false;
+                
+                }
+              return true;
             }
           );
+          cl(elements);
           deferred.resolve(elements);
         }).catch(function (e) {
           cl(e);
-          deferred.resolve(false);
+          deferred.reject(false);
         });
       }
       return deferred.promise;
@@ -262,6 +270,7 @@ exports = module.exports = function (sri4node, extra) {
     },
     validate: [],
     query: {
+     // accessibleBy: 
       postedInParties: common.filterRelatedManyToMany($u, 'messageparties', 'message', 'party'),
       postedInAncestorsOfParties: postedInAncestorsOfParties,
       postedInDescendantsOfParties: postedInDescendantsOfParties,
@@ -276,6 +285,7 @@ exports = module.exports = function (sri4node, extra) {
       defaultFilter: $q.defaultFilter
     },
     afterread: [
+      filterAccessible(),
       common.addRelatedManyToMany($u, 'messagetransactions', 'message', 'transaction',
                                   '/transactions', '$$transactions'),
       common.addRelatedManyToMany($u, 'messageparties', 'message', 'party',
