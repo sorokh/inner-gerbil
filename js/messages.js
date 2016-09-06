@@ -72,6 +72,20 @@ exports = module.exports = function (sri4node, extra) {
     return deferred.promise;
   }
 
+  function hasValidListQuery(request, me){
+    var deferred = Q.defer();
+    if((request.query.postedInPartiesReachableFromParties && request.query.postedInPartiesReachableFromParties != me.permalink)
+    || (request.query.postedByParties && request.query.postedInParties != me.permalink)
+    || request.query.postedByDescendantsOfParties
+    || request.query.postedInAncestorsOfParties
+    ){
+      deferred.resolve(false);
+    } else {
+      deferred.resolve(true);
+    }
+    return deferred.promise
+  }
+
   function checkReadAccessOnResource(request, response, database, me, resource) {
     var deferred = Q.defer();
     var q;
@@ -82,17 +96,18 @@ exports = module.exports = function (sri4node, extra) {
          deferred.resolve(true);
       } else {
         //TODO: check if it is not better to define new filter to get all messages that are accessible by the current logged on party.
-       if((request.query.postedInPartiesReachableFromParties 
-          && request.query.postedInPartiesReachableFromParties == me.permalink)
-          || (request.query.postedByParties 
-          && request.query.postedByParties == me.permalink)){
-          deferred.resolve(true);
-        } else {
-          deferred.reject('Only Sysadmin can access unlimted list resource!');
-        }
-        
+       hasValidListQuery(request, me).then(
+         function(isValid){
+           if(isValid){
+             deferred.resolve(true);
+           } else {
+             deferred.reject('Only Sysadmin can access unlimited list resource!');
+           }
+         }).catch(function(error){
+           debug(error);
+           deferred.reject('Only Sysadmin can access unlimited list resource!');
+         });
       }
-     
     } else {
       //You are allowed to read a message if you are the owner or if you belong to the list of parties to which the message has been posted.
       isOwnMessage(database, loggedInUser, resource).then(function (isOwn) {
@@ -270,7 +285,6 @@ exports = module.exports = function (sri4node, extra) {
     },
     validate: [],
     query: {
-     // accessibleBy: 
       postedInParties: common.filterRelatedManyToMany($u, 'messageparties', 'message', 'party'),
       postedInAncestorsOfParties: postedInAncestorsOfParties,
       postedInDescendantsOfParties: postedInDescendantsOfParties,

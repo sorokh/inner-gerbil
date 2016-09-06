@@ -124,10 +124,21 @@ exports = module.exports = {
     if (!config) {
       config = {};
     }
+    //TODO: what if batch is array!! see test case for list resources?
+    /*
+    Check if batch is array or not.
+    In case of array ?
+    Refactor such that resource is an array of resources and assure that
+    checks are done with array?
+    */
     if (batch) {
-      resource.key = common.uuidFromPermalink(batch.href);
-      resource.permalink = batch.href;
-      resource.type = batch.body.type || '/' + resource.permalink.split('/')[1];;
+      if(Array.isArray(batch)){
+        
+      }else{
+        resource.key = common.uuidFromPermalink(batch.href);
+        resource.permalink = batch.href;
+        resource.type = batch.body.type || '/' + resource.permalink.split('/')[1];
+      }
     } else {
       resource.key = request.params.key;
       resource.permalink = request.url;

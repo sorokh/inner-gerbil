@@ -22,7 +22,7 @@ exports = module.exports = function (base, logverbose) {
     }
   }
 
-  describe.only('/messages', function () {
+  describe('/messages', function () {
     describe('GET', function () {
       it('should allow full list retrieval.', function () {
         return doGet(common.hrefs.MESSAGES, anna.login, anna.password).then(function (response) {
@@ -101,7 +101,7 @@ exports = module.exports = function (base, logverbose) {
           });
       });
 
-      it('should support ?postedByDescendantsOfParties=LEBBEKE', function () {
+      it.only('should support ?postedByDescendantsOfParties=LEBBEKE', function () {
         return doGet(common.hrefs.MESSAGES + '?postedByDescendantsOfParties=' +
           common.hrefs.PARTY_LETSLEBBEKE, anna.login, anna.password).then(function (response) {
             debug(response.body);
