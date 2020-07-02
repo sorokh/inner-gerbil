@@ -21,7 +21,7 @@
     "uuid": "2.0.x",
     "csvtojson": "0.4.3",
     "moment": "2.10.x",
-    "bcrypt": "^0.8.5"
+    "bcrypt": "^5.0.0"
   },
   "engines": {
     "node": "4.8.4",
