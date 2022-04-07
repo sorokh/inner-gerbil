@@ -19,7 +19,7 @@
     "sri4node": "^1.2.7",
     "sri4node-client": "^1.0.1",
     "uuid": "2.0.x",
-    "csvtojson": "0.4.3",
+    "csvtojson": "1.1.0",
     "moment": "2.10.x",
     "bcrypt": "^0.8.5"
   },
