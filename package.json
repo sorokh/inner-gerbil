@@ -8,7 +8,9 @@
     "dev": "env $(cat .env) nodemon --debug=15454 --watch ./js js/server.js",
     "lint": "eslint js test",
     "start": "node js/server.js",
-    "createdb": "./create-database.sh"
+    "createdb": "./create-database.sh",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "compression": "1.5.2",
@@ -21,7 +23,8 @@
     "uuid": "2.0.x",
     "csvtojson": "0.4.3",
     "moment": "2.10.x",
-    "bcrypt": "^0.8.5"
+    "bcrypt": "^0.8.5",
+    "snyk": "^1.189.0"
   },
   "engines": {
     "node": "4.8.4",
@@ -48,5 +51,6 @@
     "nodemon": "1.7.0",
     "async": "^1.5.0",
     "node-uuid": "~1.4.3"
-  }
+  },
+  "snyk": true
 }
